@@ -1,0 +1,61 @@
+@layer base {
+  /* Ink is the default surface. <Surface tone="paper"> switches a region to paper. */
+  :root,
+  [data-surface='ink'] {
+    --surface-bg: var(--color-ink);
+    --surface-fg: var(--color-paper);
+    --surface-soft: var(--color-ink-soft);
+    --surface-accent: var(--color-pink);
+    --surface-focus: var(--color-pink);
+    --surface-line: color-mix(in srgb, var(--color-paper) 30%, transparent);
+    --surface-raised: var(--color-ink-2);
+  }
+
+  [data-surface='paper'] {
+    --surface-bg: var(--color-paper);
+    --surface-fg: var(--color-ink);
+    --surface-soft: var(--color-paper-soft);
+    --surface-accent: var(--color-pink-ink);
+    --surface-focus: var(--color-link-ink);
+    --surface-line: color-mix(in srgb, var(--color-ink) 25%, transparent);
+    --surface-raised: var(--color-paper-2);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--surface-bg);
+    color: var(--surface-fg);
+    font-family: var(--font-text);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--surface-focus);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-pink);
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

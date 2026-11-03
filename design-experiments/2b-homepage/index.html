@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Coverly, issue 07: the covers issue</title>
+    <script>
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('intro')
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#cover-title">Skip to the cover story</a>
+
+    <!-- Publication chrome: the same on every issue -->
+    <header class="bar" id="top">
+      <div class="bar-brand">
+        <p class="bar-dateline">
+          <span class="dl-long">Issue 07, November 2026</span><span class="dl-short">No. 07</span>
+        </p>
+        <a class="bar-logo" href="#top" aria-label="Coverly, back to the cover">Coverly</a>
+      </div>
+      <nav class="bar-nav" aria-label="Main">
+        <a href="#inside">Stories</a>
+        <a href="#">Discover</a>
+        <a href="#listen">Originals &amp; covers</a>
+        <a href="#">Artists</a>
+      </nav>
+      <div class="bar-utility">
+        <a class="icon-btn" href="#" aria-label="Search">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10.5" cy="10.5" r="6.5" />
+            <path d="M15.5 15.5 L21 21" />
+          </svg>
+        </a>
+        <a class="pill" href="#">Sign in</a>
+        <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu">
+          Menu
+        </button>
+      </div>
+    </header>
+
+    <div class="menu" id="menu" hidden>
+      <div class="menu-top">
+        <p class="menu-mark" aria-hidden="true">Coverly</p>
+        <button class="menu-close" type="button">Close</button>
+      </div>
+      <nav class="menu-nav" aria-label="Main">
+        <a href="#inside">Stories</a>
+        <a href="#">Discover</a>
+        <a href="#listen">Originals &amp; covers</a>
+        <a href="#">Artists</a>
+      </nav>
+      <div class="menu-utility">
+        <a class="pill" href="#">Sign in</a>
+        <a class="pill" href="#">Search</a>
+      </div>
+      <p class="menu-slug">Every song has another side.</p>
+    </div>
+
+    <main id="main">
+      <!-- 1. The cover. Masthead, frame and text are the publication; the artwork belongs to issue 07 only. -->
+      <section class="cover" aria-labelledby="cover-title">
+        <div class="field" aria-hidden="true"></div>
+
+        <svg class="art art-echoes" viewBox="0 0 1000 1300" aria-hidden="true">
+          <defs>
+            <path
+              id="head-shape"
+              d="M 560 150 C 690 150, 790 240, 798 380 C 806 500, 768 590, 700 660 C 668 692, 655 730, 660 790 C 664 830, 690 860, 760 885 C 880 930, 960 1050, 990 1300 L 1010 1700 L 100 1700 L 120 1300 C 140 1100, 230 975, 380 925 C 430 908, 452 885, 452 850 L 446 772 C 444 752, 432 740, 410 735 C 380 728, 345 722, 322 712 C 300 702, 284 688, 282 668 C 281 650, 288 636, 296 628 C 286 620, 274 612, 274 600 C 274 590, 282 584, 288 580 C 280 576, 268 570, 268 558 C 268 546, 278 532, 284 524 C 266 520, 238 512, 228 500 C 218 488, 222 472, 236 462 C 262 438, 286 410, 296 388 C 300 378, 296 366, 290 354 C 282 330, 290 270, 330 228 C 380 172, 470 150, 560 150 Z"
+            />
+            <path id="band-shape" d="M 604 380 C 610 290, 604 205, 588 150" />
+            <rect
+              id="cup-shape"
+              x="528"
+              y="365"
+              width="148"
+              height="210"
+              rx="64"
+              transform="rotate(-8 602 470)"
+            />
+            <g id="silhouette">
+              <use href="#head-shape" fill="currentColor" />
+              <use
+                href="#band-shape"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="44"
+                stroke-linecap="round"
+              />
+              <use href="#cup-shape" fill="currentColor" />
+            </g>
+          </defs>
+          <!-- One echo per cover, nearest first: 2004, 2011, 2016, 2019, 2022 -->
+          <g class="echoes">
+            <use class="echo" href="#silhouette" style="--i: 5" />
+            <use class="echo" href="#silhouette" style="--i: 4" />
+            <use class="echo" href="#silhouette" style="--i: 3" />
+            <use class="echo" href="#silhouette" style="--i: 2" />
+            <use class="echo" href="#silhouette" style="--i: 1" />
+          </g>
+        </svg>
+
+        <h1 class="wordmark">
+          <span class="sr-only">Coverly</span>
+          <span class="letters" aria-hidden="true">
+            <span class="l"><span class="a">C</span><span class="b">C</span></span
+            ><span class="l"><span class="a">O</span><span class="b">O</span></span
+            ><span class="l"><span class="a">V</span><span class="b">V</span></span
+            ><span class="l"><span class="a">E</span><span class="b">E</span></span
+            ><span class="l"><span class="a">R</span><span class="b">R</span></span
+            ><span class="l"><span class="a">L</span><span class="b">L</span></span
+            ><span class="l"><span class="a">Y</span><span class="b">Y</span></span>
+          </span>
+        </h1>
+        <p class="slug">Every song has another side</p>
+
+        <svg class="art art-ring art-ring-back" viewBox="0 0 1000 1300" aria-hidden="true">
+          <defs>
+            <path id="orbit" d="M -20 580 A 560 135 0 1 0 1100 580 A 560 135 0 1 0 -20 580" />
+            <path id="orbit-front" d="M -20 580 A 560 135 0 0 0 1100 580" />
+            <clipPath id="back-half">
+              <rect x="-2000" y="-2000" width="5000" height="2580" />
+            </clipPath>
+            <clipPath id="front-half">
+              <rect x="-2000" y="580" width="5000" height="3000" />
+            </clipPath>
+            <path
+              id="spark"
+              d="M 0 -1 C 0.12 -0.12 0.12 -0.12 1 0 C 0.12 0.12 0.12 0.12 0 1 C -0.12 0.12 -0.12 0.12 -1 0 C -0.12 -0.12 -0.12 -0.12 0 -1 Z"
+            />
+          </defs>
+          <g transform="rotate(-15 540 580)" clip-path="url(#back-half)">
+            <use class="orbit-line" href="#orbit" />
+            <use class="satellite" href="#spark" />
+          </g>
+        </svg>
+
+        <svg class="art art-figure" viewBox="0 0 1000 1300" aria-hidden="true">
+          <defs>
+            <clipPath id="head-clip"><use href="#head-shape" /></clipPath>
+          </defs>
+          <!-- A hard offset shadow lifts the paper cut-out off its echoes -->
+          <g class="lift" transform="translate(18 16)">
+            <use href="#head-shape" />
+            <use href="#band-shape" fill="none" stroke-width="60" stroke-linecap="round" />
+          </g>
+          <use class="cut-band" href="#band-shape" stroke-width="60" stroke-linecap="round" />
+          <use class="cut-cup" href="#cup-shape" stroke-width="16" />
+          <use class="figure-fill" href="#head-shape" />
+          <g clip-path="url(#head-clip)">
+            <g class="halftone"></g>
+            <path
+              class="hair"
+              d="M 282 300 C 330 286, 420 282, 482 322 C 534 356, 560 404, 576 470 C 592 540, 640 602, 706 662 L 1000 662 L 1000 0 L 200 0 Z"
+            />
+          </g>
+          <path class="face-line" d="M 304 386 Q 330 374 362 383" stroke-width="9" />
+          <path class="face-line" d="M 306 418 Q 331 436 358 420" stroke-width="7" />
+          <use class="phones-band" href="#band-shape" stroke-width="44" stroke-linecap="round" />
+          <use class="phones-cup" href="#cup-shape" />
+          <rect
+            class="pad"
+            x="515"
+            y="388"
+            width="66"
+            height="166"
+            rx="32"
+            transform="rotate(-8 602 470)"
+          />
+        </svg>
+
+        <svg class="art art-ring art-ring-front" viewBox="0 0 1000 1300" aria-hidden="true">
+          <!-- The song's life, orbiting the listener: the original and its five covers -->
+          <g transform="rotate(-15 540 580)">
+            <g clip-path="url(#front-half)">
+              <use class="orbit-line" href="#orbit" />
+              <use class="satellite" href="#spark" />
+            </g>
+            <text class="ring">
+              <textPath href="#orbit-front" startOffset="43%" text-anchor="middle">
+                1998 2004 2011 2016 2019 2022
+              </textPath>
+            </text>
+          </g>
+          <use class="spark" href="#spark" transform="translate(150 270) scale(30)" />
+          <use class="spark" href="#spark" transform="translate(110 840) scale(15)" />
+        </svg>
+
+        <div class="story">
+          <p class="kicker">Cover story</p>
+          <h2 id="cover-title" class="headline">
+            <span class="hl-line">Nobody bought it.</span> Five artists covered it anyway.
+          </h2>
+          <p class="dek">
+            <strong>Paper Satellites</strong> sold 900 copies in 1998. Since then it has come back
+            as dub, cumbia, garage punk, synthwave and solo piano. We followed the song to every one
+            of its other sides.
+          </p>
+          <div class="actions">
+            <a class="btn" href="#listen">
+              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 5.5 L19 12 L8 18.5 Z" />
+              </svg>
+              Explore the six versions
+            </a>
+            <a class="link" href="#inside">Read the cover story</a>
+          </div>
+        </div>
+
+        <div class="annotation" aria-hidden="true">
+          <svg viewBox="0 0 90 70">
+            <path d="M 70 64 C 70 34, 52 14, 16 10" />
+            <path d="M 30 0 L 15 10 L 28 22" />
+          </svg>
+          <p>five covers,<br />one original</p>
+        </div>
+
+        <ul class="coverlines" aria-label="Also in this issue">
+          <li>
+            <span class="cl-kind">Interview</span>
+            <a href="#inside">What makes a cover yours? Five artists answer</a>
+            <span class="cl-meta">12 min read</span>
+          </li>
+          <li>
+            <span class="cl-kind">Discover</span>
+            <a href="#">Cumbia remakes of 90s indie, a starter crate</a>
+            <span class="cl-meta">10 songs</span>
+          </li>
+          <li>
+            <span class="cl-kind">Essay</span>
+            <a href="#inside">In defense of the karaoke version</a>
+            <span class="cl-meta">6 min read</span>
+          </li>
+        </ul>
+      </section>
+
+      <div class="dissolve" aria-hidden="true"></div>
+
+      <!-- 2. Reading happens on paper -->
+      <section class="inside" id="inside" aria-labelledby="inside-title">
+        <header class="section-head">
+          <h2 id="inside-title">Inside issue 07</h2>
+          <p>
+            The covers issue. One forgotten song, five reinventions, and the people who made them.
+          </p>
+        </header>
+
+        <div class="cards">
+          <article class="card card--interview">
+            <div class="card-art art-question">
+              <svg class="question" viewBox="0 0 700 460" aria-hidden="true">
+                <g class="q-echoes">
+                  <text class="q-echo" style="--i: 5" x="500" y="420">?</text>
+                  <text class="q-echo" style="--i: 4" x="500" y="420">?</text>
+                  <text class="q-echo" style="--i: 3" x="500" y="420">?</text>
+                  <text class="q-echo" style="--i: 2" x="500" y="420">?</text>
+                  <text class="q-echo" style="--i: 1" x="500" y="420">?</text>
+                </g>
+                <text class="q-front" x="500" y="420">?</text>
+              </svg>
+              <ul class="voices" aria-label="Interviewed">
+                <li style="--v: var(--v1)">Okonkwo Sound System</li>
+                <li style="--v: var(--v2)">Las Hermanas Vela</li>
+                <li style="--v: var(--v3)">The Low Ceilings</li>
+                <li style="--v: var(--v4)">Ghost Arcade</li>
+                <li style="--v: var(--v5)">Pia Stratton</li>
+              </ul>
+              <figure class="quote">
+                <blockquote>Keep the bones. Change the room it lives in.</blockquote>
+                <figcaption>Pia Stratton, who covered it on solo piano</figcaption>
+              </figure>
+            </div>
+            <div class="card-body">
+              <p class="format">Interview</p>
+              <h3>
+                <a class="card-link" href="#">What makes a cover yours? Five artists answer</a>
+              </h3>
+              <p class="card-dek">
+                We asked everyone who covered Paper Satellites the same question. Their answers
+                disagree in the best way.
+              </p>
+              <p class="card-meta">12 min read</p>
+            </div>
+          </article>
+
+          <article class="card card--essay">
+            <div class="card-art art-karaoke" aria-hidden="true">
+              <p class="k-time">♪ Track 07, 2:14</p>
+              <div class="k-lyrics">
+                <span class="k-ball"></span>
+                <p class="k-line k-line--1">And the paper satellites</p>
+                <p class="k-line k-line--2">fall into the sea</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <p class="format">Essay</p>
+              <h3><a class="card-link" href="#">In defense of the karaoke version</a></h3>
+              <p class="card-dek">
+                The least cool cover of all might be the most honest one. A case for singing badly,
+                loudly and in public.
+              </p>
+              <p class="card-meta">6 min read</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <div class="dissolve dissolve--up" aria-hidden="true"></div>
+
+      <!-- 3. Listening happens on ink -->
+      <section class="listen" id="listen" aria-labelledby="listen-title">
+        <header class="listen-head">
+          <p class="listen-label">Originals &amp; covers</p>
+          <h2 id="listen-title">Paper Satellites, six ways</h2>
+          <p class="listen-desc">
+            One original from 1998 and the five covers it inspired, in the order they were recorded.
+            21 minutes of music in all.
+          </p>
+          <p class="legend" aria-hidden="true">
+            <span class="tag tag--genre">Genre</span>
+            <span class="tag tag--style">Performance style</span>
+          </p>
+        </header>
+
+        <div class="versions">
+          <article class="original" data-track="original" style="--v: var(--pink)">
+            <div class="sleeve sleeve--big" aria-hidden="true"><span>98</span></div>
+            <div class="original-text">
+              <p class="v-role">The original</p>
+              <h3>Paper Satellites</h3>
+              <p class="v-artist">Junie Marlowe, 1998</p>
+              <ul class="tags" aria-label="Labels">
+                <li class="tag tag--genre"><span class="sr-only">Genre: </span>Lo-fi indie pop</li>
+                <li class="tag tag--style"><span class="sr-only">Style: </span>Four-track demo</li>
+              </ul>
+            </div>
+            <button class="play-big" type="button" data-play="original" aria-pressed="false">
+              <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 5.5 L19 12 L8 18.5 Z" />
+              </svg>
+              <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z" />
+              </svg>
+              <span class="play-label">Play the original</span>
+              <span class="play-len">2:51</span>
+            </button>
+          </article>
+
+          <ol class="covers" aria-label="Covers, in the order they were recorded">
+            <li class="row" data-track="okonkwo" style="--v: var(--v1)">
+              <p class="row-year">2004</p>
+              <div class="sleeve" aria-hidden="true"><span>04</span></div>
+              <div class="row-main">
+                <h3 class="row-artist">Okonkwo Sound System</h3>
+                <p class="row-note">Half the tempo, all the echo.</p>
+              </div>
+              <ul class="tags" aria-label="Labels">
+                <li class="tag tag--genre"><span class="sr-only">Genre: </span>Dub</li>
+                <li class="tag tag--style"><span class="sr-only">Style: </span>Half-time</li>
+              </ul>
+              <p class="row-len">5:12</p>
+              <button
+                class="play"
+                type="button"
+                data-play="okonkwo"
+                aria-pressed="false"
+                aria-label="Play Okonkwo Sound System's version, 5 minutes 12"
+              >
+                <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 5.5 L19 12 L8 18.5 Z" />
+                </svg>
+                <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z" />
+                </svg>
+              </button>
+            </li>
+            <li class="row" data-track="vela" style="--v: var(--v2)">
+              <p class="row-year">2011</p>
+              <div class="sleeve" aria-hidden="true"><span>11</span></div>
+              <div class="row-main">
+                <h3 class="row-artist">Las Hermanas Vela</h3>
+                <p class="row-note">
+                  Sung in Spanish as <span lang="es">“Satélites de papel”</span>.
+                </p>
+              </div>
+              <ul class="tags" aria-label="Labels">
+                <li class="tag tag--genre"><span class="sr-only">Genre: </span>Cumbia</li>
+                <li class="tag tag--style"><span class="sr-only">Style: </span>Translated</li>
+              </ul>
+              <p class="row-len">3:40</p>
+              <button
+                class="play"
+                type="button"
+                data-play="vela"
+                aria-pressed="false"
+                aria-label="Play Las Hermanas Vela's version, 3 minutes 40"
+              >
+                <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 5.5 L19 12 L8 18.5 Z" />
+                </svg>
+                <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z" />
+                </svg>
+              </button>
+            </li>
+            <li class="row" data-track="ceilings" style="--v: var(--v3)">
+              <p class="row-year">2016</p>
+              <div class="sleeve" aria-hidden="true"><span>16</span></div>
+              <div class="row-main">
+                <h3 class="row-artist">The Low Ceilings</h3>
+                <p class="row-note">Twice as fast, recorded in one take.</p>
+              </div>
+              <ul class="tags" aria-label="Labels">
+                <li class="tag tag--genre"><span class="sr-only">Genre: </span>Garage punk</li>
+                <li class="tag tag--style"><span class="sr-only">Style: </span>Live</li>
+              </ul>
+              <p class="row-len">1:58</p>
+              <button
+                class="play"
+                type="button"
+                data-play="ceilings"
+                aria-pressed="false"
+                aria-label="Play The Low Ceilings' version, 1 minute 58"
+              >
+                <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 5.5 L19 12 L8 18.5 Z" />
+                </svg>
+                <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z" />
+                </svg>
+              </button>
+            </li>
+            <li class="row" data-track="arcade" style="--v: var(--v4)">
+              <p class="row-year">2019</p>
+              <div class="sleeve" aria-hidden="true"><span>19</span></div>
+              <div class="row-main">
+                <h3 class="row-artist">Ghost Arcade</h3>
+                <p class="row-note">Drum machines and a vocoder chorus.</p>
+              </div>
+              <ul class="tags" aria-label="Labels">
+                <li class="tag tag--genre"><span class="sr-only">Genre: </span>Synthwave</li>
+                <li class="tag tag--style"><span class="sr-only">Style: </span>Electronic</li>
+              </ul>
+              <p class="row-len">4:05</p>
+              <button
+                class="play"
+                type="button"
+                data-play="arcade"
+                aria-pressed="false"
+                aria-label="Play Ghost Arcade's version, 4 minutes 5"
+              >
+                <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 5.5 L19 12 L8 18.5 Z" />
+                </svg>
+                <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z" />
+                </svg>
+              </button>
+            </li>
+            <li class="row" data-track="stratton" style="--v: var(--v5)">
+              <p class="row-year">2022</p>
+              <div class="sleeve" aria-hidden="true"><span>22</span></div>
+              <div class="row-main">
+                <h3 class="row-artist">Pia Stratton</h3>
+                <p class="row-note">No words, all melody.</p>
+              </div>
+              <ul class="tags" aria-label="Labels">
+                <li class="tag tag--genre"><span class="sr-only">Genre: </span>Solo piano</li>
+                <li class="tag tag--style"><span class="sr-only">Style: </span>Instrumental</li>
+              </ul>
+              <p class="row-len">3:27</p>
+              <button
+                class="play"
+                type="button"
+                data-play="stratton"
+                aria-pressed="false"
+                aria-label="Play Pia Stratton's version, 3 minutes 27"
+              >
+                <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 5.5 L19 12 L8 18.5 Z" />
+                </svg>
+                <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z" />
+                </svg>
+              </button>
+            </li>
+          </ol>
+        </div>
+
+        <div class="player is-idle" role="region" aria-label="Player">
+          <button class="player-toggle" type="button" aria-label="Play" disabled>
+            <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5.5 L19 12 L8 18.5 Z" />
+            </svg>
+            <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z" />
+            </svg>
+          </button>
+          <div class="player-info">
+            <p class="player-title">Choose a version to start listening.</p>
+            <p class="player-sub">Play buttons are a prototype: no audio yet.</p>
+          </div>
+          <div class="player-progress">
+            <span class="player-time">0:00</span>
+            <span class="player-bar"><span></span></span>
+            <span class="player-len">0:00</span>
+          </div>
+          <button class="player-compare" type="button" aria-pressed="false" disabled>
+            Compare with the original
+          </button>
+          <p class="sr-only" aria-live="polite" id="player-status"></p>
+        </div>
+      </section>
+
+      <div class="dissolve" aria-hidden="true"></div>
+
+      <!-- 4. Every issue gets new artwork; the publication stays recognizable -->
+      <section class="back-issues" aria-labelledby="issues-title">
+        <header class="section-head">
+          <h2 id="issues-title">Back issues</h2>
+          <p>Every issue gets a new cover. The masthead, the type and the echoes stay the same.</p>
+        </header>
+        <ul class="issues">
+          <li class="issue">
+            <a class="mini" href="#top" aria-label="Issue 07, the covers issue, November 2026">
+              <svg class="mini-art" viewBox="0 0 1000 1300" aria-hidden="true">
+                <g class="echoes">
+                  <use class="echo" href="#silhouette" style="--i: 5" />
+                  <use class="echo" href="#silhouette" style="--i: 4" />
+                  <use class="echo" href="#silhouette" style="--i: 3" />
+                  <use class="echo" href="#silhouette" style="--i: 2" />
+                  <use class="echo" href="#silhouette" style="--i: 1" />
+                </g>
+              </svg>
+              <span class="mini-mast" aria-hidden="true">COVERLY</span>
+              <svg class="mini-art" viewBox="0 0 1000 1300" aria-hidden="true">
+                <use class="cut-band" href="#band-shape" stroke-width="60" stroke-linecap="round" />
+                <use class="figure-fill" href="#head-shape" />
+                <use class="mini-hair" href="#mini-hair" />
+                <use
+                  class="phones-band"
+                  href="#band-shape"
+                  stroke-width="44"
+                  stroke-linecap="round"
+                />
+                <use class="phones-cup" href="#cup-shape" />
+              </svg>
+              <span class="mini-no" aria-hidden="true">No. 07</span>
+              <span class="mini-line" aria-hidden="true"
+                >Nobody bought it. Five artists covered it anyway.</span
+              >
+            </a>
+            <p class="issue-cap"><b>No. 07</b> The covers issue, November 2026</p>
+          </li>
+          <li class="issue">
+            <a
+              class="mini mini--tapes"
+              href="#"
+              aria-label="Issue 06, the bedroom tapes issue, October 2026"
+            >
+              <svg class="mini-art mini-art--full" viewBox="0 0 300 400" aria-hidden="true">
+                <defs>
+                  <rect id="tape-body" x="-112" y="-70" width="224" height="140" rx="16" />
+                </defs>
+                <circle class="tape-sun" cx="190" cy="250" r="118" />
+                <g transform="translate(160 268) rotate(-14)">
+                  <use class="tape-echo" href="#tape-body" style="--i: 4" />
+                  <use class="tape-echo" href="#tape-body" style="--i: 3" />
+                  <use class="tape-echo" href="#tape-body" style="--i: 2" />
+                  <use class="tape-echo" href="#tape-body" style="--i: 1" />
+                  <use class="tape-front" href="#tape-body" />
+                  <rect class="tape-label" x="-92" y="-56" width="184" height="58" rx="6" />
+                  <rect class="tape-window" x="-58" y="10" width="116" height="38" rx="19" />
+                  <circle class="tape-reel" cx="-38" cy="29" r="14" />
+                  <circle class="tape-reel" cx="38" cy="29" r="14" />
+                </g>
+              </svg>
+              <span class="mini-mast mini-mast--front" aria-hidden="true">COVERLY</span>
+              <span class="mini-no" aria-hidden="true">No. 06</span>
+              <span class="mini-line" aria-hidden="true">Twelve covers recorded at home</span>
+            </a>
+            <p class="issue-cap"><b>No. 06</b> The bedroom tapes issue, October 2026</p>
+          </li>
+          <li class="issue">
+            <a
+              class="mini mini--loud"
+              href="#"
+              aria-label="Issue 05, the louder issue, September 2026"
+            >
+              <svg class="mini-art mini-art--full" viewBox="0 0 300 400" aria-hidden="true">
+                <defs>
+                  <text id="loud-word" x="150" y="300" text-anchor="middle">loud</text>
+                </defs>
+                <polygon
+                  class="loud-burst"
+                  points="150,120 166,176 214,140 194,196 252,190 206,226 256,258 198,262 222,316 172,284 160,342 140,288 98,326 116,270 58,276 104,240 54,208 112,204 86,150 136,176"
+                />
+              </svg>
+              <span class="mini-mast" aria-hidden="true">COVERLY</span>
+              <svg class="mini-art mini-art--full" viewBox="0 0 300 400" aria-hidden="true">
+                <use class="loud-echo" href="#loud-word" style="--i: 4" />
+                <use class="loud-echo" href="#loud-word" style="--i: 3" />
+                <use class="loud-echo" href="#loud-word" style="--i: 2" />
+                <use class="loud-echo" href="#loud-word" style="--i: 1" />
+                <use class="loud-front" href="#loud-word" />
+              </svg>
+              <span class="mini-no" aria-hidden="true">No. 05</span>
+              <span class="mini-line" aria-hidden="true">Why the loudest version always wins</span>
+            </a>
+            <p class="issue-cap"><b>No. 05</b> The louder issue, September 2026</p>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <div class="dissolve dissolve--up" aria-hidden="true"></div>
+
+    <footer class="footer">
+      <p class="footer-mark">Coverly</p>
+      <p class="footer-slug">Every song has another side.</p>
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="#inside">Stories</a>
+        <a href="#">Discover</a>
+        <a href="#listen">Originals &amp; covers</a>
+        <a href="#">Artists</a>
+        <a href="spec.html">Design language</a>
+      </nav>
+      <p class="footer-note">
+        Prototype with placeholder content. All artists, songs and stories are fictional.
+      </p>
+    </footer>
+
+    <svg width="0" height="0" aria-hidden="true" style="position: absolute">
+      <defs>
+        <path
+          id="mini-hair"
+          d="M 290 300 C 330 286, 420 282, 482 322 C 534 356, 560 404, 576 470 C 592 540, 640 602, 706 662 C 760 600, 800 500, 798 380 C 790 240, 690 150, 560 150 C 470 150, 380 172, 330 228 C 300 262, 288 284, 290 300 Z"
+        />
+      </defs>
+    </svg>
+
+    <script src="main.js"></script>
+  </body>
+</html>

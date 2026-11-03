@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Coverly design language, Electric Pop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body {
+        background: var(--paper);
+        color: var(--on-paper);
+      }
+      .spec {
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: var(--s-7) var(--margin) var(--s-9);
+      }
+      .spec-head {
+        margin-bottom: var(--s-8);
+      }
+      .spec-head .spec-mark {
+        max-width: none;
+        margin: 0;
+        color: var(--on-paper);
+        font-family: var(--heading);
+        font-weight: 800;
+        font-stretch: 88%;
+        font-size: clamp(3.5rem, 10vw, 7rem);
+        line-height: 0.8;
+        letter-spacing: -0.04em;
+        text-transform: uppercase;
+      }
+      .spec-head h1 {
+        margin-top: var(--s-5);
+        font-family: var(--heading);
+        font-weight: 760;
+        font-stretch: 84%;
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+      .spec-head p {
+        max-width: 60ch;
+        margin-top: var(--s-4);
+        color: var(--on-paper-soft);
+        font-size: 1.125rem;
+      }
+      .spec-head a,
+      .spec a {
+        color: var(--on-paper-link);
+      }
+      .spec :focus-visible {
+        outline-color: var(--on-paper-link);
+      }
+      .spec section {
+        padding: var(--s-7) 0;
+        border-top: 2px solid var(--ink);
+      }
+      .spec h2 {
+        margin-bottom: var(--s-5);
+        font-family: var(--heading);
+        font-weight: 760;
+        font-stretch: 84%;
+        font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+      .spec h3 {
+        margin: var(--s-5) 0 var(--s-3);
+        font-family: var(--heading);
+        font-weight: 700;
+        font-stretch: 90%;
+        font-size: 1.3rem;
+      }
+      .spec p,
+      .spec li {
+        max-width: 68ch;
+      }
+      .spec ul,
+      .spec ol {
+        margin: 0;
+        padding-left: 1.2rem;
+      }
+      .spec li + li {
+        margin-top: 0.4rem;
+      }
+      .principles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+        gap: var(--s-5);
+        padding: 0 !important;
+        list-style: none;
+      }
+      .principles li {
+        margin: 0 !important;
+        padding: var(--s-4) var(--s-4) var(--s-5);
+        border-radius: 14px;
+        background: var(--ink);
+        color: var(--on-ink);
+      }
+      .principles b {
+        display: block;
+        margin-bottom: var(--s-2);
+        font-family: var(--heading);
+        font-weight: 740;
+        font-stretch: 88%;
+        font-size: 1.35rem;
+        line-height: 1.05;
+      }
+      .principles span {
+        color: var(--on-ink-soft);
+        font-size: 0.9375rem;
+      }
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+        gap: var(--s-4);
+        margin: 0;
+        padding: 0 !important;
+        list-style: none;
+      }
+      .swatches li {
+        margin: 0 !important;
+        overflow: hidden;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+      }
+      .chip {
+        height: 4.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      .swatches div:last-child {
+        padding: 0.6rem 0.75rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.35;
+      }
+      .swatches b {
+        display: block;
+        font-size: 0.9375rem;
+      }
+      .swatches code {
+        color: var(--on-paper-soft);
+      }
+      .ramp {
+        display: flex;
+        overflow: hidden;
+        max-width: 40rem;
+        border-radius: 12px;
+      }
+      .ramp span {
+        flex: 1;
+        padding: 1.6rem 0.5rem 0.5rem;
+        color: var(--ink);
+        font-size: 0.8125rem;
+        font-weight: 650;
+      }
+      .ramp span:first-child {
+        flex: 1.3;
+      }
+      table {
+        width: 100%;
+        max-width: 64rem;
+        border-collapse: collapse;
+        font-size: 0.9375rem;
+      }
+      th,
+      td {
+        padding: 0.6rem 0.75rem 0.6rem 0;
+        border-bottom: 1px solid var(--paper-2);
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        font-weight: 700;
+      }
+      td code,
+      .spec p code,
+      .spec li code {
+        font-size: 0.875rem;
+      }
+      .pair {
+        display: inline-block;
+        min-width: 4.5rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 6px;
+        font-weight: 650;
+      }
+      .scroll {
+        overflow-x: auto;
+      }
+      .type-sample {
+        display: grid;
+        grid-template-columns: 15rem minmax(0, 1fr);
+        gap: var(--s-5);
+        align-items: center;
+        padding: var(--s-4) 0;
+        border-bottom: 1px solid var(--paper-2);
+      }
+      .type-sample p {
+        font-size: 0.9375rem;
+        color: var(--on-paper-soft);
+      }
+      .type-sample b {
+        display: block;
+        color: var(--on-paper);
+        font-size: 1rem;
+      }
+      .s-bagel {
+        font-family: var(--display);
+        font-size: 2.6rem;
+        line-height: 1.05;
+        color: var(--on-paper-accent);
+      }
+      .s-bricolage {
+        font-family: var(--heading);
+        font-weight: 760;
+        font-stretch: 84%;
+        font-size: 2.6rem;
+        line-height: 1;
+        letter-spacing: -0.025em;
+      }
+      .s-schibsted {
+        max-width: 60ch;
+        font-size: 1.125rem;
+        line-height: 1.6;
+      }
+      @media (max-width: 720px) {
+        .type-sample {
+          grid-template-columns: minmax(0, 1fr);
+          gap: var(--s-2);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="spec">
+      <header class="spec-head">
+        <p class="spec-mark" aria-hidden="true">Coverly</p>
+        <h1>Design language: Electric Pop</h1>
+        <p>
+          A proposal drawn from the Phase 2B homepage prototype. Values here are starting points for
+          the production design system, not final tokens.
+          <a href="index.html">See the prototype</a>.
+        </p>
+      </header>
+
+      <section aria-labelledby="principles">
+        <h2 id="principles">Principles</h2>
+        <ul class="principles">
+          <li>
+            <b>Reading happens on paper; listening happens on ink.</b>
+            <span
+              >Stories and long-form sit on warm paper. Covers, players and exploration sit on
+              ink.</span
+            >
+          </li>
+          <li>
+            <b>Every version has a color.</b>
+            <span
+              >The original is always hot pink. Covers take the turquoise-to-blue ramp in the order
+              they were recorded.</span
+            >
+          </li>
+          <li>
+            <b>The publication stays; the artwork changes.</b>
+            <span
+              >Masthead, frame, type, palette and devices are constant. Each issue gets entirely new
+              art.</span
+            >
+          </li>
+          <li>
+            <b>One loud thing per screen.</b>
+            <span
+              >Artwork carries the energy. Everything around it is calm, gridded and readable.</span
+            >
+          </li>
+          <li>
+            <b>Print logic, not glow.</b>
+            <span
+              >Flat inks, halftone, cut-outs and grain. No gradients for decoration, no neon
+              glows.</span
+            >
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="color">
+        <h2 id="color">Color</h2>
+        <h3>Fields</h3>
+        <ul class="swatches">
+          <li>
+            <div class="chip" style="background: #15121d"></div>
+            <div><b>Ink</b><code>#15121D</code> Covers, listening, footer</div>
+          </li>
+          <li>
+            <div class="chip" style="background: #1f1a2b"></div>
+            <div><b>Ink 2</b><code>#1F1A2B</code> Raised surfaces on ink</div>
+          </li>
+          <li>
+            <div class="chip" style="background: #2c2640"></div>
+            <div><b>Ink 3</b><code>#2C2640</code> Lines, tracks, idle controls</div>
+          </li>
+          <li>
+            <div class="chip" style="background: #f6f1eb"></div>
+            <div><b>Paper</b><code>#F6F1EB</code> Reading surface; type on ink</div>
+          </li>
+          <li>
+            <div class="chip" style="background: #ebe3d8"></div>
+            <div><b>Paper 2</b><code>#EBE3D8</code> Shade and shadows on paper</div>
+          </li>
+        </ul>
+        <h3>Inks</h3>
+        <ul class="swatches">
+          <li>
+            <div class="chip" style="background: #ff3e8f"></div>
+            <div><b>Hot pink</b><code>#FF3E8F</code> Primary: actions, originals, highlights</div>
+          </li>
+          <li>
+            <div class="chip" style="background: #3159ff"></div>
+            <div><b>Electric blue</b><code>#3159FF</code> Secondary: far echoes, screens, rays</div>
+          </li>
+          <li>
+            <div class="chip" style="background: #1ed6c1"></div>
+            <div>
+              <b>Turquoise</b><code>#1ED6C1</code> Tertiary: near echoes, labels on ink, comparison
+            </div>
+          </li>
+          <li>
+            <div class="chip" style="background: #221a4d"></div>
+            <div><b>Indigo</b><code>#221A4D</code> Halftone, hair, shadow plates</div>
+          </li>
+        </ul>
+        <h3>Version colors</h3>
+        <div
+          class="ramp"
+          aria-label="Original pink, then five covers from turquoise to electric blue"
+        >
+          <span style="background: var(--pink)">Original</span>
+          <span style="background: var(--v1)">1st cover</span>
+          <span style="background: var(--v2)">2nd</span>
+          <span style="background: var(--v3)">3rd</span>
+          <span style="background: var(--v4)">4th</span>
+          <span style="background: var(--v5)">5th</span>
+        </div>
+        <p style="margin-top: var(--s-3)">
+          The ramp is mixed in OKLCH between turquoise and electric blue. The same color marks a
+          version everywhere: its echo on the cover, its dot and bar in the family tree, its sleeve,
+          and its voice in the interview art. With more than five covers, the ramp is resampled.
+        </p>
+        <h3>Text-safe pairs</h3>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Text</th>
+                <th>On</th>
+                <th>Contrast</th>
+                <th>Use for</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="pair" style="background: #15121d; color: #f6f1eb">Paper</span></td>
+                <td>Ink</td>
+                <td>16.5</td>
+                <td>All text on ink</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="pair" style="background: #15121d; color: #cfc8dc">#CFC8DC</span>
+                </td>
+                <td>Ink</td>
+                <td>11.4</td>
+                <td>Secondary text on ink</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="pair" style="background: #15121d; color: #ff3e8f">Hot pink</span>
+                </td>
+                <td>Ink</td>
+                <td>5.6</td>
+                <td>Labels and kickers on ink</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="pair" style="background: #15121d; color: #1ed6c1">Turquoise</span>
+                </td>
+                <td>Ink</td>
+                <td>10.1</td>
+                <td>Section labels, comparison control</td>
+              </tr>
+              <tr>
+                <td><span class="pair" style="background: #f6f1eb; color: #15121d">Ink</span></td>
+                <td>Paper</td>
+                <td>16.5</td>
+                <td>All text on paper</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="pair" style="background: #f6f1eb; color: #4d4757">#4D4757</span>
+                </td>
+                <td>Paper</td>
+                <td>7.9</td>
+                <td>Secondary text on paper</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="pair" style="background: #f6f1eb; color: #c8125e">#C8125E</span>
+                </td>
+                <td>Paper</td>
+                <td>5.1</td>
+                <td>Pink labels on paper (format names)</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="pair" style="background: #f6f1eb; color: #2342d9">#2342D9</span>
+                </td>
+                <td>Paper</td>
+                <td>6.6</td>
+                <td>Links and focus on paper</td>
+              </tr>
+              <tr>
+                <td><span class="pair" style="background: #ff3e8f; color: #15121d">Ink</span></td>
+                <td>Hot pink</td>
+                <td>5.6</td>
+                <td>Primary buttons</td>
+              </tr>
+              <tr>
+                <td><span class="pair" style="background: #3159ff; color: #f6f1eb">Paper</span></td>
+                <td>Blue</td>
+                <td>4.7</td>
+                <td>Large text on blue panels</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul style="margin-top: var(--s-4)">
+          <li>
+            Never set hot pink #FF3E8F as text on paper (2.9:1), or electric blue as small text on
+            ink (3.5:1).
+          </li>
+          <li>
+            Accents are inks, not fields: no accent covers more than about a quarter of a screen.
+            Fields are ink or paper.
+          </li>
+          <li>Yellow is not part of the palette.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="type">
+        <h2 id="type">Typography</h2>
+        <div class="type-sample">
+          <p>
+            <b>Bagel Fat One</b>Lettering, the B-side. Wordmark flip side, orbit years, annotations,
+            glyph art.
+          </p>
+          <div class="s-bagel">every song has another side</div>
+        </div>
+        <div class="type-sample">
+          <p>
+            <b>Bricolage Grotesque</b>Headings, the A-side. Variable weight, width and optical size.
+          </p>
+          <div class="s-bricolage">Nobody bought it. Five artists covered it anyway.</div>
+        </div>
+        <div class="type-sample">
+          <p>
+            <b>Schibsted Grotesk</b>Reading and interface. Body, summaries, navigation, buttons,
+            labels, metadata.
+          </p>
+          <div class="s-schibsted">
+            Paper Satellites sold 900 copies in 1998. Since then it has come back as dub, cumbia,
+            garage punk, synthwave and solo piano.
+            <i>We followed the song to every one of its other sides.</i>
+          </div>
+        </div>
+        <h3>Scale</h3>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Face</th>
+                <th>Size</th>
+                <th>Leading, tracking</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Wordmark</td>
+                <td>Bricolage 800, width 88%, uppercase</td>
+                <td><code>clamp(6.5rem, min(21.5vw, 34.5vh), 24rem)</code></td>
+                <td>0.8, −0.04em</td>
+              </tr>
+              <tr>
+                <td>Cover headline</td>
+                <td>Bricolage 760, width 84%</td>
+                <td><code>clamp(2.5rem, 4.3vw, 4.5rem)</code></td>
+                <td>0.97, −0.025em</td>
+              </tr>
+              <tr>
+                <td>Section title</td>
+                <td>Bricolage 760, width 84%</td>
+                <td><code>clamp(2.4rem, 4.6vw, 4.25rem)</code></td>
+                <td>0.95, −0.025em</td>
+              </tr>
+              <tr>
+                <td>Card title</td>
+                <td>Bricolage 740, width 88%</td>
+                <td><code>clamp(1.7rem, 2.5vw, 2.4rem)</code></td>
+                <td>1.02, −0.02em</td>
+              </tr>
+              <tr>
+                <td>Row title</td>
+                <td>Bricolage 650, width 92%</td>
+                <td>1.2rem</td>
+                <td>1.15</td>
+              </tr>
+              <tr>
+                <td>Summary</td>
+                <td>Schibsted 400</td>
+                <td>1.125–1.2rem</td>
+                <td>1.5–1.55</td>
+              </tr>
+              <tr>
+                <td>Body</td>
+                <td>Schibsted 400</td>
+                <td>1.0625rem (articles 1.125rem)</td>
+                <td>1.5 (articles 1.6), 60–70 characters</td>
+              </tr>
+              <tr>
+                <td>Label</td>
+                <td>Schibsted 650</td>
+                <td>0.9375rem</td>
+                <td>Sentence case</td>
+              </tr>
+              <tr>
+                <td>Metadata</td>
+                <td>Schibsted 500</td>
+                <td>0.875rem</td>
+                <td>Tabular figures for times</td>
+              </tr>
+              <tr>
+                <td>Chip</td>
+                <td>Schibsted 600</td>
+                <td>0.8125rem</td>
+                <td>Pill, 1.7rem tall</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul style="margin-top: var(--s-4)">
+          <li>Sentence case everywhere. Uppercase appears only in the wordmark.</li>
+          <li>
+            Bagel Fat One is never used for paragraphs, buttons, navigation or anything under 18px,
+            and appears in at most one or two places per screen.
+          </li>
+          <li>
+            Headlines are not decorated word by word: no single word in another color or style.
+          </li>
+          <li>
+            Labels name content types (Interview, Essay, Discover). They are information, not
+            ornament.
+          </li>
+          <li>
+            All three faces are SIL Open Font License. In production, self-host Latin subsets with
+            <code>font-display: swap</code>.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="art">
+        <h2 id="art">Artwork</h2>
+        <h3>What stays, what changes</h3>
+        <ul>
+          <li>
+            <b>Constant in every issue:</b> masthead at the top, slug line, ink frame, cover-line
+            strip, typography, palette, echo device, halftone screen and grain.
+          </li>
+          <li>
+            <b>New in every issue:</b> the subject, the field shapes, and which device leads (an
+            orbit, a burst, a stack of echoes). The issue 07 listener is that issue’s art only; it
+            is never a logo or mascot.
+          </li>
+        </ul>
+        <h3>Devices</h3>
+        <ul>
+          <li>
+            <b>Planes.</b> Field, then echoes, then masthead, then subject, then foreground details,
+            then text. A cover should show at least three planes at once.
+          </li>
+          <li>
+            <b>Echoes.</b> A silhouette or glyph repeated in the version ramp, offset in one
+            direction. The nearest echo is the first cover. Echoes recede toward the background
+            color.
+          </li>
+          <li>
+            <b>Halftone.</b> A 45° dot screen whose dots grow away from one light source. Texture
+            belongs on the subject; echoes and fields stay flat.
+          </li>
+          <li>
+            <b>Cut-out.</b> A paper-colored edge and a hard offset shadow lift the subject off its
+            echoes.
+          </li>
+          <li><b>Grain.</b> Soft-light noise at about 30% on ink, multiply on paper.</li>
+          <li>
+            <b>Generated sleeves.</b> When a recording has no image, its sleeve is a halftone in its
+            version color with its year. Nothing waits for artist photography.
+          </li>
+        </ul>
+        <h3>Never</h3>
+        <ul>
+          <li>Text over busy artwork, or artwork under controls.</li>
+          <li>Fabricated photographs of real artists, or copied artwork.</li>
+          <li>More than one loud artwork in the same screen.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="layout">
+        <h2 id="layout">Layout and spacing</h2>
+        <ul>
+          <li>
+            <b>Grid:</b> 12 columns, gutter <code>clamp(1rem, 1.7vw, 1.5rem)</code>, margins
+            <code>clamp(1.25rem, 3.3vw, 3rem)</code>.
+          </li>
+          <li><b>Spacing scale:</b> 4, 8, 12, 16, 24, 32, 48, 64, 96 px.</li>
+          <li>
+            <b>Cover:</b> the full first screen below the bar. Masthead row, slug, story in columns
+            1–6, cover lines in columns 1–6; artwork on the right, bleeding off the edge.
+          </li>
+          <li>
+            <b>Interior:</b> section title in columns 1–6 with the intro in 7–11. Cards are
+            asymmetric (7 and 4 columns), the smaller one offset down by 96px.
+          </li>
+          <li>
+            <b>Listening:</b> the original in columns 1–4 and the family tree in 5–12, with a sticky
+            player below.
+          </li>
+          <li>
+            <b>Between ink and paper:</b> a halftone dissolve band (a 12px screen over 10 rows; 10px
+            on phones), never a hard edge.
+          </li>
+          <li>
+            <b>Breakpoints:</b> up to 1100px, cards stack and the original sits above its covers,
+            with smaller cover art. Up to 720px, the phone layout is a composition of its own: menu
+            sheet, art panel, full-width actions, one-line idle player, swipeable back issues.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="modes">
+        <h2 id="modes">Editorial and functional UI</h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Editorial (magazine)</th>
+                <th>Functional (exploration, player, navigation)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Surface</th>
+                <td>Paper; ink only for covers and art panels</td>
+                <td>Ink</td>
+              </tr>
+              <tr>
+                <th>Composition</th>
+                <td>Asymmetric; art bleeds and breaks its frame</td>
+                <td>Strict rows and columns; nothing rotates</td>
+              </tr>
+              <tr>
+                <th>Type</th>
+                <td>Large Bricolage headlines, occasional Bagel lettering</td>
+                <td>Bricolage 650 for titles, Schibsted for everything else</td>
+              </tr>
+              <tr>
+                <th>Color</th>
+                <td>Inks inside the artwork; pink-ink labels</td>
+                <td>
+                  Version colors as identity; pink for the primary action; turquoise for comparison
+                </td>
+              </tr>
+              <tr>
+                <th>Components</th>
+                <td>Cards with their own art; the whole card is the link</td>
+                <td>Rows, chips (genre filled, style outlined), 44px+ buttons, sticky player</td>
+              </tr>
+              <tr>
+                <th>Motion</th>
+                <td>Hover answers through the art (echoes fan out, the karaoke line fills)</td>
+                <td>State feedback only: pressed, playing, progress</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="motion">
+        <h2 id="motion">Motion</h2>
+        <ul>
+          <li>
+            <b>One entrance per page:</b> wordmark letters flip from B-side to A-side, echoes slide
+            out from behind the subject, the story text rises. About 1.6 seconds in all.
+          </li>
+          <li>
+            <b>Responses over decoration:</b> the main action fans the echoes; letters flip on
+            hover; each card’s art reacts to its own hover. Play, pause and compare respond
+            immediately.
+          </li>
+          <li>
+            <b>Ambient:</b> only the satellite moves (a 16-second lap) and it stops when the cover
+            is off screen.
+          </li>
+          <li><b>Depth:</b> pointer parallax for mouse users; gentle scroll depth on the cover.</li>
+          <li>
+            <b>Timing:</b> 150ms for state, 300ms for hover, 600–900ms for expressive moves. Easing
+            <code>cubic-bezier(0.2, 0.8, 0.2, 1)</code>.
+          </li>
+          <li>
+            <b>Reduced motion:</b> no entrance, parallax, orbit or wipes. Everything appears in its
+            final state.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="a11y">
+        <h2 id="a11y">Accessibility</h2>
+        <ul>
+          <li>
+            <b>Contrast:</b> every text pair in the table above meets WCAG AA (4.5:1); display type
+            is far above 3:1.
+          </li>
+          <li><b>Focus:</b> a visible 3px outline, pink on ink and link-blue on paper.</li>
+          <li><b>Targets:</b> at least 44 × 44px; the primary actions are 54px tall.</li>
+          <li>
+            <b>Artwork:</b> decorative and hidden from assistive technology, with its meaning always
+            also in text (“one original from 1998 and the five covers it inspired”).
+          </li>
+          <li>
+            <b>Text and art:</b> text never sits on busy artwork. On phones the artwork gets its own
+            panel, clear of the masthead and the story.
+          </li>
+          <li>
+            <b>Player:</b> buttons say what they play and how long it is, expose their pressed
+            state, and a live region announces what is playing.
+          </li>
+          <li><b>Language:</b> non-English titles carry a <code>lang</code> attribute.</li>
+          <li>
+            <b>Navigation:</b> the phone menu is a real button with <code>aria-expanded</code>;
+            focus moves into the sheet and back, and Escape closes it.
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

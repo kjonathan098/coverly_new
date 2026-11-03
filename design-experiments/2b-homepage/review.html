@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Coverly homepage, desktop and mobile review</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        line-height: 1.5;
+        color: #17171c;
+        background: #e9e9ee;
+      }
+      body {
+        margin: 0;
+        padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 3rem;
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem 2rem;
+        margin-bottom: 1.25rem;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.4rem;
+      }
+      header p {
+        margin: 0.25rem 0 0;
+        color: #45454f;
+      }
+      nav {
+        display: flex;
+        gap: 1.25rem;
+        font-weight: 600;
+      }
+      .stage {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 390px;
+        gap: 2rem;
+        align-items: start;
+      }
+      figure {
+        margin: 0;
+      }
+      figcaption {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+      .frame {
+        overflow: hidden;
+        border-radius: 12px;
+        background: #15121d;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+      }
+      .frame iframe {
+        display: block;
+        border: 0;
+        transform-origin: 0 0;
+      }
+      .phone .frame {
+        width: 390px;
+        border-radius: 28px;
+        box-shadow:
+          0 0 0 10px #17171c,
+          0 0 0 11px rgba(0, 0, 0, 0.2);
+      }
+      @media (max-width: 1000px) {
+        .stage {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .phone {
+          justify-self: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Coverly homepage: desktop and mobile</h1>
+        <p>
+          Both frames are live and scroll independently. Try the play buttons and the phone menu.
+        </p>
+      </div>
+      <nav aria-label="Review">
+        <a href="index.html">Open the homepage</a>
+        <a href="spec.html">Design language</a>
+        <a href="../index.html">All prototypes</a>
+      </nav>
+    </header>
+    <div class="stage">
+      <figure>
+        <figcaption>Desktop, 1440 × 900</figcaption>
+        <div class="frame" id="desktop">
+          <iframe src="index.html" title="Desktop homepage" width="1440" height="900"></iframe>
+        </div>
+      </figure>
+      <figure class="phone">
+        <figcaption>Mobile, 390 × 844</figcaption>
+        <div class="frame">
+          <iframe src="index.html" title="Mobile homepage" width="390" height="844"></iframe>
+        </div>
+      </figure>
+    </div>
+    <script>
+      const frame = document.getElementById('desktop')
+      const iframe = frame.querySelector('iframe')
+      function fit() {
+        const scale = Math.min(1, frame.clientWidth / 1440)
+        iframe.style.transform = `scale(${scale})`
+        frame.style.height = `${Math.round(900 * scale)}px`
+      }
+      addEventListener('resize', fit)
+      fit()
+    </script>
+  </body>
+</html>

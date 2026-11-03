@@ -1,0 +1,112 @@
+/*
+ * Coverly design tokens (Electric Pop). The single source of truth for the palette, type, space,
+ * shape, shadow and motion. Tailwind's defaults for these namespaces are removed on purpose, so
+ * only on-brand values exist. See docs/design-system.md.
+ *
+ * `static` emits every variable, because components also reference them from inline styles.
+ */
+@theme static {
+  /* Fields: ink for covers and listening, paper for reading */
+  --color-*: initial;
+  --color-ink: #15121d;
+  --color-ink-2: #1f1a2b;
+  --color-ink-3: #2c2640;
+  --color-paper: #f6f1eb;
+  --color-paper-2: #ebe3d8;
+
+  /* Inks: hot pink is primary, electric blue and turquoise support it */
+  --color-pink: #ff3e8f;
+  --color-blue: #3159ff;
+  --color-turquoise: #1ed6c1;
+  --color-indigo: #221a4d;
+
+  /* Text-safe variants, each checked to WCAG AA on its surface */
+  --color-ink-soft: #cfc8dc;
+  --color-paper-soft: #4d4757;
+  --color-pink-ink: #c8125e;
+  --color-link-ink: #2342d9;
+
+  /* Version ramp: the original is pink; covers run turquoise to blue in the order recorded */
+  --color-cover-1: var(--color-turquoise);
+  --color-cover-2: color-mix(in oklch, var(--color-turquoise) 75%, var(--color-blue));
+  --color-cover-3: color-mix(in oklch, var(--color-turquoise) 50%, var(--color-blue));
+  --color-cover-4: color-mix(in oklch, var(--color-turquoise) 25%, var(--color-blue));
+  --color-cover-5: var(--color-blue);
+
+  /* Families: lettering (the B-side), headings (the A-side), reading and interface */
+  --font-*: initial;
+  --font-display: 'Bagel Fat One', 'Arial Rounded MT Bold', sans-serif;
+  --font-heading: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  --font-text: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Type scale. Roles that combine these with weight and width live in utilities.css (type-*) */
+  --text-*: initial;
+  --text-masthead: clamp(6.5rem, min(21.5vw, 34.5vh), 24rem);
+  --text-masthead--line-height: 0.8;
+  --text-headline: clamp(2.5rem, 4.3vw, 4.5rem);
+  --text-headline--line-height: 0.97;
+  --text-section: clamp(2.4rem, 4.6vw, 4.25rem);
+  --text-section--line-height: 0.95;
+  --text-card: clamp(1.7rem, 2.5vw, 2.4rem);
+  --text-card--line-height: 1.02;
+  --text-row: 1.2rem;
+  --text-row--line-height: 1.15;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.55;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.5;
+  --text-label: 0.9375rem;
+  --text-label--line-height: 1.3;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.4;
+  --text-chip: 0.8125rem;
+  --text-chip--line-height: 1.2;
+
+  /* Space: Tailwind's 4px scale, plus fluid page margins and grid gutters */
+  --spacing-margin: clamp(1.25rem, 3.3vw, 3rem);
+  --spacing-gutter: clamp(1rem, 1.7vw, 1.5rem);
+
+  /* Content widths */
+  --container-page: 72rem;
+  --container-reading: 42rem;
+
+  /* Shape */
+  --radius-*: initial;
+  --radius-sleeve: 0.5rem;
+  --radius-control: 0.85rem;
+  --radius-card: 0.875rem;
+  --radius-panel: 1.375rem;
+  --radius-pill: 999px;
+
+  /* Shadows are printed, not blurred: hard offsets, with one soft exception for floating bars */
+  --shadow-*: initial;
+  --shadow-echo: 5px -5px 0 0 var(--color-blue), 10px -10px 0 0 var(--color-turquoise);
+  --shadow-echo-lift: 9px -9px 0 0 var(--color-blue), 18px -18px 0 0 var(--color-turquoise);
+  --shadow-echo-press: 2px -2px 0 0 var(--color-blue), 4px -4px 0 0 var(--color-turquoise);
+  --shadow-lift: 10px 10px 0 var(--color-paper-2);
+  --shadow-lift-hover: 16px 16px 0 var(--color-paper-2);
+  --shadow-float: 0 18px 40px rgb(0 0 0 / 0.35);
+
+  /* Motion */
+  --ease-snap: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-pop: cubic-bezier(0.3, 1.5, 0.5, 1);
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 750ms;
+
+  /* Breakpoints: a phone layout of its own, then tablet, then desktop. Mobile first. */
+  --breakpoint-*: initial;
+  --breakpoint-tablet: 45rem;
+  --breakpoint-desktop: 68.75rem;
+}
+
+/* Surface-aware colors: components use these and never need to know if they sit on ink or paper */
+@theme inline {
+  --color-surface: var(--surface-bg);
+  --color-fg: var(--surface-fg);
+  --color-fg-soft: var(--surface-soft);
+  --color-accent: var(--surface-accent);
+  --color-line: var(--surface-line);
+  --color-raised: var(--surface-raised);
+  --color-focus: var(--surface-focus);
+}
