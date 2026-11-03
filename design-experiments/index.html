@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Coverly: three visual directions</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        line-height: 1.5;
+      }
+      body {
+        margin: 0;
+        padding: 2rem clamp(1rem, 3vw, 2.5rem) 4rem;
+        background: #f3f4f6;
+        color: #111827;
+      }
+      h1 {
+        margin: 0 0 0.25rem;
+        font-size: 1.75rem;
+      }
+      .intro {
+        max-width: 70ch;
+        margin: 0 0 1.5rem;
+        color: #374151;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+      }
+      .controls button {
+        padding: 0.45rem 1rem;
+        border: 1px solid #9ca3af;
+        border-radius: 6px;
+        background: #fff;
+        font: inherit;
+        cursor: pointer;
+      }
+      .controls button[aria-pressed='true'] {
+        background: #111827;
+        border-color: #111827;
+        color: #fff;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.5rem;
+      }
+      .concept h2 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+      .concept .idea {
+        margin: 0.15rem 0 0.75rem;
+        color: #374151;
+      }
+      .frame {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        background: #fff;
+      }
+      .frame iframe {
+        display: block;
+        border: 0;
+        transform-origin: 0 0;
+      }
+      .open {
+        display: inline-block;
+        margin: 0.6rem 0 1rem;
+        font-weight: 600;
+      }
+      .tradeoffs {
+        display: grid;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+      }
+      .tradeoffs h3 {
+        margin: 0.5rem 0 0;
+        font-size: 0.95rem;
+      }
+      .tradeoffs ul {
+        margin: 0;
+        padding-left: 1.1rem;
+      }
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Coverly: three visual directions</h1>
+    <p class="intro">
+      <b>Newer:</b> <a href="2b-cover/index.html">Phase 2B cover study</a>, one refined cover in
+      three color treatments.
+    </p>
+    <p class="intro">
+      Every concept uses the same fictional content: one original, five covers and four stories. The
+      differences you see come from the design, not the copy. Previews are scaled-down live pages;
+      open a concept on its own to judge type and color at full size.
+    </p>
+
+    <div class="controls" role="group" aria-label="Preview size">
+      <button type="button" data-mode="desktop" aria-pressed="true">Desktop, 1440px</button>
+      <button type="button" data-mode="mobile" aria-pressed="false">Mobile, 390px</button>
+    </div>
+
+    <div class="grid">
+      <section class="concept">
+        <h2>A. Pop Editorial</h2>
+        <p class="idea">Every issue is a magazine cover.</p>
+        <div class="frame">
+          <iframe
+            src="a-pop-editorial/index.html"
+            title="Concept A preview"
+            loading="lazy"
+          ></iframe>
+        </div>
+        <a class="open" href="a-pop-editorial/index.html">Open concept A</a>
+        <div class="tradeoffs">
+          <h3>Strengths</h3>
+          <ul>
+            <li>
+              Most familiar reading pattern; scales naturally into a real magazine with issues and
+              features
+            </li>
+            <li>Color-flooded blocks make content types easy to tell apart</li>
+            <li>The chronological version list is the clearest way to compare covers</li>
+          </ul>
+          <h3>Risks</h3>
+          <ul>
+            <li>
+              Leans on strong imagery; without photography or commissioned art it can feel flat
+            </li>
+            <li>Closest of the three to existing pop-culture magazines</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="concept">
+        <h2>B. Type Explosion</h2>
+        <p class="idea">Every section is a gig poster; the type is the image.</p>
+        <div class="frame">
+          <iframe
+            src="b-type-explosion/index.html"
+            title="Concept B preview"
+            loading="lazy"
+          ></iframe>
+        </div>
+        <a class="open" href="b-type-explosion/index.html">Open concept B</a>
+        <div class="tradeoffs">
+          <h3>Strengths</h3>
+          <ul>
+            <li>Most distinctive; needs almost no imagery, so it works with today's data</li>
+            <li>“Same song, new letters” turns the core feature into the visual idea</li>
+            <li>Cheapest to build and fastest to load</li>
+          </ul>
+          <h3>Risks</h3>
+          <ul>
+            <li>
+              Each cover needs its own lettering treatment, which doesn't scale to thousands
+              automatically
+            </li>
+            <li>Very large condensed type can slow scanning, and the hero takes a full screen</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="concept">
+        <h2>C. Cut &amp; Paste</h2>
+        <p class="idea">A record-store wall, pinned over a visible cutting-mat grid.</p>
+        <div class="frame">
+          <iframe
+            src="c-cut-and-paste/index.html"
+            title="Concept C preview"
+            loading="lazy"
+          ></iframe>
+        </div>
+        <a class="open" href="c-cut-and-paste/index.html">Open concept C</a>
+        <div class="tradeoffs">
+          <h3>Strengths</h3>
+          <ul>
+            <li>
+              Warmest and most playful; community contributions would fit naturally as “pinned”
+              items
+            </li>
+            <li>The family tree shows the original↔cover relationship most literally</li>
+            <li>Each object type (cassette, ticket, polaroid) can encode a version's character</li>
+          </ul>
+          <h3>Risks</h3>
+          <ul>
+            <li>
+              Rotations, textures and three typefaces cost readability, especially the typewriter
+              body text
+            </li>
+            <li>
+              Collage layouts are the hardest to keep tidy as content grows, and the hardest to
+              build
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const sizes = { desktop: { width: 1440, height: 2600 }, mobile: { width: 390, height: 844 } }
+      let mode = 'desktop'
+
+      function layout() {
+        const { width, height } = sizes[mode]
+        document.querySelectorAll('.frame').forEach((frame) => {
+          const iframe = frame.querySelector('iframe')
+          const scale = Math.min(1, frame.clientWidth / width)
+          iframe.style.width = width + 'px'
+          iframe.style.height = height + 'px'
+          iframe.style.transform = 'scale(' + scale + ')'
+          frame.style.height = Math.round(height * scale) + 'px'
+          frame.style.maxWidth = mode === 'mobile' ? width + 'px' : ''
+        })
+      }
+
+      document.querySelectorAll('[data-mode]').forEach((button) => {
+        button.addEventListener('click', () => {
+          mode = button.dataset.mode
+          document
+            .querySelectorAll('[data-mode]')
+            .forEach((b) => b.setAttribute('aria-pressed', String(b === button)))
+          layout()
+        })
+      })
+      window.addEventListener('resize', layout)
+      layout()
+    </script>
+  </body>
+</html>

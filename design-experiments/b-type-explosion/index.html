@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Coverly, concept B: Type Explosion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@100..900&family=Big+Shoulders+Text:wght@400..800&family=Shrikhand&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="masthead">
+      <a class="logo" href="#">Coverly</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        Menu
+      </button>
+      <nav id="main-nav" aria-label="Main">
+        <a href="#">Discover</a>
+        <a href="#versions">Originals &amp; covers</a>
+        <a href="#stories">Stories</a>
+        <a href="#">Artists</a>
+        <a href="#">Search</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <h1 id="hero-title" class="stack">
+          <span class="w w-one">One</span>
+          <span class="w w-song">song</span>
+          <span class="w w-six">Six</span>
+          <span class="w w-lives">Lives</span>
+        </h1>
+        <div class="burst" aria-hidden="true"></div>
+        <div class="hero-info">
+          <p>
+            This week: <strong>Paper Satellites</strong> by Junie Marlowe, 1998, and the five
+            artists who rebuilt it.
+          </p>
+          <a class="btn" href="#versions">Explore the versions</a>
+        </div>
+      </section>
+
+      <div class="ticker" aria-label="Newly added covers">
+        <div class="ticker-track">
+          <p>
+            New this week: <span>Ghost Arcade</span> <span>Las Hermanas Vela</span>
+            <span>The Low Ceilings</span> <span>Pia Stratton</span>
+            <span>Okonkwo Sound System</span>
+          </p>
+          <p aria-hidden="true">
+            New this week: <span>Ghost Arcade</span> <span>Las Hermanas Vela</span>
+            <span>The Low Ceilings</span> <span>Pia Stratton</span>
+            <span>Okonkwo Sound System</span>
+          </p>
+        </div>
+      </div>
+
+      <section id="stories" class="wall" aria-labelledby="wall-title">
+        <h2 id="wall-title" class="wall-title">Read this week</h2>
+
+        <article class="poster poster--tunnel">
+          <div class="tunnel" aria-hidden="true">
+            <span>Again</span><span>Again</span><span>Again</span><span>Again</span
+            ><span>Again</span><span>Again</span><span>Again</span>
+          </div>
+          <div class="poster-text">
+            <h3><a href="#">Why everyone covers a song nobody bought</a></h3>
+            <p>Feature, 8 minute read</p>
+          </div>
+        </article>
+
+        <article class="poster poster--orbit">
+          <svg class="orbit" viewBox="0 0 300 300" aria-hidden="true">
+            <defs>
+              <path id="ring" d="M150,150 m-118,0 a118,118 0 1,1 236,0 a118,118 0 1,1 -236,0" />
+            </defs>
+            <circle cx="150" cy="150" r="96" class="orbit-disc" />
+            <circle cx="150" cy="150" r="30" class="orbit-label" />
+            <text>
+              <textPath href="#ring" textLength="735" lengthAdjust="spacing">
+                bedroom tapes ✱ bedroom tapes ✱ bedroom tapes ✱
+              </textPath>
+            </text>
+          </svg>
+          <div class="poster-text">
+            <h3><a href="#">Bedroom tapes: 12 covers recorded at home</a></h3>
+            <p>List, 12 recordings</p>
+          </div>
+        </article>
+
+        <article class="poster poster--question">
+          <p class="big-q" aria-hidden="true">?</p>
+          <div class="poster-text">
+            <h3><a href="#">What makes a cover yours? Five artists answer</a></h3>
+            <p>Interview, 6 minute read</p>
+          </div>
+        </article>
+
+        <article class="poster poster--crate">
+          <p class="crate-word" aria-hidden="true">Cumbia</p>
+          <div class="poster-text">
+            <h3><a href="#">Cumbia remakes of 90s indie: a starter crate</a></h3>
+            <p>Discover, 10 originals and 10 reworks</p>
+          </div>
+        </article>
+      </section>
+
+      <section id="versions" class="versions" aria-labelledby="versions-title">
+        <header class="versions-head">
+          <p class="versions-kicker">The original. Junie Marlowe, 1998</p>
+          <h2 id="versions-title" class="orig-title">Paper Satellites</h2>
+          <p class="versions-intro">
+            Five artists covered it. Each version below is set the way it sounds.
+          </p>
+          <button class="btn" type="button">Play the original</button>
+        </header>
+
+        <ol class="covers">
+          <li class="cv cv--dub">
+            <p class="cv-type" aria-hidden="true">
+              <span>Paper Satellites</span><span>Paper Satellites</span
+              ><span>Paper Satellites</span>
+            </p>
+            <div class="cv-meta">
+              <h3>Okonkwo Sound System</h3>
+              <p>2004. Dub. Half the tempo, all the echo.</p>
+              <button type="button" aria-label="Play Okonkwo Sound System's version">Play</button>
+            </div>
+          </li>
+          <li class="cv cv--cumbia">
+            <svg class="cv-type" viewBox="0 0 600 170" aria-hidden="true">
+              <path id="wave" d="M10,120 C110,30 200,30 300,95 S490,160 590,60" fill="none" />
+              <text>
+                <textPath href="#wave" textLength="590" lengthAdjust="spacingAndGlyphs">
+                  Satélites de papel
+                </textPath>
+              </text>
+            </svg>
+            <div class="cv-meta">
+              <h3>Las Hermanas Vela</h3>
+              <p>2011. Cumbia, sung in Spanish.</p>
+              <button type="button" aria-label="Play Las Hermanas Vela's version">Play</button>
+            </div>
+          </li>
+          <li class="cv cv--punk">
+            <p class="cv-type" aria-hidden="true">
+              <span>P</span><span>A</span><span>P</span><span>E</span><span>R</span> <span>S</span
+              ><span>A</span><span>T</span><span>E</span><span>L</span><span>L</span><span>I</span
+              ><span>T</span><span>E</span><span>S</span>
+            </p>
+            <div class="cv-meta">
+              <h3>The Low Ceilings</h3>
+              <p>2016. Garage punk. Twice as fast, live in one take.</p>
+              <button type="button" aria-label="Play The Low Ceilings' version">Play</button>
+            </div>
+          </li>
+          <li class="cv cv--synth">
+            <p class="cv-type" aria-hidden="true">Paper Satellites</p>
+            <div class="cv-meta">
+              <h3>Ghost Arcade</h3>
+              <p>2019. Synthwave. Drum machines and a vocoder chorus.</p>
+              <button type="button" aria-label="Play Ghost Arcade's version">Play</button>
+            </div>
+          </li>
+          <li class="cv cv--piano">
+            <p class="cv-type" aria-hidden="true">paper satellites</p>
+            <div class="cv-meta">
+              <h3>Pia Stratton</h3>
+              <p>2022. Solo piano. No words, all melody.</p>
+              <button type="button" aria-label="Play Pia Stratton's version">Play</button>
+            </div>
+          </li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Concept B, Type Explosion. Placeholder content: every artist, song and story is fictional.
+      </p>
+      <a href="../index.html">Back to the comparison</a>
+    </footer>
+
+    <script>
+      const toggle = document.querySelector('.menu-toggle')
+      toggle.addEventListener('click', () => {
+        const open = toggle.getAttribute('aria-expanded') === 'true'
+        toggle.setAttribute('aria-expanded', String(!open))
+      })
+    </script>
+  </body>
+</html>

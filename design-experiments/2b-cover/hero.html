@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en" data-palette="electric">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Coverly, cover study</title>
+    <script>
+      // Apply the palette before first paint so previews never flash the default.
+      const params = new URLSearchParams(location.search)
+      const palette = params.get('palette')
+      if (['electric', 'retro', 'afterhours'].includes(palette)) {
+        document.documentElement.dataset.palette = palette
+      }
+      if (params.get('chrome') === '0') document.documentElement.dataset.chrome = 'off'
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('intro')
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="hero.css" />
+  </head>
+  <body>
+    <a class="skip" href="#cover-title">Skip to the cover story</a>
+
+    <div class="page">
+      <header class="topbar">
+        <p class="dateline">Issue 07, November 2026</p>
+        <nav class="nav" aria-label="Main">
+          <a href="#">Stories</a>
+          <a href="#">Discover</a>
+          <a href="#">Originals &amp; covers</a>
+          <a href="#">Artists</a>
+          <a href="#" class="nav-search" aria-label="Search">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="M15.5 15.5 L21 21" />
+            </svg>
+          </a>
+        </nav>
+      </header>
+
+      <section class="cover" aria-labelledby="cover-title">
+        <div class="field" aria-hidden="true"></div>
+
+        <svg class="art art-echoes" viewBox="0 0 1000 1300" aria-hidden="true">
+          <defs>
+            <path
+              id="head-shape"
+              d="M 560 150 C 690 150, 790 240, 798 380 C 806 500, 768 590, 700 660 C 668 692, 655 730, 660 790 C 664 830, 690 860, 760 885 C 880 930, 960 1050, 990 1300 L 1010 1700 L 100 1700 L 120 1300 C 140 1100, 230 975, 380 925 C 430 908, 452 885, 452 850 L 446 772 C 444 752, 432 740, 410 735 C 380 728, 345 722, 322 712 C 300 702, 284 688, 282 668 C 281 650, 288 636, 296 628 C 286 620, 274 612, 274 600 C 274 590, 282 584, 288 580 C 280 576, 268 570, 268 558 C 268 546, 278 532, 284 524 C 266 520, 238 512, 228 500 C 218 488, 222 472, 236 462 C 262 438, 286 410, 296 388 C 300 378, 296 366, 290 354 C 282 330, 290 270, 330 228 C 380 172, 470 150, 560 150 Z"
+            />
+            <path id="band-shape" d="M 604 380 C 610 290, 604 205, 588 150" />
+            <rect
+              id="cup-shape"
+              x="528"
+              y="365"
+              width="148"
+              height="210"
+              rx="64"
+              transform="rotate(-8 602 470)"
+            />
+            <g id="silhouette">
+              <use href="#head-shape" fill="currentColor" />
+              <use
+                href="#band-shape"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="44"
+                stroke-linecap="round"
+              />
+              <use href="#cup-shape" fill="currentColor" />
+            </g>
+          </defs>
+          <!-- Five echoes trail behind the figure: one original, five covers. -->
+          <g class="echoes">
+            <use class="echo" href="#silhouette" style="--i: 5" />
+            <use class="echo" href="#silhouette" style="--i: 4" />
+            <use class="echo" href="#silhouette" style="--i: 3" />
+            <use class="echo" href="#silhouette" style="--i: 2" />
+            <use class="echo" href="#silhouette" style="--i: 1" />
+          </g>
+        </svg>
+
+        <h1 class="wordmark">
+          <span class="sr-only">Coverly</span>
+          <span class="letters" aria-hidden="true">
+            <span class="l"><span class="a">C</span><span class="b">C</span></span
+            ><span class="l"><span class="a">O</span><span class="b">O</span></span
+            ><span class="l"><span class="a">V</span><span class="b">V</span></span
+            ><span class="l"><span class="a">E</span><span class="b">E</span></span
+            ><span class="l"><span class="a">R</span><span class="b">R</span></span
+            ><span class="l"><span class="a">L</span><span class="b">L</span></span
+            ><span class="l"><span class="a">Y</span><span class="b">Y</span></span>
+          </span>
+        </h1>
+
+        <svg class="art art-ring art-ring-back" viewBox="0 0 1000 1300" aria-hidden="true">
+          <defs>
+            <path id="orbit" d="M -20 580 A 560 135 0 1 0 1100 580 A 560 135 0 1 0 -20 580" />
+            <path id="orbit-front" d="M -20 580 A 560 135 0 0 0 1100 580" />
+            <clipPath id="back-half">
+              <rect x="-2000" y="-2000" width="5000" height="2580" />
+            </clipPath>
+            <clipPath id="front-half">
+              <rect x="-2000" y="580" width="5000" height="3000" />
+            </clipPath>
+            <path
+              id="spark"
+              d="M 0 -1 C 0.12 -0.12 0.12 -0.12 1 0 C 0.12 0.12 0.12 0.12 0 1 C -0.12 0.12 -0.12 0.12 -1 0 C -0.12 -0.12 -0.12 -0.12 0 -1 Z"
+            />
+          </defs>
+          <!-- The far half of the orbit, hidden wherever the head is in front of it -->
+          <g transform="rotate(-15 540 580)" clip-path="url(#back-half)">
+            <use class="orbit-line" href="#orbit" />
+            <use class="satellite" href="#spark" />
+          </g>
+        </svg>
+
+        <svg class="art art-figure" viewBox="0 0 1000 1300" aria-hidden="true">
+          <defs>
+            <clipPath id="head-clip"><use href="#head-shape" /></clipPath>
+          </defs>
+          <!-- Cut-out border first, so the figure reads as a printed paper cut-out. -->
+          <use class="cut-band" href="#band-shape" stroke-width="60" stroke-linecap="round" />
+          <use class="cut-cup" href="#cup-shape" stroke-width="16" />
+          <use class="figure-fill" href="#head-shape" />
+          <g clip-path="url(#head-clip)">
+            <g class="halftone"></g>
+            <path
+              class="hair"
+              d="M 282 300 C 330 286, 420 282, 482 322 C 534 356, 560 404, 576 470 C 592 540, 640 602, 706 662 L 1000 662 L 1000 0 L 200 0 Z"
+            />
+          </g>
+          <path class="face-line" d="M 304 386 Q 330 374 362 383" stroke-width="9" />
+          <path class="face-line" d="M 306 418 Q 331 436 358 420" stroke-width="7" />
+          <use class="phones-band" href="#band-shape" stroke-width="44" stroke-linecap="round" />
+          <use class="phones-cup" href="#cup-shape" />
+          <rect
+            class="pad"
+            x="515"
+            y="388"
+            width="66"
+            height="166"
+            rx="32"
+            transform="rotate(-8 602 470)"
+          />
+        </svg>
+
+        <svg class="art art-ring art-ring-front" viewBox="0 0 1000 1300" aria-hidden="true">
+          <!-- The near half of the orbit passes in front of the figure, carrying the line -->
+          <g transform="rotate(-15 540 580)">
+            <g clip-path="url(#front-half)">
+              <use class="orbit-line" href="#orbit" />
+              <use class="satellite" href="#spark" />
+            </g>
+            <text class="ring">
+              <textPath href="#orbit-front" startOffset="45%" text-anchor="middle">
+                every song has another side
+              </textPath>
+            </text>
+          </g>
+          <use class="spark" href="#spark" transform="translate(150 270) scale(30)" />
+          <use class="spark" href="#spark" transform="translate(110 840) scale(15)" />
+        </svg>
+
+        <div class="story">
+          <p class="kicker">Cover story</p>
+          <h2 id="cover-title" class="headline">
+            <span class="hl-line">Nobody bought it.</span> Five artists covered it anyway.
+          </h2>
+          <p class="dek">
+            <strong>Paper Satellites</strong> sold 900 copies in 1998. Since then it has come back
+            as dub, cumbia, garage punk, synthwave and solo piano. We followed the song to every one
+            of its other sides.
+          </p>
+          <div class="actions">
+            <a class="btn" href="#">Explore the six versions</a>
+            <a class="link" href="#">Read the cover story</a>
+          </div>
+        </div>
+
+        <div class="annotation" aria-hidden="true">
+          <svg viewBox="0 0 90 70">
+            <path d="M 70 64 C 70 34, 52 14, 16 10" />
+            <path d="M 30 0 L 15 10 L 28 22" />
+          </svg>
+          <p>five covers,<br />one original</p>
+        </div>
+
+        <ul class="coverlines" aria-label="Also in this issue">
+          <li>
+            <span class="cl-kind">Interview</span>
+            <a href="#">What makes a cover yours? Five artists answer</a>
+          </li>
+          <li>
+            <span class="cl-kind">Discover</span>
+            <a href="#">Cumbia remakes of 90s indie, a starter crate</a>
+          </li>
+          <li>
+            <span class="cl-kind">Essay</span>
+            <a href="#">In defense of the karaoke version</a>
+          </li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="study-bar" role="group" aria-label="Color treatment">
+      <span class="study-label">Color study</span>
+      <button type="button" data-set-palette="electric">1 Electric Pop</button>
+      <button type="button" data-set-palette="retro">2 Retro Remix</button>
+      <button type="button" data-set-palette="afterhours">3 After Hours</button>
+    </div>
+
+    <script src="hero.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1016 @@
+/* Concept C, Cut & Paste: a record-store wall pinned over a visible cutting-mat grid. */
+:root {
+  --newsprint: #e6e9ed;
+  --grid: rgba(0, 120, 191, 0.13);
+  --white: #fff;
+  --black: #000;
+  --pink: #ff48b0;
+  --blue: #0078bf;
+  --yellow: #ffe800;
+  --orange: #ff6c2f;
+  --teal: #00a99d;
+  --gutter: clamp(1rem, 3vw, 2.5rem);
+  --cut: 'Bowlby One', 'Arial Black', Impact, sans-serif;
+  --marker: 'Permanent Marker', 'Comic Sans MS', cursive;
+  --type: 'Courier Prime', 'Courier New', monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.masthead,
+main {
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  color: var(--black);
+  font-family: var(--type);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  background-color: var(--newsprint);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* Print grain over everything */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.32;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: -999px;
+}
+.skip:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 60;
+  background: var(--white);
+  padding: 0.5rem 1rem;
+}
+
+.torn {
+  clip-path: polygon(
+    0% 1.5%,
+    5.6% 0.3%,
+    11.1% 1.3%,
+    16.7% 0.2%,
+    22.2% 1.8%,
+    27.8% 0.9%,
+    33.3% 2%,
+    38.9% 1.5%,
+    44.4% 2%,
+    50% 1.7%,
+    55.6% 0.5%,
+    61.1% 2.8%,
+    66.7% 0.4%,
+    72.2% 2.9%,
+    77.8% 1.3%,
+    83.3% 2%,
+    88.9% 0.5%,
+    94.4% 1.3%,
+    100% 1.6%,
+    100% 98%,
+    94.4% 97.7%,
+    88.9% 100%,
+    83.3% 97.8%,
+    77.8% 98.7%,
+    72.2% 97.6%,
+    66.7% 98.3%,
+    61.1% 99.9%,
+    55.6% 97.2%,
+    50% 98.5%,
+    44.4% 97.5%,
+    38.9% 97.7%,
+    33.3% 97.2%,
+    27.8% 99.3%,
+    22.2% 98.2%,
+    16.7% 99.6%,
+    11.1% 98.5%,
+    5.6% 97.7%,
+    0% 98.7%
+  );
+}
+
+.tape {
+  position: absolute;
+  width: 6rem;
+  height: 1.7rem;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.tape--tl {
+  top: -0.6rem;
+  left: -1.6rem;
+  rotate: -35deg;
+}
+.tape--br {
+  bottom: -0.6rem;
+  right: -1.6rem;
+  rotate: -35deg;
+}
+.tape--top {
+  top: -0.85rem;
+  left: 50%;
+  translate: -50% 0;
+  rotate: -3deg;
+}
+
+.note {
+  margin: 0;
+  font-family: var(--marker);
+  font-size: 1.3rem;
+  line-height: 1.1;
+  color: var(--blue);
+  rotate: -4deg;
+}
+
+.dymo {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--black);
+  color: #f4f4f4;
+  font-family: var(--type);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+}
+.dymo:hover {
+  background: var(--pink);
+  color: var(--black);
+  text-shadow: none;
+}
+
+/* Masthead: a ransom-note logo and label-maker navigation */
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  padding: 1.25rem var(--gutter) 0.5rem;
+}
+.ransom {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+}
+.ransom span {
+  display: inline-block;
+  padding: 0.04em 0.12em;
+  font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+  line-height: 1;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.22);
+}
+.ransom span:nth-child(1) {
+  font-family: var(--cut);
+  background: var(--yellow);
+  rotate: -6deg;
+}
+.ransom span:nth-child(2) {
+  font-family: var(--type);
+  font-weight: 700;
+  background: var(--black);
+  color: var(--white);
+  rotate: 4deg;
+}
+.ransom span:nth-child(3) {
+  font-family: var(--cut);
+  background: var(--blue);
+  color: var(--white);
+  rotate: -2deg;
+}
+.ransom span:nth-child(4) {
+  font-family: var(--marker);
+  background: var(--white);
+  color: var(--pink);
+  rotate: 7deg;
+}
+.ransom span:nth-child(5) {
+  font-family: var(--cut);
+  background: var(--orange);
+  rotate: -4deg;
+}
+.ransom span:nth-child(6) {
+  font-family: var(--type);
+  font-weight: 700;
+  background: var(--white);
+  rotate: 3deg;
+}
+.ransom span:nth-child(7) {
+  font-family: var(--cut);
+  background: var(--pink);
+  color: var(--yellow);
+  rotate: -7deg;
+}
+.scrawl {
+  margin: 0;
+  font-family: var(--marker);
+  font-size: 1.15rem;
+  color: var(--blue);
+  rotate: -3deg;
+}
+.masthead nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+.masthead nav a {
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  background: var(--black);
+  color: #f4f4f4;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.masthead nav a:nth-child(odd) {
+  rotate: -1.5deg;
+}
+.masthead nav a:nth-child(even) {
+  rotate: 1.5deg;
+}
+.masthead nav a:hover {
+  background: var(--pink);
+  color: var(--black);
+}
+
+/* Hero collage */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  padding: clamp(1.5rem, 4vw, 3.5rem) var(--gutter) clamp(3rem, 6vw, 5rem);
+}
+.flyer {
+  grid-column: 1 / 8;
+  grid-row: 1;
+  position: relative;
+  z-index: 2;
+  padding: clamp(2rem, 4vw, 3.5rem);
+  background: var(--pink);
+  rotate: -1.5deg;
+}
+.flyer h1 {
+  margin: 0 0 1rem;
+  font-family: var(--cut);
+  font-weight: 400;
+  font-size: clamp(3rem, 6.8vw, 6.25rem);
+  line-height: 0.95;
+  text-shadow: 0.05em 0.04em 0 var(--blue);
+}
+.flyer-deck {
+  max-width: 40ch;
+  margin: 0;
+  font-size: 1.15rem;
+}
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 1.75rem;
+}
+.ticket-btn {
+  display: inline-block;
+  padding: 0.85rem 1.75rem;
+  background: var(--yellow);
+  font-family: var(--cut);
+  font-size: 1.15rem;
+  text-decoration: none;
+  rotate: 2deg;
+  mask:
+    radial-gradient(circle at 0 50%, transparent 0.6rem, #000 0.65rem) left / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 50%, transparent 0.6rem, #000 0.65rem) right / 51% 100% no-repeat;
+  transition:
+    rotate 150ms ease,
+    scale 150ms ease;
+}
+.ticket-btn:hover {
+  rotate: 0deg;
+  scale: 1.04;
+}
+.arrow {
+  order: 2;
+  width: 5rem;
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.note--cta {
+  order: 3;
+  font-size: 1.6rem;
+}
+
+.sleeve-wrap {
+  grid-column: 8 / 13;
+  grid-row: 1;
+  align-self: center;
+  position: relative;
+  z-index: 1;
+  margin: 2rem 0 0 2rem;
+}
+.sleeve {
+  position: relative;
+  z-index: 2;
+  aspect-ratio: 1;
+  display: grid;
+  align-items: end;
+  padding: 1.25rem;
+  background:
+    radial-gradient(circle, var(--blue) 32%, transparent 34%) 0 0 / 12px 12px,
+    var(--yellow);
+  rotate: 4deg;
+  box-shadow: 6px 8px 0 rgba(0, 0, 0, 0.18);
+}
+.sleeve-title {
+  justify-self: start;
+  padding: 0.15em 0.3em;
+  background: var(--white);
+  font-family: var(--cut);
+  font-size: clamp(1.8rem, 3.6vw, 3.25rem);
+  line-height: 0.95;
+  rotate: -3deg;
+}
+.vinyl {
+  position: absolute;
+  z-index: 1;
+  top: 5%;
+  left: -34%;
+  width: 90%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, #050505 0 2px, #2b2b2b 2px 4px);
+}
+.vinyl span {
+  width: 34%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--black) 0 7%, transparent 7.5%), var(--orange);
+}
+
+.sticker {
+  position: absolute;
+  z-index: 3;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+.sticker--round {
+  right: 2%;
+  top: 0.5rem;
+  width: 7.5rem;
+  aspect-ratio: 1;
+  padding: 1rem;
+  border-radius: 50%;
+  background: var(--orange);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.15;
+  rotate: 12deg;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.22);
+}
+.sticker--burst {
+  left: 54%;
+  bottom: 1.5rem;
+  width: 8.5rem;
+  aspect-ratio: 1;
+  padding: 1.6rem;
+  background: var(--teal);
+  color: var(--white);
+  font-family: var(--cut);
+  font-size: 0.95rem;
+  line-height: 1;
+  rotate: -10deg;
+  clip-path: polygon(
+    50% 0%,
+    57.8% 10.8%,
+    69.1% 3.8%,
+    72.2% 16.7%,
+    85.4% 14.6%,
+    83.3% 27.8%,
+    96.2% 30.9%,
+    89.2% 42.2%,
+    100% 50%,
+    89.2% 57.8%,
+    96.2% 69.1%,
+    83.3% 72.2%,
+    85.4% 85.4%,
+    72.2% 83.3%,
+    69.1% 96.2%,
+    57.8% 89.2%,
+    50% 100%,
+    42.2% 89.2%,
+    30.9% 96.2%,
+    27.8% 83.3%,
+    14.6% 85.4%,
+    16.7% 72.2%,
+    3.8% 69.1%,
+    10.8% 57.8%,
+    0% 50%,
+    10.8% 42.2%,
+    3.8% 30.9%,
+    16.7% 27.8%,
+    14.6% 14.6%,
+    27.8% 16.7%,
+    30.9% 3.8%,
+    42.2% 10.8%
+  );
+}
+.stub {
+  position: absolute;
+  z-index: 3;
+  left: 4%;
+  bottom: 0.5rem;
+  display: grid;
+  padding: 0.6rem 1.1rem;
+  background: var(--white);
+  border-left: 3px dashed var(--black);
+  font-size: 0.85rem;
+  line-height: 1.3;
+  rotate: 4deg;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.18);
+}
+.stub strong {
+  font-family: var(--cut);
+  font-weight: 400;
+  font-size: 1.05rem;
+}
+
+/* This week's cuttings */
+.tape-title {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin: 0 0 1rem;
+  padding: 0.25rem 1rem;
+  background: rgba(255, 232, 0, 0.9);
+  font-family: var(--cut);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+  line-height: 1.1;
+  rotate: -1.5deg;
+}
+.tape-title--pink {
+  background: rgba(255, 72, 176, 0.9);
+}
+.cuttings {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  gap: 2.25rem var(--gutter);
+  padding: clamp(2rem, 4vw, 3rem) var(--gutter);
+}
+.scrap {
+  position: relative;
+  padding: 1.5rem;
+  transition:
+    rotate 220ms ease,
+    translate 220ms ease;
+}
+.scrap:hover,
+.scrap:focus-within {
+  rotate: 0deg;
+  translate: 0 -6px;
+}
+.scrap h3 {
+  margin: 0 0 0.6rem;
+  font-family: var(--cut);
+  font-weight: 400;
+  font-size: clamp(1.45rem, 2.2vw, 2rem);
+  line-height: 1.05;
+}
+.scrap h3 a {
+  text-decoration: none;
+}
+.scrap h3 a:hover {
+  text-decoration: underline wavy var(--pink);
+  text-underline-offset: 0.15em;
+}
+.scrap p {
+  margin: 0 0 0.6rem;
+}
+.scrap-kind {
+  font-family: var(--marker);
+  font-size: 1.15rem;
+  color: var(--pink);
+}
+.scrap-meta {
+  font-weight: 700;
+}
+
+.scrap--feature {
+  grid-column: 1 / 6;
+  background: var(--white);
+  rotate: -1.5deg;
+  box-shadow: 5px 6px 0 rgba(0, 0, 0, 0.16);
+}
+.riso-print {
+  aspect-ratio: 16 / 9;
+  margin-bottom: 1rem;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle, var(--blue) 34%, transparent 36%) 0 0 / 8px 8px,
+    var(--pink);
+}
+.mini-cassette {
+  width: 55%;
+  aspect-ratio: 1.6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 22%;
+  padding-top: 16%;
+  border-radius: 6%;
+  background:
+    linear-gradient(var(--yellow) 0 0) 50% 22% / 80% 24% no-repeat,
+    var(--black);
+  rotate: -7deg;
+}
+.mini-cassette span {
+  width: 20%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--white) 0 30deg, #777 30deg 60deg);
+  box-shadow: 0 0 0 4px var(--white);
+}
+
+.scrap--list {
+  grid-column: 6 / 9;
+  padding-left: 3rem;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 2.2rem,
+      rgba(255, 72, 176, 0.6) 2.2rem 2.35rem,
+      transparent 0
+    ),
+    repeating-linear-gradient(transparent 0 1.72rem, rgba(0, 120, 191, 0.3) 1.72rem 1.8rem),
+    var(--white);
+  rotate: 2deg;
+  box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.16);
+}
+.scrap--list h3 {
+  font-family: var(--marker);
+  line-height: 1.15;
+}
+.handlist {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-family: var(--marker);
+  font-size: 1.1rem;
+  line-height: 1.8rem;
+  color: var(--blue);
+}
+
+.scrap--interview {
+  grid-column: 9 / 13;
+  padding: 2rem 1.5rem;
+  background: var(--blue);
+  color: var(--white);
+  rotate: -2deg;
+}
+.scrap--interview .scrap-kind {
+  color: var(--yellow);
+}
+.scrap--interview blockquote {
+  margin: 0 0 1rem;
+  font-family: var(--marker);
+  font-size: 1.6rem;
+  line-height: 1.2;
+  color: var(--yellow);
+}
+
+.scrap--crate {
+  grid-column: 3 / 10;
+  background: var(--orange);
+  rotate: 1deg;
+  box-shadow: 5px 6px 0 rgba(0, 0, 0, 0.16);
+}
+.scrap--crate .scrap-kind {
+  color: var(--black);
+}
+.price {
+  position: absolute;
+  top: -1.4rem;
+  right: 1.5rem;
+  display: grid;
+  place-items: center;
+  width: 5.25rem;
+  aspect-ratio: 1;
+  margin: 0;
+  border-radius: 50%;
+  background: var(--yellow);
+  font-family: var(--cut);
+  font-size: 1.1rem;
+  rotate: 10deg;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.22);
+}
+
+/* Original and its covers, pinned to the board with string */
+.board {
+  padding: clamp(2rem, 4vw, 3rem) var(--gutter) clamp(3rem, 6vw, 5rem);
+}
+.tree {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    'dub . cumbia'
+    'punk orig synth'
+    '. piano .';
+  align-items: center;
+  gap: 2.5rem 3rem;
+  margin-top: 1.5rem;
+}
+.strings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+.strings path {
+  fill: none;
+  stroke: var(--pink);
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.node {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  width: min(100%, 18rem);
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
+}
+.node::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: -0.55rem;
+  left: 50%;
+  width: 1.1rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--white) 0 18%, var(--pink) 22%);
+  box-shadow: 1px 2px 0 rgba(0, 0, 0, 0.3);
+}
+.node h3 {
+  margin: 0;
+  font-family: var(--cut);
+  font-weight: 400;
+  font-size: 1.35rem;
+  line-height: 1.05;
+}
+.node p {
+  margin: 0;
+}
+
+.node--original {
+  grid-area: orig;
+  width: min(100%, 22rem);
+}
+.orig-sleeve {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  padding: 1.1rem;
+  background:
+    radial-gradient(circle at 62% 38%, var(--pink) 0 36%, transparent 36.5%),
+    radial-gradient(circle, rgba(0, 120, 191, 0.55) 30%, transparent 32%) 0 0 / 9px 9px,
+    var(--white);
+  rotate: -2deg;
+  box-shadow: 7px 7px 0 var(--black);
+}
+.orig-sleeve h3 {
+  font-size: clamp(2rem, 3vw, 2.6rem);
+  line-height: 0.95;
+}
+.orig-sleeve p {
+  font-weight: 700;
+}
+.node-text {
+  max-width: 30ch;
+}
+.note--orig {
+  position: absolute;
+  top: -1.9rem;
+  right: -1.5rem;
+  color: var(--pink);
+  font-size: 1.6rem;
+  rotate: 9deg;
+}
+
+.node--dub {
+  grid-area: dub;
+}
+.cassette-card {
+  width: 100%;
+  padding: 0.9rem 0.9rem 3.4rem;
+  border-radius: 12px;
+  background:
+    radial-gradient(
+      circle at 30% 78%,
+      var(--white) 0 6%,
+      var(--black) 6.5% 10%,
+      #888 10.5% 13%,
+      transparent 13.5%
+    ),
+    radial-gradient(
+      circle at 70% 78%,
+      var(--white) 0 6%,
+      var(--black) 6.5% 10%,
+      #888 10.5% 13%,
+      transparent 13.5%
+    ),
+    var(--black);
+  rotate: 3deg;
+}
+.cassette-card h3 {
+  padding: 0.4rem 0.6rem 0.2rem;
+  background: var(--white);
+}
+.cassette-card p {
+  padding: 0.1rem 0.6rem 0.3rem;
+  background: var(--yellow);
+  font-weight: 700;
+}
+
+.node--cumbia {
+  grid-area: cumbia;
+}
+.mini-flyer {
+  width: 100%;
+  padding: 1.4rem 1.25rem;
+  background: var(--orange);
+  rotate: -3deg;
+}
+.mini-flyer p {
+  font-family: var(--marker);
+  font-size: 1.1rem;
+}
+
+.node--punk {
+  grid-area: punk;
+}
+.ticket {
+  width: 100%;
+  padding: 1rem 1.5rem 1rem 2rem;
+  background: var(--white);
+  border-left: 3px dashed var(--black);
+  rotate: 4deg;
+  box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.18);
+}
+.ticket::before {
+  content: 'Admit one';
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+.node--synth {
+  grid-area: synth;
+}
+.sunset-card {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 1rem;
+  color: var(--white);
+  background:
+    repeating-linear-gradient(transparent 0 8px, var(--blue) 8px 11px) 0 62% / 100% 38% no-repeat,
+    linear-gradient(
+      var(--blue) 0 48%,
+      var(--pink) 48% 62%,
+      var(--orange) 62% 76%,
+      var(--yellow) 76%
+    );
+  rotate: -2.5deg;
+}
+
+.node--piano {
+  grid-area: piano;
+}
+.polaroid {
+  width: 100%;
+  padding: 0.7rem 0.7rem 1.1rem;
+  background: var(--white);
+  rotate: 3deg;
+  box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.18);
+}
+.keys {
+  aspect-ratio: 4 / 3;
+  margin-bottom: 0.6rem;
+  background:
+    linear-gradient(
+        90deg,
+        transparent 0 9%,
+        var(--black) 9% 15%,
+        transparent 15% 23%,
+        var(--black) 23% 29%,
+        transparent 29% 51%,
+        var(--black) 51% 57%,
+        transparent 57% 65%,
+        var(--black) 65% 71%,
+        transparent 71% 79%,
+        var(--black) 79% 85%,
+        transparent 85%
+      )
+      0 0 / 100% 60% no-repeat,
+    repeating-linear-gradient(90deg, var(--white) 0 13.6%, var(--black) 13.6% 14.28%);
+  border: 2px solid var(--black);
+}
+.polaroid h3 {
+  font-family: var(--marker);
+  font-size: 1.4rem;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem var(--gutter);
+  background: var(--black);
+  color: #f4f4f4;
+  font-weight: 700;
+}
+.footer p {
+  margin: 0;
+}
+
+/* Motion: stickers slap on once; scraps answer hover by lifting and straightening */
+@media (prefers-reduced-motion: no-preference) {
+  .sticker,
+  .stub {
+    animation: slap 420ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+  .sticker--round {
+    animation-delay: 300ms;
+  }
+  .sticker--burst {
+    animation-delay: 450ms;
+  }
+  .stub {
+    animation-delay: 600ms;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scrap,
+  .ticket-btn {
+    transition: none;
+  }
+}
+@keyframes slap {
+  from {
+    opacity: 0;
+    scale: 1.7;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1000px) {
+  .scrap--feature {
+    grid-column: 1 / 8;
+  }
+  .scrap--list {
+    grid-column: 8 / 13;
+  }
+  .scrap--interview {
+    grid-column: 1 / 7;
+  }
+  .scrap--crate {
+    grid-column: 7 / 13;
+  }
+}
+
+/* Mobile: the collage straightens up and the family tree hangs from one string */
+@media (max-width: 720px) {
+  .masthead nav {
+    margin-left: 0;
+  }
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .flyer {
+    grid-column: 1;
+    rotate: -0.5deg;
+  }
+  .sleeve-wrap {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: end;
+    width: 68%;
+    margin: 1.5rem 0.5rem 0 0;
+  }
+  .sticker--round {
+    top: auto;
+    bottom: 32%;
+    left: 4%;
+    right: auto;
+    width: 6.25rem;
+    font-size: 0.85rem;
+  }
+  .sticker--burst {
+    left: auto;
+    right: 2%;
+    bottom: 0;
+    width: 6.5rem;
+    padding: 1.2rem;
+    font-size: 0.8rem;
+  }
+  .sleeve-title {
+    font-size: 1.45rem;
+  }
+  .stub {
+    display: none;
+  }
+  .cuttings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .scrap--feature,
+  .scrap--list,
+  .scrap--interview,
+  .scrap--crate {
+    grid-column: 1;
+    rotate: 0.6deg;
+  }
+  .scrap:nth-of-type(even) {
+    rotate: -0.6deg;
+  }
+  .tree {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'orig' 'dub' 'cumbia' 'punk' 'synth' 'piano';
+    gap: 2.25rem;
+    margin-left: 0.5rem;
+    padding-left: 1.75rem;
+    border-left: 3px dashed var(--pink);
+  }
+  .strings {
+    display: none;
+  }
+  .node,
+  .node--original {
+    justify-self: stretch;
+    width: auto;
+  }
+  .node::before {
+    left: -2.4rem;
+    top: 1.25rem;
+  }
+  .note--orig {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+  .orig-sleeve,
+  .cassette-card,
+  .mini-flyer,
+  .ticket,
+  .sunset-card,
+  .polaroid {
+    rotate: 0deg;
+  }
+}

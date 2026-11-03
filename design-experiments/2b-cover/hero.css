@@ -1,0 +1,661 @@
+/* Coverly cover study. One composition; the three palettes only swap these custom properties. */
+
+/* 1. Electric Pop: printer's ink with pink, electric blue and turquoise */
+:root,
+[data-palette='electric'] {
+  --base: #15121d;
+  --ink: #f6f2ec;
+  --soft: #cfc8dc;
+  --kicker: #ff4f97;
+  --fig: #ff3e8f;
+  --dot: #221a4d;
+  --hair: #221a4d;
+  --cut: #f6f2ec;
+  --phones: #1ed6c1;
+  --pad: #3159ff;
+  --echo-a: #1ed6c1;
+  --echo-b: #3159ff;
+  --bside: #ff3e8f;
+  --ring: #f6f2ec;
+  --ring-edge: #15121d;
+  --ray: rgba(49, 89, 255, 0.2);
+  --spark: #1ed6c1;
+  --btn: #ff3e8f;
+  --btn-ink: #15121d;
+  --btn-echo-1: #3159ff;
+  --btn-echo-2: #1ed6c1;
+  --grain-opacity: 0.32;
+  --grain-blend: soft-light;
+}
+
+/* 2. Retro Remix: warm paper with orange-red, cobalt and violet, printed like a two-colour riso */
+[data-palette='retro'] {
+  --base: #f2ebe1;
+  --ink: #1b1714;
+  --soft: #4b433c;
+  --kicker: #c42e12;
+  --fig: #ff4a26;
+  --dot: #2343d6;
+  --hair: #1d2f9e;
+  --cut: #fbf7f1;
+  --phones: #2343d6;
+  --pad: #7b4cf5;
+  --echo-a: #2343d6;
+  --echo-b: #bdaeff;
+  --bside: #ff4a26;
+  --ring: #1b1714;
+  --ring-edge: #f2ebe1;
+  --ray: rgba(35, 67, 214, 0.11);
+  --spark: #7b4cf5;
+  --btn: #2343d6;
+  --btn-ink: #fbf7f1;
+  --btn-echo-1: #ff4a26;
+  --btn-echo-2: #7b4cf5;
+  --grain-opacity: 0.42;
+  --grain-blend: multiply;
+}
+
+/* 3. After Hours: deep plum with coral, purple and turquoise */
+[data-palette='afterhours'] {
+  --base: #2b0f30;
+  --ink: #ffeee8;
+  --soft: #e6cdda;
+  --kicker: #ff7b6b;
+  --fig: #ff6a59;
+  --dot: #3c1352;
+  --hair: #3c1352;
+  --cut: #ffeee8;
+  --phones: #2bd4c3;
+  --pad: #9a5cff;
+  --echo-a: #2bd4c3;
+  --echo-b: #9a5cff;
+  --bside: #ff6a59;
+  --ring: #ffeee8;
+  --ring-edge: #2b0f30;
+  --ray: rgba(154, 92, 255, 0.2);
+  --spark: #2bd4c3;
+  --btn: #ff6a59;
+  --btn-ink: #2b0f30;
+  --btn-echo-1: #9a5cff;
+  --btn-echo-2: #2bd4c3;
+  --grain-opacity: 0.3;
+  --grain-blend: soft-light;
+}
+
+:root {
+  --gutter: clamp(1.25rem, 3.3vw, 3rem);
+  --display: 'Bagel Fat One', 'Arial Rounded MT Bold', sans-serif;
+  --heading: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  --text: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--base);
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  transition:
+    background-color 400ms ease,
+    color 400ms ease;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--kicker);
+  outline-offset: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip {
+  position: absolute;
+  left: -999px;
+}
+.skip:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 50;
+  padding: 0.5rem 1rem;
+  background: var(--ink);
+  color: var(--base);
+}
+
+.page {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+}
+
+/* Top bar: dateline and navigation, quiet and small */
+.topbar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  padding: 1.1rem var(--gutter) 0.6rem;
+  font-size: 0.9375rem;
+}
+.dateline {
+  margin: 0;
+  font-weight: 600;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem 1.75rem;
+}
+.nav a {
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: 0.3em;
+}
+.nav a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+.nav-search svg {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+/* The cover */
+.cover {
+  --px: 0;
+  --py: 0;
+  --spread: 1;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: auto 1fr auto;
+  column-gap: 1.5rem;
+  min-height: max(46rem, calc(100vh - 3.6rem));
+  padding: 0 var(--gutter) clamp(1.5rem, 3vw, 2.5rem);
+}
+.intro .cover:not(.is-open) {
+  --spread: 0;
+}
+.intro .l:not(.is-revealed) {
+  transform: rotateY(180deg);
+}
+.cover.is-fanned {
+  --spread: 1.6;
+}
+
+/* Grain over everything, so ink and paper read as printed */
+.cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 1.4 -0.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Plane 0: a field of rays converging on the subject's head */
+.field {
+  position: absolute;
+  inset: -6%;
+  z-index: 0;
+  background: repeating-conic-gradient(
+    from 8deg at 78% 37%,
+    var(--ray) 0deg 2.5deg,
+    transparent 2.5deg 10deg
+  );
+  mask-image: radial-gradient(circle at 78% 37%, transparent 0 8%, #000 22%, transparent 70%);
+  transform: translate3d(calc(var(--px) * 5px), calc(var(--py) * 4px), 0);
+}
+
+/* Art layers share one box so the planes stay registered with each other */
+.art {
+  position: absolute;
+  top: -5%;
+  right: -6.5vw;
+  height: 118%;
+  aspect-ratio: 1000 / 1300;
+  overflow: visible;
+  pointer-events: none;
+}
+.art-echoes {
+  z-index: 1;
+  transform: translate3d(calc(var(--px) * 12px), calc(var(--py) * 9px), 0);
+}
+.art-ring-back {
+  z-index: 3;
+  transform: translate3d(calc(var(--px) * 20px), calc(var(--py) * 14px), 0);
+}
+.art-figure {
+  z-index: 4;
+  transform: translate3d(calc(var(--px) * 20px), calc(var(--py) * 14px), 0);
+}
+.art-ring-front {
+  z-index: 5;
+  transform: translate3d(calc(var(--px) * 20px), calc(var(--py) * 14px), 0);
+}
+
+.echo {
+  transform: translate(
+    calc(var(--i) * -25px * var(--spread)),
+    calc(var(--i) * -19px * var(--spread))
+  );
+  transition: transform 900ms var(--ease-out) calc(var(--i) * 60ms);
+}
+.echoes .echo:nth-child(5) {
+  color: var(--echo-a);
+}
+.echoes .echo:nth-child(4) {
+  color: color-mix(in oklch, var(--echo-a) 75%, var(--echo-b));
+}
+.echoes .echo:nth-child(3) {
+  color: color-mix(in oklch, var(--echo-a) 50%, var(--echo-b));
+}
+.echoes .echo:nth-child(2) {
+  color: color-mix(in oklch, var(--echo-a) 25%, var(--echo-b));
+}
+.echoes .echo:nth-child(1) {
+  color: var(--echo-b);
+}
+
+.cut-band {
+  fill: none;
+  stroke: var(--cut);
+}
+.cut-cup {
+  fill: var(--cut);
+  stroke: var(--cut);
+}
+.figure-fill {
+  fill: var(--fig);
+  stroke: var(--cut);
+  stroke-width: 16;
+  paint-order: stroke;
+}
+.halftone {
+  fill: var(--dot);
+}
+.hair {
+  fill: var(--hair);
+}
+.shine {
+  fill: none;
+  stroke: var(--fig);
+  stroke-width: 9;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+.face-line {
+  fill: none;
+  stroke: var(--dot);
+  stroke-linecap: round;
+}
+.phones-band {
+  fill: none;
+  stroke: var(--phones);
+}
+.phones-cup {
+  fill: var(--phones);
+}
+.pad {
+  fill: var(--pad);
+}
+
+.orbit-line {
+  fill: none;
+  stroke: var(--ring);
+  stroke-width: 4px;
+  opacity: 0.9;
+}
+.satellite {
+  fill: var(--spark);
+  stroke: var(--ring-edge);
+  stroke-width: 0.12px;
+}
+.ring {
+  font-family: var(--display);
+  font-size: 46px;
+  letter-spacing: 0.01em;
+  fill: var(--ring);
+  stroke: var(--ring-edge);
+  stroke-width: 9px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+}
+.spark {
+  fill: var(--spark);
+}
+
+/* Plane 2: the wordmark, behind the figure and in front of its echoes */
+.wordmark {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  position: relative;
+  z-index: 2;
+  margin: 0 0 0 -0.035em;
+  font-family: var(--heading);
+  font-weight: 800;
+  font-stretch: 88%;
+  font-size: clamp(7rem, 21.5vw, 24rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  transform: translate3d(calc(var(--px) * 6px), calc(var(--py) * 4px), 0);
+}
+.letters {
+  display: inline-flex;
+  perspective: 1400px;
+}
+.l {
+  position: relative;
+  display: inline-block;
+  transform-style: preserve-3d;
+  transition: transform 750ms var(--ease-out);
+}
+.l.is-b {
+  transform: rotateY(180deg);
+}
+.l .a,
+.l .b {
+  display: block;
+  backface-visibility: hidden;
+}
+.l .b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 400;
+  font-stretch: 100%;
+  font-size: 0.6em;
+  letter-spacing: 0;
+  color: var(--bside);
+  transform: rotateY(180deg);
+}
+
+/* Plane 6: editorial text, calm and readable */
+.story {
+  grid-column: 1 / 7;
+  grid-row: 2;
+  align-self: center;
+  position: relative;
+  z-index: 6;
+  max-width: 35rem;
+  padding: clamp(1rem, 2.5vw, 2rem) 0;
+}
+.kicker {
+  margin: 0 0 0.75rem;
+  font-weight: 650;
+  font-size: 0.9375rem;
+  color: var(--kicker);
+}
+.hl-line {
+  display: block;
+}
+.headline {
+  margin: 0 0 1.1rem;
+  font-family: var(--heading);
+  font-weight: 760;
+  font-stretch: 84%;
+  font-size: clamp(2.75rem, 4.5vw, 4.75rem);
+  line-height: 0.97;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.dek {
+  max-width: 40ch;
+  margin: 0 0 1.75rem;
+  font-size: clamp(1.05rem, 1.3vw, 1.2rem);
+  line-height: 1.5;
+  color: var(--soft);
+}
+.dek strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+}
+
+/* The button carries its own echoes, and fans them out like the artwork */
+.btn {
+  position: relative;
+  display: inline-block;
+  padding: 0.95rem 1.5rem;
+  border-radius: 0.85rem;
+  background: var(--btn);
+  color: var(--btn-ink);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  text-decoration: none;
+  box-shadow:
+    5px -5px 0 0 var(--btn-echo-1),
+    10px -10px 0 0 var(--btn-echo-2);
+  transition:
+    box-shadow 300ms var(--ease-out),
+    translate 300ms var(--ease-out);
+}
+.btn:hover,
+.btn:focus-visible {
+  translate: -3px 3px;
+  box-shadow:
+    9px -9px 0 0 var(--btn-echo-1),
+    18px -18px 0 0 var(--btn-echo-2);
+}
+.link {
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+  transition: text-underline-offset 200ms ease;
+}
+.link:hover {
+  text-underline-offset: 0.45em;
+}
+
+.annotation {
+  position: absolute;
+  z-index: 6;
+  left: 45.5%;
+  top: 34%;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  color: var(--ink);
+  rotate: -6deg;
+  pointer-events: none;
+}
+.annotation p {
+  margin: 0.9rem 0 0;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  line-height: 1.05;
+}
+.annotation svg {
+  order: 2;
+  width: 3.2rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: scaleX(-1);
+}
+
+/* Cover lines: small, gridded, the orderly counterweight to the artwork */
+.coverlines {
+  grid-column: 1 / 7;
+  grid-row: 3;
+  position: relative;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.coverlines li {
+  display: grid;
+  align-content: start;
+  gap: 0.2rem;
+}
+.cl-kind {
+  font-size: 0.8125rem;
+  font-weight: 650;
+  color: var(--kicker);
+}
+.coverlines a {
+  font-family: var(--heading);
+  font-weight: 650;
+  font-stretch: 92%;
+  font-size: 1.0625rem;
+  line-height: 1.2;
+  text-decoration: none;
+}
+.coverlines a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+/* Study controls: neutral chrome, deliberately outside the design */
+.study-bar {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem;
+  border-radius: 0.75rem;
+  background: rgba(20, 20, 24, 0.86);
+  color: #fff;
+  font:
+    500 0.8125rem/1 system-ui,
+    sans-serif;
+  backdrop-filter: blur(6px);
+}
+.study-label {
+  padding: 0 0.5rem;
+  opacity: 0.7;
+}
+.study-bar button {
+  padding: 0.5rem 0.7rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.study-bar button[aria-pressed='true'] {
+  background: #fff;
+  color: #111;
+}
+[data-chrome='off'] .study-bar,
+[data-chrome='off'] .skip {
+  display: none;
+}
+
+/* Motion: one entrance, then only what the reader causes */
+@media (prefers-reduced-motion: no-preference) {
+  .story > * {
+    animation: rise 700ms var(--ease-out) both;
+  }
+  .story > :nth-child(2) {
+    animation-delay: 120ms;
+  }
+  .story > :nth-child(3) {
+    animation-delay: 220ms;
+  }
+  .story > :nth-child(4) {
+    animation-delay: 320ms;
+  }
+  .art-ring-back,
+  .art-ring-front {
+    animation: fade 900ms 500ms ease both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .echo,
+  .l,
+  .btn,
+  body {
+    transition: none;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Provisional small-screen arrangement. The designed mobile cover is part of checkpoint 2. */
+@media (max-width: 860px) {
+  .nav a:not(.nav-search) {
+    display: none;
+  }
+  .cover {
+    display: block;
+    padding-bottom: 2rem;
+  }
+  .wordmark {
+    font-size: 25vw;
+  }
+  .art {
+    top: 12vw;
+    right: -14vw;
+    height: 125vw;
+    clip-path: inset(-60% -60% 0 -60%);
+  }
+  .story {
+    max-width: none;
+    margin-top: 116vw;
+  }
+  .annotation {
+    display: none;
+  }
+  .coverlines {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+}
