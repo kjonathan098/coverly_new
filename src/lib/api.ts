@@ -16,3 +16,56 @@ export function apiFetch(path: ApiPath, init?: RequestInit): Promise<Response> {
   // The backend authenticates with a session cookie, so every request must carry credentials.
   return fetch(apiUrl(path), { ...init, credentials: 'include' })
 }
+
+/** The request reached the API, which reported a failure. */
+export class ApiError extends Error {
+  readonly status: number
+  readonly path: ApiPath
+
+  constructor(message: string, status: number, path: ApiPath) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.path = path
+  }
+}
+
+/** The API answered with data that does not match the agreed contract. */
+export class ContractError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'ContractError'
+  }
+}
+
+type Envelope = { success: boolean; message: unknown }
+
+function isEnvelope(body: unknown): body is Envelope {
+  return (
+    typeof body === 'object' &&
+    body !== null &&
+    typeof (body as Envelope).success === 'boolean' &&
+    'message' in body
+  )
+}
+
+/** Fetches `path` and returns the payload from the backend's `{ success, message }` envelope. */
+export async function apiRequest(path: ApiPath, init?: RequestInit): Promise<unknown> {
+  const response = await apiFetch(path, init)
+
+  let body: unknown
+  try {
+    body = await response.json()
+  } catch {
+    throw new ContractError(`${path}: expected a JSON response (HTTP ${response.status})`)
+  }
+  if (!isEnvelope(body)) {
+    throw new ContractError(`${path}: expected a { success, message } envelope`)
+  }
+
+  if (!response.ok || !body.success) {
+    const detail = typeof body.message === 'string' ? body.message : 'request failed'
+    throw new ApiError(`${path}: ${detail}`, response.status, path)
+  }
+  return body.message
+}
