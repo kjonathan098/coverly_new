@@ -31,6 +31,7 @@ describe('selectHandlers', () => {
     const tags = http.get('http://api.test/t', () => HttpResponse.json({}))
     const registry: HandlerRegistry = {
       recordings: [recordings],
+      songs: [],
       auth: [],
       artists: [],
       tags: [tags],

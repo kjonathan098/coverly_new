@@ -8,7 +8,11 @@ export function Dissolve({ to, className }: { to: 'paper' | 'ink'; className?: s
   return (
     <div
       aria-hidden="true"
-      className={cx('dissolve tablet:[--cell:12px] [--cell:10px]', to === 'ink' && 'scale-y-[-1]', className)}
+      className={cx(
+        'dissolve tablet:[--cell:12px] [--cell:10px]',
+        to === 'ink' && 'scale-y-[-1]',
+        className,
+      )}
     />
   )
 }

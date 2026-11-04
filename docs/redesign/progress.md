@@ -1,0 +1,372 @@
+# Coverly redesign: progress handoff
+
+Last updated: 2026-11-04. Read this first in a new session, then `CLAUDE.md` and `docs/design-system.md`.
+
+## Product vision (current, approved)
+
+**Coverly 2.0 is a cover-song discovery platform.** It should feel like an engaging place to explore music, discover unexpected covers and find new artists. Discovery runs through:
+
+- cover artists
+- genres and subgenres
+- moods
+- performance styles
+- featured and curated picks
+- playlists and community features, but only where the backend actually supports them
+
+**Latest decision (start of Phase 3): original-vs-cover comparison is out of scope.** Do not build:
+
+- original-vs-cover comparisons
+- side-by-side original and cover experiences
+- original-anchored exploration
+- anything else that depends on linking originals to covers
+
+Original-artist metadata can stay in the database, but it must not drive the UX. The earlier architecture plan centered on `/recordings/:id` exploration. That plan is superseded on this point, but its Phase 1 code is kept.
+
+## Design direction (approved in Phase 2C)
+
+"Electric Pop": a print-magazine look that is still music-first.
+
+- Ink surfaces are for listening and paper surfaces for reading. They meet at halftone `Dissolve` bands, never at a hard edge.
+- Print texture comes from grain and halftone. Colors run on a pink/turquoise/blue "version" ramp, with offset echo shadows.
+- Display type is condensed and very large.
+- **Music-first rule:** the homepage must let a reader start featured music with one click.
+- Avoid generic Spotify-style layouts.
+- Full rules: `docs/design-system.md`. Tokens: `src/styles/theme.css`. Primitives: `src/ui`. Living reference: the dev-only `/design` route.
+
+## Phases
+
+| Phase                           | Status                                                                                 | Summary                                                                                                                                                                                    |
+| ------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 0: Scaffold                     | Done (committed)                                                                       | Vite 8, React 19, TS strict, React Router 8, TanStack Query 5, Tailwind v4, MSW 3 with `VITE_MOCK_GROUPS` partial mocking, Vitest 5 + RTL, ESLint, Prettier                                |
+| 1: Contract and fixtures        | Done (committed `59a7394`)                                                             | `Recording`/`Exploration`/`Page<T>` contract, integrity rules I1–I4, `src/mocks/CONTRACT.md`, recordings handlers and fixtures. Kept but **not used** by the homepage.                     |
+| 2A/2B: Visual direction         | Done (committed `b3313f0`, `78cde64`)                                                  | Electric Pop prototypes in `design-experiments/` (reference only)                                                                                                                          |
+| 2C: Design system               | Done, approved, **not committed**                                                      | Tokens, utilities, primitives (`Button`, `Tag`/`ToggleTag`, `RecordingTile`, `Sleeve`, `EditorialCard`, `SectionHeading`, `Dissolve`, icons), the `/design` route, `docs/design-system.md` |
+| 3: Discovery homepage           | Done (cover-of-the-week version); superseded by 3B, **not committed**                  | First homepage with Discover embedded in it                                                                                                                                                |
+| 3B: Homepage and Discover split | Implemented and verified, **awaiting review, not committed**                           | See below                                                                                                                                                                                  |
+| 4: Discover as a music app      | Direction and layout approved; final verification passed; **commit awaiting approval** | See "Phase 4" below. Homepage paused.                                                                                                                                                      |
+
+## Phase 4: Discover as a music app (current state)
+
+**Direction (user, 2026-11-04):** Coverly should work like a music app in usability, navigation, browsing, search and playback, using Spotify as the reference for interaction quality, not as a visual template, and keeping Coverly's own look. **Homepage work is paused**: don't change the homepage, the carousel, playlists or community features. Original-versus-cover playback or comparison is still out of scope; finding covers by original artist is in scope.
+
+### Decisions approved with the proposal
+
+1. Plain text search matches titles, cover artists **and original artists**. Grouped suggestions let the reader pick an artist in one exact role.
+2. A Now Playing panel, docked to the bottom of Discover only.
+3. A list layout only, with no grid toggle.
+4. Sorting by catalog order (the default) and title A–Z. "Recently added" was left out because `createdAt` isn't reliable: all 92 songs were bulk-imported within 21 minutes on 2026-10-31.
+
+### What Discover has now (`src/features/discover/`)
+
+- **Header** (`DiscoverPage`): a compact "Discover" `h1` with live totals ("92 covers · 79 cover artists · 45 original artists").
+- **Sticky toolbar** (`Discover`), with z-index 8 so it sits under the page's grain overlay (z 9):
+  - `SearchBox`: a WAI-ARIA combobox. Results update as you type. Suggestions are grouped Original artist / Cover artist / Song, with counts. The keys are ↑ ↓ Enter, and Escape (closes the list, then clears the text). Picking an artist turns the text into that role's filter.
+  - `FilterBar`, on tablet and up: six menu buttons, each opening a panel of checkboxes with counts, a search field for long lists, Clear and Done. Escape or a click outside closes the panel and returns focus to its button.
+  - `FilterSheet`, on phones: one "Filters" button opens a native `<dialog>` with the six groups as `<details>` and a "Show N covers" button.
+- **The six groups** (`groups.ts`), named by role so they never blur together: Original artist (`songBy`), Cover artist (`artist`), Cover genre (`genre`), Subgenre (`sub`), Performance style (`style`), Mood (`mood`). "Acoustic" the subgenre and "Acoustic" the style are separate filters. `from` (original genre) stays link-only, for homepage collections, and shows as a chip.
+- **Active filter chips** (removable, named by group) and Clear all. Clear all keeps the search text and the sort.
+- **Results header**: a live count and a Sort select.
+- **`SongRow`**:
+  - On desktop: play, artwork, title and cover artist(s), the labelled original artist(s), cover genre tags with subgenres as text below, and Details.
+  - On phones: artwork, title, cover artists, "Original · …", play and Details.
+  - Artist names are buttons that add that role's filter.
+  - Details lists all four label groups as tags that toggle their filter.
+  - Missing values say "Not listed". There's no play button without a video ("No video").
+  - The original genre is never shown on a row.
+- **`NowPlaying`**:
+  - A fixed panel with the YouTube embed at a minimum of 356×200 (YouTube requires at least 200×200, with nothing laid over the player). At 320px-wide screens it's 320×200, letterboxed.
+  - It shows the title, cover artist and original artist, and a Close button.
+  - It reserves its height as `body` bottom padding.
+  - Only one recording plays at a time. Picking another replaces it; picking the same one stops it.
+  - The playing row is marked (`aria-current`, a pink bar and title, Stop).
+  - It keeps playing while filters change, and unmounts when you leave Discover.
+- **URL**: `genre, sub, mood, style, artist, songBy, from, q, sort`.
+  - Filter changes push a history entry.
+  - Typing and changing the sort replace the current entry.
+  - Refresh and direct links restore everything.
+- **Shared logic** (`songs/discover.ts`): `artist` and `songBy` are now regular facets (filter and counts). The module also gains `suggest()`, `sortSongs()`, `parseSort()`, `fold()` and `countArtists(songs, role)`.
+
+### Verified against the real catalog
+
+The final pass (2026-11-04) ran 42 checks at 1440×900 and the same 42 at 390×844 (mobile goes through the filter sheet). All passed. Every expected value was computed independently from the raw API JSON, with labels formatted by the app's own `format.ts`. The pass covered:
+
+- search by title, original artist and cover artist, plus both roles at once
+- 11 label combinations
+- 277 filter-panel counts
+- Details for every one of the 92 songs, with no original genre leaking into a row
+- refresh and Back/Forward
+- play, replace, Stop, Close, and cleanup when leaving the page
+- the 200×200 player minimum
+- no overflow and no console errors
+
+The script is not part of the repo; it lived in the session scratchpad.
+
+Earlier spot checks:
+
+Each combination was checked in Chrome against counts computed independently from the raw API JSON. In every case the count and the rendered rows matched.
+
+| URL                             | Covers |
+| ------------------------------- | ------ |
+| `songBy=The Beatles`            | 10     |
+| `artist=Taylor Swift`           | 5      |
+| `songBy=Taylor Swift`           | 7      |
+| `songBy=The Beatles&genre=rock` | 2      |
+| `mood=nostalgic&style=acoustic` | 6      |
+| `mood=nostalgic&sub=acoustic`   | 11     |
+| `q=taylor`                      | 11     |
+| `q=beatles`                     | 10     |
+
+- `q=taylor` is 11, not 12, because "Back to December" credits Taylor Swift in both roles.
+- With `songBy=The Beatles`, the Cover genre panel shows Rock 2, Pop 6, Folk 5, Jazz 2 and R&B and soul 1.
+- The suggestions for "taylor" list both roles separately.
+- Playback: one iframe at a time, replacement, the current-row mark, Close, and cleanup when leaving the page (iframe and padding removed).
+- Refresh and Back/Forward walk the exact states, including the sort.
+- No horizontal overflow at 1440 or 390.
+
+### Follow-up improvements (recorded, not started)
+
+- **The Now Playing panel feels too large** (user feedback, 2026-11-04). Don't redesign it until asked. Any redesign must keep these constraints:
+  - YouTube's minimum player size (200×200, with nothing laid over the player)
+  - a visible Close control
+  - results that scroll clear of the panel
+  - cleanup when leaving Discover
+
+  Today it's 225px tall on desktop and about 270px on a 390px phone. Options to discuss then: a slimmer info strip, putting the video beside the title on phones, or a user-chosen compact state that keeps the video visible.
+
+### Open points
+
+- At 320px wide, the **shared site header** overflows by 6px. It's outside Discover, so it was left alone.
+- On phones the player takes about 270px of the screen. YouTube's minimum size makes that unavoidable while it plays. Close is always visible, and results scroll clear of it.
+- Duet entries such as "Lady Gaga & Bradley Cooper" are single artist records in the backend, so they show and filter as one name.
+- There are near-duplicate labels ("soft rock" and "soft-rock"); they are shown as stored.
+- Fixtures: the song fixtures now have fictional original artists. Mara Quill is in both roles, and "acoustic" exists as both a subgenre and a style. `contract.test` and `discover.test` were updated to match.
+
+## Phase 3B: homepage and Discover separated
+
+Approved by the user before implementation, with these decisions:
+
+- Keep "Pop songs, turned rock": original-genre metadata may drive themed discovery, but there are still no original-vs-cover comparisons.
+- Remove the giant COVERLY title; branding lives in the header.
+- Switch the homepage shelf to Piano-driven.
+
+### Routes
+
+All pages render inside `src/app/SiteLayout.tsx`:
+
+- a sticky header with the wordmark (links to `/`), the tagline on desktop, and nav: Discover (`/discover`, `aria-current` when active), Moods (`/#moods`), Artists (`/#artists`)
+- a skip link and `<main id="main">`
+- the footer
+- React Router's `ScrollRestoration`: new pages start at the top, Back and Forward restore the position, and hash links scroll to the section
+
+The pages:
+
+- `/` → `features/home/HomePage.tsx`, for browsing and inspiration. Its `h1` is "Coverly", visually hidden.
+- `/discover` → `features/discover/DiscoverPage.tsx`, the search and filter page moved over from the old homepage.
+- `/design` stays dev-only.
+
+### Homepage, in order
+
+1. **Collections carousel** (`home/CollectionsCarousel.tsx`), the focal point.
+   - One collection per slide. Each slide shows:
+     - a kicker naming the rule that picks the songs ("Songs by one artist", "Mood", "Sound", "Genre crossover")
+     - the title in the new `type-display` role
+     - a description
+     - live counts ("10 covers · 12 cover artists")
+     - "Explore the collection", a router link to `/discover?…`
+     - "Play {first cover}", shown only when the collection has a playable cover. It plays in place, keeping the one-click rule, and a caption names the song and artist.
+   - The artwork fans out three real thumbnails, printed in the slide's tint.
+   - Navigation is always manual; nothing advances on its own:
+     - Previous and Next buttons, which wrap around
+     - a numbered contents strip (numbers on tablet, numbers and titles on desktop, a "02 / 06" counter on mobile)
+     - left and right arrow keys
+     - native swipe and trackpad through CSS scroll snapping, with no gesture library
+   - Accessibility follows the WAI-ARIA carousel pattern:
+     - slides out of view are `inert`
+     - the active contents entry has `aria-current`
+     - slide changes are announced in a polite live region
+   - Changing slide stops any collection video.
+   - Loading, error and retry states replace the carousel. If no collection qualifies, the hero says "Every song has another side" and links to browse everything.
+2. **Moods:** links to `/discover?mood=…`.
+3. **Piano-driven shelf:** on ink, built from the `piano-driven` label. "See all" opens Discover.
+4. **Artists who keep coming back:** each one links to `/discover?artist=…`.
+5. **The whole catalog:** a band with live totals and "Open Discover".
+
+### Discover page
+
+It keeps every earlier capability:
+
+- search
+- the Mood, Genre and "How it's played" facets, with OR within a group, AND across groups, and counts scoped to the other groups (a value with zero matches is disabled)
+- a live result count, Clear filters, an empty state, Show more
+- the collapsible filter panel on mobile
+- one-at-a-time inline playback, and no play button without a video
+
+New in this phase:
+
+- A **Subgenre** facet (`sub`).
+- **Pinned chips** for filters that arrive from links: cover artist (`artist`), "Songs first released by" (`songBy`, the original artist) and "Originally released as" (`from`, the original genre). There is deliberately no browsable list of original artists or genres.
+- **History:** picking or clearing a filter pushes a history entry, so Back undoes it. Typing a search replaces the current entry, so Back doesn't replay every keystroke.
+- **Cover-artist counts** are distinct by artist id (`countArtists`). A duet counts both artists, so a collection can have more artists than recordings: The Beatles has 10 covers and 12 artists, because "Hey Jude" and "I've Just Seen a Face" are duets.
+
+### Collections: dynamic versus curated
+
+- **Dynamic collections (built):** defined in `src/features/collections/collections.ts`. Each is a saved Discover query: an id, a kind, a title, a description with no numbers, and partial `Filters`.
+  - `resolveCollections()` runs the same `filterSongs()` Discover uses, so membership, counts and "Explore" always agree.
+  - A collection is hidden below `MIN_COLLECTION_SIZE` (6).
+  - Artwork and play come from the collection's playable matches, in Discover's order.
+- **Curated playlists (not built):** an explicit, ordered song selection.
+  - The backend already has a `Playlist` model (name, createdBy, songs[], public), readable with `GET /api/playlist/by-name/:name`.
+  - The database holds one playlist, "The Beatles Covers": 10 songs, exactly the set the `songBy=The Beatles` filter returns.
+  - It needs its own page later, because a Discover query can't express a fixed order.
+  - Don't use playlist creation: the route is unauthenticated and its owner is hardcoded.
+  - No new playlist model is needed.
+
+The live collections, verified in the browser, show the same count on the carousel and in Discover:
+
+| Collection               | Query                              | Covers / artists |
+| ------------------------ | ---------------------------------- | ---------------- |
+| Covers of The Beatles    | `songBy=The Beatles`               | 10 / 12          |
+| Nostalgic                | `mood=nostalgic`                   | 20 / 21          |
+| Acoustic & stripped down | `sub=acoustic&style=stripped-down` | 14 / 14          |
+| Pop songs, turned rock   | `genre=rock&from=pop`              | 18 / 15          |
+| Covering Madonna         | `songBy=Madonna`                   | 10 / 10          |
+| Soulful interpretations  | `mood=soulful`                     | 22 / 21          |
+
+### Playback
+
+- Playback state belongs to each page (`playingKey`), so only one video plays at a time.
+- The player is `src/features/player/YouTubeEmbed.tsx`: a youtube-nocookie iframe that mounts only after a click and autoplays.
+- There is no global player or queue.
+
+### Deliberately excluded
+
+- playlist creation and management
+- auth
+- temporary or dismissible editorial content
+
+### Future idea (not implemented): "Highlight of the Day"
+
+A temporary or dismissible editorial item that disappears after a set time or when dismissed. Before building it, decide:
+
+- where dismissal is remembered (local storage versus an account)
+- who writes the highlights and where they're stored (the backend has no model for it)
+- how it avoids competing with the carousel as the focal point
+
+Do not build timers, pop-ups or dismissal persistence until the user asks.
+
+### Verified in the browser (headless Chrome, real backend)
+
+- Full pages at 1440×900 and 390×844, with no horizontal overflow and no console errors.
+- Carousel: buttons, the contents strip, arrow keys, swipe sync (counter, live region, inert), hover fan, play, and stop on slide change.
+- Navigation: a homepage collection opens the right filtered results. Refresh keeps the filters, Back undoes one filter and then returns home, and Forward replays both. The tab title changes per page.
+- Fixed while checking: the scroll track clipped the fanned artwork, so the fan now fits inside the art's own padding.
+
+### Open points
+
+- Autoplay in a real browser is still unconfirmed. Headless Chrome shows YouTube's own play button.
+- Some catalog videos may have been removed from YouTube (for example "Iris" by NIKI). Their play button still shows.
+- The labels have data-quality issues that show in the Subgenre facet:
+  - near-duplicates such as "soft rock" and "soft-rock"
+  - "acoustic" exists as both a subgenre and a style
+  - "soul" exists alongside "r&b/soul"
+  - Normalizing them is a data decision for the user.
+- Every song has `approved: false`, so the site shows unapproved songs; filtering on approval would show nothing.
+- On mobile, the Artists section is long, with 8 artists in one column.
+
+## Architecture decisions and contracts
+
+- **Songs feature (`src/features/songs`):**
+  - `types.ts`: `CoverSong {id, title, artists, genres, subGenres, moods, styles, originalArtists, originalGenres, video | null, addedAt}`. The two original fields are **for filtering only**; never build comparison UI on them.
+  - `contract.ts`: `parseSong`/`parseSongs` adapt the backend payload.
+    - Invalid songs (no id, title or cover artist) are dropped, with a warning in dev.
+    - Invalid labels are skipped.
+    - Label names are lowercased.
+    - `youtubeVideoId` accepts watch, youtu.be, embed, shorts and live URLs.
+  - `api.ts`: `fetchCoverSongs()`. A payload that isn't a list throws `ContractError`, which is not retried.
+  - `hooks.ts`: `useCoverSongs()` (query key `['songs']`, staleTime 5 min). Both pages share the cache.
+  - `discover.ts`: holds the `Filters` type, with fields `genre`, `sub`, `mood`, `style`, `artist`, `songBy`, `from` and `q`. Also `filterSongs`, `facetCounts`, `countArtists`, `selectedCount`, `recurringArtists`, `songsWith`, URL (de)serialization, and `featuredSong`, which is now unused but kept. All filtering happens client-side.
+  - `format.ts`: display helpers for titles, names and labels.
+  - Shared components: `CoverArt` (takes an optional `tint` override), `SongCard`, `tint.ts`.
+- **Discover feature (`src/features/discover`):** `DiscoverPage`, `Discover` (the panel), and `useFilters` (URL state; exports `discoverHref` and `DISCOVER_PATH`).
+- **UI:** `buttonClasses()` lives in `src/ui/buttonClasses.ts`, so router `Link`s can look like buttons. Also new: `ButtonIcon`, `ArrowIcon`, and the `type-display` role (`--text-display` token).
+- **Backend contract used** (read-only; never modify `/Users/coding/Desktop/coverly_backend`):
+  - Endpoint: `GET /api/songs/all-songs`, which returns `{success, message: Song[]}` with populated songs.
+  - Song fields: `_id`, `title`, `artist.coverArtist[]`, `artist.original[]`, `genres.cover[]`, `genres.original[]`, `subGenre[]`, `mood[]`, `performanceStyle[]`, `links[{url, platform, timeStamp}]`, `createdAt`.
+  - The backend runs on port 4000. CORS allows only `http://localhost:5173` with credentials, which is why Vite uses `strictPort` on 5173.
+- **Mocking:**
+  - MSW groups are `recordings, songs, auth, artists, tags`.
+  - The dev default is `recordings`, so songs come from the real backend in dev.
+  - Tests run with every group enabled. Song fixtures are fictional and too small for any real collection, so the homepage tests serve a larger catalog built from them.
+- `src/main.tsx` renders the app even if MSW fails to start.
+- **Thumbnails** load from `i.ytimg.com`, and the embeds use `youtube-nocookie.com`. No images were copied into the repo, and no dependencies were added.
+
+## Uncommitted changes (Phases 2C and 3, all unstaged)
+
+**Modified:**
+
+- `.env.example` (API port 4000, list of mock groups)
+- `.gitignore`: the `songsJSON.json` line was added by the user, not by Claude
+- `src/app/routes.tsx`
+- `src/main.tsx`
+- `src/mocks/groups.ts`, `groups.test.ts`, `index.ts`, `partialMocking.test.ts`
+- `src/styles/theme.css`, `utilities.css`
+- `src/ui/Dissolve.tsx`, `Icons.tsx`
+
+**Deleted:** `src/app/Placeholder.tsx`
+
+**New:**
+
+- `CLAUDE.md`
+- `docs/design-system.md`, `docs/redesign/progress.md`
+- `src/app/routes.test.tsx`
+- `src/design/`
+- `src/app/SiteLayout.tsx`, `src/lib/useDocumentTitle.ts`
+- `src/features/home/`, `src/features/discover/`, `src/features/collections/`, `src/features/player/`, `src/features/songs/`
+- `src/ui/buttonClasses.ts`
+- `src/mocks/fixtures/songs.ts`, `src/mocks/handlers/songs.ts`
+- the new `src/ui/*` primitives and their tests
+
+`docs/design_refs/` and `docs/songs_json/` belong to the user.
+
+**Local only:** `.env.local` sets `VITE_API_BASE_URL=http://localhost:4000`.
+
+## Test and check results (last run 2026-11-04, after Phase 3B)
+
+- `npm run typecheck`: pass
+- `npm run lint`: pass
+- `npm run format:check`: pass
+- `npm test`: 20 files, 149 tests, all pass. The new and updated ones are:
+  - `discover/DiscoverPage.test.tsx`
+  - `home/HomePage.test.tsx`
+  - `collections/collections.test.ts`
+  - additions to `songs/discover.test.ts` and `songs/contract.test.ts`
+- `npm run build`: pass. `/design` is excluded from the production bundle.
+
+## Remaining tasks
+
+1. Get the user's review of Phase 3B, or apply their feedback.
+2. Commit Phases 2C and 3/3B only when the user says to. The user may want separate commits.
+3. Confirm autoplay in a real browser.
+4. Later, each only when the user asks or the backend supports it:
+   - a curated playlist page (read-only, using the existing model)
+   - cover-artist pages
+   - normalizing the label data
+   - "Highlight of the Day"
+   - real auth
+   - server-side pagination and search
+
+## Instructions for the next session
+
+- Do not commit or push without explicit approval.
+- Work only in `/Users/coding/Desktop/coverly_new`. Never modify the backend or the old frontend (`/Users/coding/Desktop/coverly`).
+- Don't add unnecessary dependencies, and don't copy Pinterest or reference images into production.
+- No fake functionality: never show a control that can't work, including play buttons without a video.
+- No global player, queue or persistent player. Page-local playback only.
+- Keep the Phase 0/1 contracts, fixtures, hooks and tests intact.
+- Use they/them for the user.
+- **To run the app locally:**
+  1. Start MongoDB.
+  2. Run `node server.js` in `coverly_backend` (port 4000).
+  3. Run `nvm use && npm run dev` in this repo (port 5173, strict).
+- **For browser verification**, use headless Chrome over the DevTools protocol at 1440×900 and 390×844. Check that `document.documentElement.scrollWidth === clientWidth`.
+- After any change, run all five checks.

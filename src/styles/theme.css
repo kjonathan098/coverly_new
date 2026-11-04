@@ -43,6 +43,8 @@
   --text-*: initial;
   --text-masthead: clamp(6.5rem, min(21.5vw, 34.5vh), 24rem);
   --text-masthead--line-height: 0.8;
+  --text-display: clamp(3rem, 6.2vw, 6.75rem);
+  --text-display--line-height: 0.9;
   --text-headline: clamp(2.5rem, 4.3vw, 4.5rem);
   --text-headline--line-height: 0.97;
   --text-section: clamp(2.4rem, 4.6vw, 4.25rem);
@@ -100,7 +102,11 @@
   --breakpoint-desktop: 68.75rem;
 }
 
-/* Surface-aware colors: components use these and never need to know if they sit on ink or paper */
+/*
+ * Surface-aware colors: components use these and never need to know if they sit on ink or paper.
+ * Use them through utilities (text-fg, bg-raised). In arbitrary values use the live variable,
+ * var(--surface-line), not var(--color-line), which resolves once at the root.
+ */
 @theme inline {
   --color-surface: var(--surface-bg);
   --color-fg: var(--surface-fg);

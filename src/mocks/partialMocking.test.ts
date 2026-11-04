@@ -26,6 +26,7 @@ function registryFor(baseUrl: string): HandlerRegistry {
     http.get(`${baseUrl}/api/${group}`, () => HttpResponse.json({ from: 'mock', group }))
   return {
     recordings: [handlerFor('recordings')],
+    songs: [handlerFor('songs')],
     auth: [handlerFor('auth')],
     artists: [handlerFor('artists')],
     tags: [handlerFor('tags')],

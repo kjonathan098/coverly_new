@@ -9,6 +9,17 @@
   text-transform: uppercase;
 }
 
+/* The one featured title on a page, such as a collection in the homepage carousel. */
+@utility type-display {
+  font-family: var(--font-heading);
+  font-weight: 780;
+  font-stretch: 80%;
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
 @utility type-headline {
   font-family: var(--font-heading);
   font-weight: 760;
@@ -71,7 +82,6 @@
   font-weight: 500;
   font-size: var(--text-meta);
   line-height: var(--text-meta--line-height);
-  font-variant-numeric: tabular-nums;
 }
 
 @utility type-chip {
@@ -111,7 +121,11 @@
 
 /* A flat halftone dot field. Set --halftone-color and --halftone-size; fade it with a mask. */
 @utility halftone {
-  background-image: radial-gradient(circle, var(--halftone-color, currentColor) 32%, transparent 35%);
+  background-image: radial-gradient(
+    circle,
+    var(--halftone-color, currentColor) 32%,
+    transparent 35%
+  );
   background-size: var(--halftone-size, 12px) var(--halftone-size, 12px);
 }
 
@@ -126,16 +140,56 @@
   background-repeat: repeat-x;
   background-size: var(--cell) var(--cell);
   background-image:
-    radial-gradient(circle at calc(var(--cell) / 2) calc(var(--cell) / 2), var(--color-ink) calc(var(--cell) * 0.725), transparent calc(var(--cell) * 0.725 + 0.5px)),
-    radial-gradient(circle at calc(var(--cell) / 2) calc(var(--cell) / 2), var(--color-ink) calc(var(--cell) * 0.633), transparent calc(var(--cell) * 0.633 + 0.5px)),
-    radial-gradient(circle at calc(var(--cell) / 2) calc(var(--cell) / 2), var(--color-ink) calc(var(--cell) * 0.55), transparent calc(var(--cell) * 0.55 + 0.5px)),
-    radial-gradient(circle at calc(var(--cell) / 2) calc(var(--cell) / 2), var(--color-ink) calc(var(--cell) * 0.475), transparent calc(var(--cell) * 0.475 + 0.5px)),
-    radial-gradient(circle at calc(var(--cell) / 2) calc(var(--cell) / 2), var(--color-ink) calc(var(--cell) * 0.4), transparent calc(var(--cell) * 0.4 + 0.5px)),
-    radial-gradient(circle at calc(var(--cell) / 2) calc(var(--cell) / 2), var(--color-ink) calc(var(--cell) * 0.333), transparent calc(var(--cell) * 0.333 + 0.5px)),
-    radial-gradient(circle at calc(var(--cell) / 2) calc(var(--cell) / 2), var(--color-ink) calc(var(--cell) * 0.267), transparent calc(var(--cell) * 0.267 + 0.5px)),
-    radial-gradient(circle at calc(var(--cell) / 2) calc(var(--cell) / 2), var(--color-ink) calc(var(--cell) * 0.208), transparent calc(var(--cell) * 0.208 + 0.5px)),
-    radial-gradient(circle at calc(var(--cell) / 2) calc(var(--cell) / 2), var(--color-ink) calc(var(--cell) * 0.15), transparent calc(var(--cell) * 0.15 + 0.5px)),
-    radial-gradient(circle at calc(var(--cell) / 2) calc(var(--cell) / 2), var(--color-ink) calc(var(--cell) * 0.1), transparent calc(var(--cell) * 0.1 + 0.5px));
+    radial-gradient(
+      circle at calc(var(--cell) / 2) calc(var(--cell) / 2),
+      var(--color-ink) calc(var(--cell) * 0.725),
+      transparent calc(var(--cell) * 0.725 + 0.5px)
+    ),
+    radial-gradient(
+      circle at calc(var(--cell) / 2) calc(var(--cell) / 2),
+      var(--color-ink) calc(var(--cell) * 0.633),
+      transparent calc(var(--cell) * 0.633 + 0.5px)
+    ),
+    radial-gradient(
+      circle at calc(var(--cell) / 2) calc(var(--cell) / 2),
+      var(--color-ink) calc(var(--cell) * 0.55),
+      transparent calc(var(--cell) * 0.55 + 0.5px)
+    ),
+    radial-gradient(
+      circle at calc(var(--cell) / 2) calc(var(--cell) / 2),
+      var(--color-ink) calc(var(--cell) * 0.475),
+      transparent calc(var(--cell) * 0.475 + 0.5px)
+    ),
+    radial-gradient(
+      circle at calc(var(--cell) / 2) calc(var(--cell) / 2),
+      var(--color-ink) calc(var(--cell) * 0.4),
+      transparent calc(var(--cell) * 0.4 + 0.5px)
+    ),
+    radial-gradient(
+      circle at calc(var(--cell) / 2) calc(var(--cell) / 2),
+      var(--color-ink) calc(var(--cell) * 0.333),
+      transparent calc(var(--cell) * 0.333 + 0.5px)
+    ),
+    radial-gradient(
+      circle at calc(var(--cell) / 2) calc(var(--cell) / 2),
+      var(--color-ink) calc(var(--cell) * 0.267),
+      transparent calc(var(--cell) * 0.267 + 0.5px)
+    ),
+    radial-gradient(
+      circle at calc(var(--cell) / 2) calc(var(--cell) / 2),
+      var(--color-ink) calc(var(--cell) * 0.208),
+      transparent calc(var(--cell) * 0.208 + 0.5px)
+    ),
+    radial-gradient(
+      circle at calc(var(--cell) / 2) calc(var(--cell) / 2),
+      var(--color-ink) calc(var(--cell) * 0.15),
+      transparent calc(var(--cell) * 0.15 + 0.5px)
+    ),
+    radial-gradient(
+      circle at calc(var(--cell) / 2) calc(var(--cell) / 2),
+      var(--color-ink) calc(var(--cell) * 0.1),
+      transparent calc(var(--cell) * 0.1 + 0.5px)
+    );
   background-position:
     0 0,
     calc(var(--cell) / 2) calc(var(--cell) * 1),

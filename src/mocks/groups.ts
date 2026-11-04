@@ -1,6 +1,6 @@
 import type { AnyHandler } from 'msw'
 
-export const MOCK_GROUPS = ['recordings', 'auth', 'artists', 'tags'] as const
+export const MOCK_GROUPS = ['recordings', 'songs', 'auth', 'artists', 'tags'] as const
 export type MockGroup = (typeof MOCK_GROUPS)[number]
 export type HandlerRegistry = Record<MockGroup, AnyHandler[]>
 

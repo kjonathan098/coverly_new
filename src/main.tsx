@@ -12,10 +12,13 @@ async function startMocking() {
   await startMockWorker(groups)
 }
 
-startMocking().then(() => {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
-})
+// If mocking fails to start, say so and render anyway: unmocked requests still reach the backend.
+startMocking()
+  .catch((error) => console.error('[mocks] MSW did not start:', error))
+  .then(() => {
+    createRoot(document.getElementById('root')!).render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    )
+  })
