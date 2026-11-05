@@ -1,4 +1,6 @@
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
+import { PlayerPanel } from '../features/player/PlayerPanel'
+import { usePlayback } from '../features/player/playback'
 import { Container, Surface, Wordmark, cx } from '../ui'
 
 // A pink underline that draws in on hover, and stays drawn for the current page.
@@ -13,6 +15,7 @@ function SiteHeader() {
     <Surface
       as="header"
       tone="ink"
+      data-shell="page"
       className="sticky top-0 z-30 bg-[color-mix(in_srgb,var(--color-ink)_92%,transparent)] backdrop-blur-md"
     >
       <Container size="full" className="flex min-h-14 items-center justify-between gap-4">
@@ -42,7 +45,7 @@ function SiteHeader() {
 
 function SiteFooter() {
   return (
-    <Surface as="footer" tone="ink" grain className="pt-8 pb-14">
+    <Surface as="footer" tone="ink" grain data-shell="page" className="pt-8 pb-14">
       <Container size="full" className="grid gap-3 tablet:grid-cols-2 tablet:items-end">
         <p className="type-wordmark m-0 text-[clamp(3rem,8vw,6rem)]">Coverly</p>
         <div className="text-fg-soft tablet:text-right">
@@ -54,8 +57,17 @@ function SiteFooter() {
   )
 }
 
-/** Header, footer and scroll handling shared by the site's pages. */
-export function SiteLayout() {
+/**
+ * The application shell: the one layout around every route. It never unmounts during in-app
+ * navigation, so the player it holds, outside the route outlet, keeps playing from page to page.
+ * Only the content in <main> changes.
+ *
+ * Phones and tablets: the player floats over the bottom of the page, and the page gets bottom
+ * padding (--player-inset) so nothing stays hidden under it. From 1536px: the player takes its own
+ * column while something is loaded, and the page keeps the rest.
+ */
+export function AppShell() {
+  const open = usePlayback().song !== null
   return (
     <>
       <a
@@ -64,11 +76,25 @@ export function SiteLayout() {
       >
         Skip to content
       </a>
+      {open && (
+        <a
+          href="#now-playing"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-control focus:bg-paper focus:px-4 focus:py-2 focus:text-ink"
+        >
+          Skip to the player
+        </a>
+      )}
       <SiteHeader />
-      <main id="main">
-        <Outlet />
-      </main>
-      <SiteFooter />
+      <div className={cx(open && 'wide:grid wide:grid-cols-[minmax(0,1fr)_auto]')}>
+        <div className="min-w-0 pb-(--player-inset,0px)">
+          {/* data-shell="page": what a full-screen sheet makes inert. The player is never marked. */}
+          <main id="main" data-shell="page">
+            <Outlet />
+          </main>
+          <SiteFooter />
+        </div>
+        <PlayerPanel />
+      </div>
       {/* New pages start at the top; Back and Forward return to where the reader was. */}
       <ScrollRestoration />
     </>

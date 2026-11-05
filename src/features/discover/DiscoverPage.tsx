@@ -1,27 +1,17 @@
-import { useState } from 'react'
 import { useDocumentTitle } from '../../lib/useDocumentTitle'
 import { Button, Container, Surface } from '../../ui'
 import { countArtists } from '../songs/discover'
 import { plural } from '../songs/format'
 import { useCoverSongs } from '../songs/hooks'
-import type { CoverSong, Video } from '../songs/types'
 import { Discover } from './Discover'
-import { NowPlaying } from './NowPlaying'
 import { useFilters } from './useFilters'
 
-const playable = (song: CoverSong | undefined): song is CoverSong & { video: Video } =>
-  Boolean(song?.video)
-
-/** /discover: the whole catalog, searchable and filterable, with a player docked to the page. */
+/** /discover: the whole catalog, searchable and filterable. Playback goes to the shell's player. */
 export function DiscoverPage() {
   useDocumentTitle('Discover covers · Coverly')
   const query = useCoverSongs()
   const songs = query.data ?? []
   const { filters, sort, update, setSort } = useFilters()
-  // One recording at a time. Picking another replaces it; picking the same one stops it.
-  const [playingId, setPlayingId] = useState<string | null>(null)
-  const playing = songs.find((song) => song.id === playingId)
-  const play = (song: CoverSong) => setPlayingId((id) => (id === song.id ? null : song.id))
 
   return (
     <Surface
@@ -59,18 +49,8 @@ export function DiscoverPage() {
           </p>
         </Container>
       ) : (
-        <Discover
-          songs={songs}
-          filters={filters}
-          sort={sort}
-          onChange={update}
-          onSort={setSort}
-          playingId={playable(playing) ? playingId : null}
-          onPlay={play}
-        />
+        <Discover songs={songs} filters={filters} sort={sort} onChange={update} onSort={setSort} />
       )}
-
-      {playable(playing) && <NowPlaying song={playing} onClose={() => setPlayingId(null)} />}
     </Surface>
   )
 }

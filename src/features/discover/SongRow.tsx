@@ -1,5 +1,7 @@
 import { Fragment, useId, useState } from 'react'
-import { ChevronIcon, PlayIcon, StopIcon, Tag, ToggleTag, cx } from '../../ui'
+import { ChevronIcon, PauseIcon, PlayIcon, Tag, ToggleTag, cx } from '../../ui'
+import { PlaybackBadge } from '../player/PlaybackBadge'
+import { play, playVerb, usePlaybackOf } from '../player/playback'
 import type { FacetKey, Filters } from '../songs/discover'
 import { CoverArt } from '../songs/CoverArt'
 import { artistList, displayName, displayTitle, tagLabel } from '../songs/format'
@@ -8,8 +10,6 @@ import { FILTER_GROUPS } from './groups'
 
 type SongRowProps = {
   song: CoverSong
-  playing: boolean
-  onPlay: () => void
   filters: Filters
   /**
    * Narrow Discover by one value. Artist names add their filter (never remove it); the tags in
@@ -66,7 +66,11 @@ function valuesOf(song: CoverSong, key: FacetKey): Facet[] {
  * play; on wider screens also the cover genres with their subgenres. Details opens every label.
  * Nothing is inferred or filled in: a missing value is said to be missing, or left out.
  */
-export function SongRow({ song, playing, onPlay, filters, onFilter }: SongRowProps) {
+export function SongRow({ song, filters, onFilter }: SongRowProps) {
+  // This row's recording in the shared player, if it's the one loaded there.
+  const status = usePlaybackOf(song.id)
+  const current = status !== null
+  const verb = playVerb(status)
   const [open, setOpen] = useState(false)
   const detailsId = useId()
   const title = displayTitle(song.title)
@@ -76,32 +80,31 @@ export function SongRow({ song, playing, onPlay, filters, onFilter }: SongRowPro
     <li
       className={cx(
         'group relative rounded-card transition-colors duration-(--duration-fast)',
-        playing ? 'bg-raised' : 'hover:bg-[color-mix(in_srgb,var(--surface-fg)_6%,transparent)]',
+        current ? 'bg-raised' : 'hover:bg-[color-mix(in_srgb,var(--surface-fg)_6%,transparent)]',
       )}
     >
-      {playing && (
+      {current && (
         <span aria-hidden="true" className="absolute inset-y-3 left-0 w-1 rounded-pill bg-pink" />
       )}
       <article
         aria-label={`${title}, covered by ${by}`}
-        aria-current={playing ? 'true' : undefined}
+        aria-current={current ? 'true' : undefined}
         className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-2 py-2.5 tablet:grid-cols-[7rem_minmax(0,1fr)_auto] desktop:grid-cols-[auto_7rem_minmax(0,2fr)_minmax(0,1.25fr)_minmax(0,1.6fr)_auto] desktop:gap-x-5 desktop:px-3"
       >
         <div className="col-start-3 row-start-1 desktop:col-start-1">
           {song.video ? (
             <button
               type="button"
-              aria-pressed={playing}
-              aria-label={`${playing ? 'Stop' : 'Play'} ${title} by ${by}`}
-              onClick={onPlay}
+              aria-label={`${verb} ${title} by ${by}`}
+              onClick={() => play(song)}
               className={cx(
                 'grid size-11 cursor-pointer place-items-center rounded-pill transition-colors duration-(--duration-fast) *:size-5',
-                playing
+                current
                   ? 'bg-pink text-ink'
                   : 'text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] group-hover:bg-pink group-hover:text-ink group-hover:shadow-none',
               )}
             >
-              {playing ? <StopIcon /> : <PlayIcon />}
+              {verb === 'Pause' ? <PauseIcon /> : <PlayIcon />}
             </button>
           ) : (
             <span className="type-meta block w-11 text-center leading-tight text-fg-soft">
@@ -116,15 +119,17 @@ export function SongRow({ song, playing, onPlay, filters, onFilter }: SongRowPro
         />
 
         <div className="col-start-2 row-start-1 min-w-0 desktop:col-start-3">
-          <h3
-            className={cx(
-              'type-row m-0 line-clamp-2 text-[1.0625rem] tablet:text-[1.1875rem] desktop:line-clamp-1',
-              playing && 'text-pink',
-            )}
-          >
-            {title}
-            {playing && <span className="sr-only"> (now playing)</span>}
-          </h3>
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
+            <h3
+              className={cx(
+                'type-row m-0 line-clamp-2 min-w-0 text-[1.0625rem] tablet:text-[1.1875rem] desktop:line-clamp-1',
+                current && 'text-pink',
+              )}
+            >
+              {title}
+            </h3>
+            {status && <PlaybackBadge status={status} />}
+          </div>
           <p className="m-0 text-label font-medium text-fg desktop:truncate">
             <span className="sr-only">Cover artist: </span>
             <ArtistLinks artists={song.artists} role="artist" onFilter={onFilter} />

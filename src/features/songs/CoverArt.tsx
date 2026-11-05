@@ -1,13 +1,14 @@
 import { useState, type CSSProperties } from 'react'
 import { cx } from '../../ui'
-import { YouTubeEmbed } from '../player/YouTubeEmbed'
-import { displayTitle } from './format'
+import { PlaybackBadge } from '../player/PlaybackBadge'
+import type { PlaybackStatus } from '../player/playback'
 import type { CoverSong } from './types'
 import { tintFor } from './tint'
 
 type CoverArtProps = {
   song: CoverSong
-  playing?: boolean
+  /** Set when this recording is the one in the player: the artwork carries its badge. */
+  status?: PlaybackStatus | null
   /** hero uses the larger thumbnail. */
   size?: 'card' | 'hero'
   /** Overrides the genre ink, so a group of covers can print in one color. */
@@ -18,12 +19,12 @@ type CoverArtProps = {
 
 /**
  * The cover's own video frame, printed as a duotone in its genre's ink with a halftone over it.
- * It shows its true colors on hover, and becomes the player while it plays. Without a
- * thumbnail it falls back to a plain halftone, so nothing depends on artwork existing.
+ * It shows its true colors on hover. Without a thumbnail it falls back to a plain halftone, so
+ * nothing depends on artwork existing. It never plays video itself: the app shell's player does.
  */
 export function CoverArt({
   song,
-  playing = false,
+  status = null,
   size = 'card',
   tint: tintOverride,
   className,
@@ -40,28 +41,23 @@ export function CoverArt({
       className={cx('relative aspect-video overflow-hidden bg-ink-3', className)}
       style={{ backgroundColor: tint, ...style }}
     >
-      {playing && song.video ? (
-        <YouTubeEmbed video={song.video} title={displayTitle(song.title)} />
-      ) : (
-        <>
-          {thumbnail && !failed && (
-            <img
-              src={thumbnail}
-              alt=""
-              loading={size === 'hero' ? 'eager' : 'lazy'}
-              decoding="async"
-              onError={() => setFailed(true)}
-              // YouTube answers a missing thumbnail with a 120px grey placeholder, not an error.
-              onLoad={(event) => event.currentTarget.naturalWidth <= 120 && setFailed(true)}
-              className="absolute inset-0 size-full object-cover mix-blend-multiply contrast-125 grayscale transition-[filter,mix-blend-mode] duration-(--duration-slow) ease-snap group-hover:mix-blend-normal group-hover:grayscale-0"
-            />
-          )}
-          <div
-            aria-hidden="true"
-            className="halftone pointer-events-none absolute inset-0 opacity-60 [--halftone-color:var(--color-ink)] [--halftone-size:7px] mask-[linear-gradient(200deg,transparent_40%,#000_100%)] transition-opacity duration-(--duration-slow) group-hover:opacity-0"
-          />
-        </>
+      {thumbnail && !failed && (
+        <img
+          src={thumbnail}
+          alt=""
+          loading={size === 'hero' ? 'eager' : 'lazy'}
+          decoding="async"
+          onError={() => setFailed(true)}
+          // YouTube answers a missing thumbnail with a 120px grey placeholder, not an error.
+          onLoad={(event) => event.currentTarget.naturalWidth <= 120 && setFailed(true)}
+          className="absolute inset-0 size-full object-cover mix-blend-multiply contrast-125 grayscale transition-[filter,mix-blend-mode] duration-(--duration-slow) ease-snap group-hover:mix-blend-normal group-hover:grayscale-0"
+        />
       )}
+      <div
+        aria-hidden="true"
+        className="halftone pointer-events-none absolute inset-0 opacity-60 [--halftone-color:var(--color-ink)] [--halftone-size:7px] mask-[linear-gradient(200deg,transparent_40%,#000_100%)] transition-opacity duration-(--duration-slow) group-hover:opacity-0"
+      />
+      {status && <PlaybackBadge status={status} className="absolute top-2 left-2 shadow-sm" />}
     </div>
   )
 }

@@ -5,11 +5,12 @@ import {
   Button,
   Container,
   PlayIcon,
-  StopIcon,
+  PauseIcon,
   Surface,
   buttonClasses,
   cx,
 } from '../../ui'
+import { play, playVerb, usePlaybackOf } from '../player/playback'
 import type { Collection } from '../collections/collections'
 import { discoverHref } from '../discover/useFilters'
 import { CoverArt } from '../songs/CoverArt'
@@ -30,14 +31,8 @@ const FAN = [
   'z-[1] rotate-[5deg] translate-x-[7%] -translate-y-[4%] group-hover/art:rotate-[7deg] group-hover/art:translate-x-[10%]',
 ]
 
-const collectionPlayKey = (collection: Collection) => `collection:${collection.id}`
-
 type CarouselProps = {
   collections: Collection[]
-  playingKey: string | null
-  onToggle: (key: string) => void
-  /** Called when the visible slide changes, so a video on the old slide stops. */
-  onSlideChange: () => void
 }
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? true
@@ -47,13 +42,10 @@ const pad = (n: number) => String(n).padStart(2, '0')
  * The homepage's featured collections, one at a time. Movement is always the reader's: buttons,
  * arrow keys, or a swipe (native scroll snapping, no gesture code). Nothing advances on its own.
  * Follows the WAI-ARIA carousel pattern; slides out of view are inert, so focus can't wander there.
+ * Playing a collection's first cover uses the app shell's player, so changing slides (or pages)
+ * never stops it.
  */
-export function CollectionsCarousel({
-  collections,
-  playingKey,
-  onToggle,
-  onSlideChange,
-}: CarouselProps) {
+export function CollectionsCarousel({ collections }: CarouselProps) {
   const [index, setIndex] = useState(0)
   const [announcement, setAnnouncement] = useState('')
   const track = useRef<HTMLDivElement>(null)
@@ -68,7 +60,6 @@ export function CollectionsCarousel({
     if (next === index) return
     setIndex(next)
     setAnnouncement(`Collection ${next + 1} of ${count}: ${collections[next]?.title ?? ''}`)
-    onSlideChange()
   }
 
   const go = (requested: number) => {
@@ -142,8 +133,6 @@ export function CollectionsCarousel({
               count={count}
               current={i === index}
               tint={TINTS[i % TINTS.length]!}
-              playing={playingKey === collectionPlayKey(collection)}
-              onToggle={() => onToggle(collectionPlayKey(collection))}
             />
           ))}
         </div>
@@ -214,21 +203,20 @@ function Slide({
   count,
   current,
   tint,
-  playing,
-  onToggle,
 }: {
   collection: Collection
   position: number
   count: number
   current: boolean
   tint: string
-  playing: boolean
-  onToggle: () => void
 }) {
   // Artwork is the collection's own recordings: the first playable matches, in Discover's order.
   const art = (collection.playable.length ? collection.playable : collection.songs).slice(0, 3)
   const [front, ...back] = art
   const lead = collection.playable[0]
+  // The first cover's state in the shared player ('' never matches, when there's nothing to play).
+  const status = usePlaybackOf(lead?.id ?? '')
+  const verb = playVerb(status)
 
   return (
     <div
@@ -248,7 +236,6 @@ function Slide({
               className={cx(
                 'absolute! inset-0 rounded-card shadow-[0_0_0_4px_var(--color-ink)] transition-[translate,rotate,opacity] duration-(--duration-slow) ease-snap',
                 FAN[i],
-                playing && 'opacity-0',
               )}
             />
           ))}
@@ -257,7 +244,7 @@ function Slide({
               song={front}
               tint={tint}
               size="hero"
-              playing={playing && front.id === lead?.id}
+              status={front.id === lead?.id ? status : null}
               className="z-[3] rounded-card shadow-[0_0_0_6px_var(--color-paper)]"
             />
           )}
@@ -284,14 +271,13 @@ function Slide({
             <Button
               variant="secondary"
               size="lg"
-              icon={playing ? <StopIcon /> : <PlayIcon />}
-              aria-pressed={playing}
-              aria-label={`${playing ? 'Stop' : 'Play'} ${displayTitle(lead.title)} by ${artistList(lead.artists)}`}
-              onClick={onToggle}
+              icon={verb === 'Pause' ? <PauseIcon /> : <PlayIcon />}
+              aria-label={`${verb} ${displayTitle(lead.title)} by ${artistList(lead.artists)}`}
+              onClick={() => play(lead)}
               className="max-tablet:w-full"
             >
               <span className="min-w-0 truncate">
-                {playing ? 'Stop' : 'Play'} {displayTitle(lead.title)}
+                {verb} {displayTitle(lead.title)}
               </span>
             </Button>
           )}

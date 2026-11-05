@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router'
 import { useDocumentTitle } from '../../lib/useDocumentTitle'
 import { ArrowIcon, Button, Container, Dissolve, Section, Surface, buttonClasses } from '../../ui'
@@ -31,17 +31,11 @@ function HeroState({ children, busy = false }: { children: ReactNode; busy?: boo
   )
 }
 
-/** Coverly 2.0's front page: browse collections, moods and artists, and play covers in place. */
+/** Coverly 2.0's front page: browse collections, moods and artists. Covers play in the shell's player. */
 export function HomePage() {
   useDocumentTitle('Coverly · Every song has another side')
   const query = useCoverSongs()
   const songs = useMemo(() => query.data ?? [], [query.data])
-  // One video at a time, owned by this page. Keys include the section, so only the pressed one plays.
-  const [playingKey, setPlayingKey] = useState<string | null>(null)
-  const toggle = (key: string) => setPlayingKey((current) => (current === key ? null : key))
-  const stopCollection = () =>
-    setPlayingKey((current) => (current?.startsWith('collection:') ? null : current))
-
   const collections = useMemo(() => resolveCollections(songs), [songs])
   const moods = useMemo(() => facetCounts(songs, NO_FILTERS, 'mood').slice(0, 9), [songs])
   const artists = useMemo(() => recurringArtists(songs), [songs])
@@ -75,12 +69,7 @@ export function HomePage() {
           <p className="type-headline m-0 text-fg-soft">Gathering collections…</p>
         </HeroState>
       ) : collections.length > 0 ? (
-        <CollectionsCarousel
-          collections={collections}
-          playingKey={playingKey}
-          onToggle={toggle}
-          onSlideChange={stopCollection}
-        />
+        <CollectionsCarousel collections={collections} />
       ) : (
         <HeroState>
           <p className="type-display m-0">Every song has another side</p>
@@ -105,8 +94,6 @@ export function HomePage() {
             intro="Covers built around the piano. Every one here carries the piano-driven label."
             songs={shelf}
             filters={{ ...NO_FILTERS, style: [SHELF_STYLE] }}
-            playingKey={playingKey}
-            onToggle={toggle}
           />
           <Dissolve to="paper" />
           <Artists artists={artists} />

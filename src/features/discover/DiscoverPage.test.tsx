@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -7,6 +7,9 @@ import { routes } from '../../app/routes'
 import { apiUrl } from '../../lib/api'
 import { createQueryClient } from '../../lib/queryClient'
 import { server } from '../../mocks/server'
+import { FakePlayer, livePlayer } from '../../test/fakeYouTube'
+import { YOUTUBE_HOST } from '../player/playback'
+import { PlayerState } from '../player/youtubeApi'
 
 /*
  * The fixtures (src/mocks/fixtures/songs.ts), as Discover sees them:
@@ -316,67 +319,146 @@ describe('/discover rows', () => {
   })
 })
 
-describe('/discover playback', () => {
-  it('plays one recording at a time in the docked player, and marks it in the list', async () => {
+describe('/discover filter sheet (phones)', () => {
+  it('leaves the player usable: the page goes inert, the player doesn’t', async () => {
     renderAt('/discover')
     await screen.findByText('All 6 covers')
     fireEvent.click(screen.getByRole('button', { name: 'Play Night Bus by The Tidewater Choir' }))
+    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
 
-    const player = screen.getByRole('region', { name: 'Now playing' })
-    expect(within(player).getByTitle('Night Bus, playing from YouTube')).toHaveAttribute(
-      'src',
-      expect.stringContaining('youtube-nocookie.com/embed/EEEEEEEEEE5?autoplay=1'),
-    )
-    expect(player).toHaveTextContent('The Tidewater Choir · Original Mara Quill')
-    expect(screen.getByRole('article', { current: true })).toHaveAccessibleName(
-      'Night Bus, covered by The Tidewater Choir',
-    )
+    const opener = screen.getByRole('button', { name: 'Filters' })
+    fireEvent.click(opener)
+    const sheet = screen.getByRole('dialog', { name: 'Filters' })
+    expect(sheet).toHaveAttribute('open')
+    expect(document.getElementById('main')).toHaveAttribute('inert')
+    expect(document.querySelector('header')).toHaveAttribute('inert')
+    expect(document.querySelector('footer')).toHaveAttribute('inert')
+    expect(document.getElementById('now-playing')).not.toHaveAttribute('inert')
+    expect(document.getElementById('now-playing')!.closest('[inert]')).toBeNull()
 
+    fireEvent.keyDown(sheet, { key: 'Escape' })
+    expect(screen.queryByRole('dialog', { name: 'Filters' })).toBeNull()
+    expect(document.querySelector('[inert]')).toBeNull()
+    expect(opener).toHaveFocus()
+  })
+})
+
+describe('/discover playback (the app shell’s player)', () => {
+  const player = () => screen.getByRole('complementary', { name: 'Now playing' })
+
+  it('plays one recording at a time, replacing it in the same player, and marks it in the list', async () => {
+    renderAt('/discover')
+    await screen.findByText('All 6 covers')
+    expect(screen.queryByRole('complementary', { name: 'Now playing' })).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play Night Bus by The Tidewater Choir' }))
+    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
+    expect(livePlayer().options).toMatchObject({ host: YOUTUBE_HOST, videoId: 'EEEEEEEEEE5' })
+    expect(within(player()).getByTitle('Night Bus, playing from YouTube')).toBe(livePlayer().iframe)
+    expect(player()).toHaveTextContent('The Tidewater Choir · Original Mara Quill')
+    const row = screen.getByRole('article', { current: true })
+    expect(row).toHaveAccessibleName('Night Bus, covered by The Tidewater Choir')
+    expect(await within(row).findByText('Playing')).toBeInTheDocument()
+
+    const first = livePlayer()
     fireEvent.click(
       screen.getByRole('button', { name: 'Play Low Tide by Mara Quill and Ofelia Ruiz' }),
     )
+    await waitFor(() => expect(first.calls).toEqual(['load BBBBBBBBBB2 @30']))
+    expect(FakePlayer.instances).toHaveLength(1)
     expect(document.querySelectorAll('iframe')).toHaveLength(1)
-    expect(within(player).getByTitle('Low Tide, playing from YouTube')).toHaveAttribute(
-      'src',
-      expect.stringContaining('BBBBBBBBBB2?autoplay=1&rel=0&playsinline=1&start=30'),
+    expect(first.iframe.title).toBe('Low Tide, playing from YouTube')
+    expect(screen.getByRole('article', { current: true })).toHaveAccessibleName(
+      'Low Tide, covered by Mara Quill and Ofelia Ruiz',
     )
     expect(
-      screen.getByRole('button', { name: 'Stop Low Tide by Mara Quill and Ofelia Ruiz' }),
-    ).toHaveAttribute('aria-pressed', 'true')
+      await screen.findByRole('button', { name: 'Pause Low Tide by Mara Quill and Ofelia Ruiz' }),
+    ).toBeInTheDocument()
   })
 
-  it('stops from the row or the player, and releases the space it reserved', async () => {
+  it('pauses and resumes from the row or the player, and follows YouTube’s own controls', async () => {
     renderAt('/discover')
     await screen.findByText('All 6 covers')
     fireEvent.click(
       screen.getByRole('button', { name: 'Play Glass Houses by The Tidewater Choir' }),
     )
-    expect(document.body.style.paddingBottom).not.toBe('')
     fireEvent.click(
-      screen.getByRole('button', { name: 'Stop Glass Houses by The Tidewater Choir' }),
+      await screen.findByRole('button', { name: 'Pause Glass Houses by The Tidewater Choir' }),
     )
-    expect(screen.queryByRole('region', { name: 'Now playing' })).toBeNull()
+    const row = screen.getByRole('article', { current: true })
+    expect(await within(row).findByText('Paused')).toBeInTheDocument()
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Play Glass Houses by The Tidewater Choir' }),
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Close player' }))
-    expect(document.querySelector('iframe')).toBeNull()
-    expect(document.body.style.paddingBottom).toBe('')
+    fireEvent.click(within(player()).getByRole('button', { name: 'Resume Glass Houses' }))
+    expect(await within(row).findByText('Playing')).toBeInTheDocument()
+
+    // The listener pauses with YouTube's controls, inside the video.
+    act(() => livePlayer().emit(PlayerState.PAUSED))
+    expect(
+      screen.getByRole('button', { name: 'Resume Glass Houses by The Tidewater Choir' }),
+    ).toBeInTheDocument()
+    expect(
+      within(player()).getByRole('button', { name: 'Resume Glass Houses' }),
+    ).toBeInTheDocument()
   })
 
-  it('keeps playing while filters change, and stops when leaving Discover', async () => {
-    const router = renderAt('/discover')
+  it('keeps the player on an ended recording, with Replay and Close', async () => {
+    renderAt('/discover')
+    await screen.findByText('All 6 covers')
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Play Low Tide by Mara Quill and Ofelia Ruiz' }),
+    )
+    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
+    act(() => livePlayer().emit(PlayerState.ENDED))
+    expect(within(player()).getByText('Finished')).toBeInTheDocument()
+    fireEvent.click(within(player()).getByRole('button', { name: 'Replay Low Tide' }))
+    expect(livePlayer().calls).toEqual(['seek 30', 'play'])
+  })
+
+  it('closes: the player is destroyed and the list is no longer marked', async () => {
+    renderAt('/discover')
     await screen.findByText('All 6 covers')
     fireEvent.click(screen.getByRole('button', { name: 'Play Paper Lanterns by Mara Quill' }))
-    fireEvent.click(option(openGroup('Mood'), 'Soulful'))
-    expect(screen.getByRole('region', { name: 'Now playing' })).toBeInTheDocument()
+    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
+    const instance = livePlayer()
 
-    await act(() => router.navigate('/'))
+    fireEvent.click(within(player()).getByRole('button', { name: 'Close player' }))
+    expect(instance.destroyed).toBe(true)
+    expect(document.querySelector('iframe')).toBeNull()
+    expect(screen.queryByRole('complementary', { name: 'Now playing' })).toBeNull()
+    expect(screen.queryByRole('article', { current: true })).toBeNull()
     expect(
-      document.querySelector('iframe[title="Paper Lanterns, playing from YouTube"]'),
-    ).toBeNull()
-    expect(document.body.style.paddingBottom).toBe('')
+      screen.getByRole('button', { name: 'Play Paper Lanterns by Mara Quill' }),
+    ).toBeInTheDocument()
+  })
+
+  it('explains a recording that can’t play here, with a link to YouTube', async () => {
+    renderAt('/discover')
+    await screen.findByText('All 6 covers')
+    fireEvent.click(screen.getByRole('button', { name: 'Play Night Bus by The Tidewater Choir' }))
+    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
+    act(() => livePlayer().fail(100))
+
+    expect(within(player()).getByRole('alert')).toHaveTextContent(
+      'This video has been removed from YouTube.',
+    )
+    expect(
+      within(player()).getByRole('link', { name: 'Watch on YouTube (opens in a new tab)' }),
+    ).toHaveAttribute('href', 'https://www.youtube.com/watch?v=EEEEEEEEEE5')
+    expect(
+      within(screen.getByRole('article', { current: true })).getByText('Can’t play here'),
+    ).toBeInTheDocument()
+  })
+
+  it('keeps playing while filters change, even when the recording leaves the results', async () => {
+    renderAt('/discover')
+    await screen.findByText('All 6 covers')
+    fireEvent.click(screen.getByRole('button', { name: 'Play Paper Lanterns by Mara Quill' }))
+    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
+    const instance = livePlayer()
+    fireEvent.click(option(openGroup('Mood'), 'Soulful'))
+    expect(rowTitles()).not.toContain('Paper Lanterns')
+    expect(livePlayer()).toBe(instance)
+    expect(within(player()).getByText('Paper Lanterns')).toBeInTheDocument()
   })
 
   it('offers no play control without a video', async () => {

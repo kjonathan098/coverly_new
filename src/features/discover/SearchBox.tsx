@@ -119,7 +119,7 @@ export function SearchBox({
         role="listbox"
         aria-label="Suggestions"
         hidden={!expanded}
-        className="absolute inset-x-0 top-full z-30 m-0 mt-2 list-none rounded-panel bg-raised p-2 shadow-[0_18px_40px_-12px_rgb(0_0_0/0.6),inset_0_0_0_1px_var(--surface-line)]"
+        className="absolute inset-x-0 top-full z-30 m-0 mt-2 max-h-[max(10rem,calc(100dvh_-_var(--player-inset,0px)_-_14rem))] list-none overflow-y-auto rounded-panel bg-raised p-2 shadow-[0_18px_40px_-12px_rgb(0_0_0/0.6),inset_0_0_0_1px_var(--surface-line)]"
       >
         {KINDS.map(({ kind, title }) => {
           const items = suggestions.filter((s) => s.kind === kind)

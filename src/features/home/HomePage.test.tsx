@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -8,6 +8,7 @@ import { apiUrl } from '../../lib/api'
 import { createQueryClient } from '../../lib/queryClient'
 import { songFixtures } from '../../mocks/fixtures/songs'
 import { server } from '../../mocks/server'
+import { livePlayer } from '../../test/fakeYouTube'
 
 function renderAt(url = '/') {
   const router = createMemoryRouter(routes, { initialEntries: [url] })
@@ -105,7 +106,7 @@ describe('homepage', () => {
     expect(second).not.toHaveAttribute('inert')
   })
 
-  it('plays a collection’s first cover in one click, and stops it when the slide changes', async () => {
+  it('plays a collection’s first cover in the shared player, and keeps playing across slides', async () => {
     serveLargerCatalog()
     renderAt('/')
     await screen.findByRole('region', { name: 'Featured collections' })
@@ -113,12 +114,22 @@ describe('homepage', () => {
     fireEvent.click(
       within(slides()[0]!).getByRole('button', { name: 'Play Repeat Song 1 by Mara Quill' }),
     )
-    expect(screen.getByTitle('Repeat Song 1, playing from YouTube')).toBeInTheDocument()
+    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
+    const instance = livePlayer()
+    const player = screen.getByRole('complementary', { name: 'Now playing' })
+    expect(within(player).getByTitle('Repeat Song 1, playing from YouTube')).toBe(instance.iframe)
+    // The video plays in the shell, not inside the slide's artwork.
+    expect(within(carousel()).queryByTitle(/playing from YouTube/)).toBeNull()
 
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Next collection' }))
     })
-    expect(screen.queryByTitle('Repeat Song 1, playing from YouTube')).toBeNull()
+    expect(instance.destroyed).toBe(false)
+    expect(livePlayer()).toBe(instance)
+    // The same recording opens the next slide too, and is shown as the one playing there.
+    expect(
+      within(slides()[1]!).getByRole('button', { name: 'Pause Repeat Song 1 by Mara Quill' }),
+    ).toBeInTheDocument()
   })
 
   it('links moods, the piano shelf and artists into Discover', async () => {

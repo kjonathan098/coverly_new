@@ -95,11 +95,24 @@
   --duration-fast: 150ms;
   --duration-base: 300ms;
   --duration-slow: 750ms;
+  /* The playing badge's bars. Reduced motion stops them, full height (base.css). */
+  --animate-equalize: equalize 0.8s var(--ease-snap) infinite alternate;
+
+  @keyframes equalize {
+    from {
+      transform: scaleY(0.25);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
 
   /* Breakpoints: a phone layout of its own, then tablet, then desktop. Mobile first. */
   --breakpoint-*: initial;
   --breakpoint-tablet: 45rem;
   --breakpoint-desktop: 68.75rem;
+  /* Wide enough to give the player its own column and keep the full desktop layout beside it. */
+  --breakpoint-wide: 96rem;
 }
 
 /*

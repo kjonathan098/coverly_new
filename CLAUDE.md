@@ -6,7 +6,8 @@
 - UI work follows `docs/design-system.md` (tokens in `src/styles/theme.css`, primitives in `src/ui`). The living reference is the dev-only `/design` route.
 - Recording contracts and integrity rules: `src/mocks/CONTRACT.md`. Relationships come only from `originalRecordingId`; never infer them.
 - `design-experiments/` holds approved visual prototypes. It is reference material, not production code.
-- No fake functionality: never render a control that can't work (for example, no play button without a video). Playback is page-local; no global player or queue.
+- No fake functionality: never render a control that can't work (for example, no play button without a video).
+- Playback: one YouTube player for the whole app, owned by the app shell (`src/app/AppShell.tsx`, `src/features/player`). Pages call `play(song)` and read `usePlaybackOf(id)`; never embed YouTube anywhere else. The player element must never move or remount (moving an iframe reloads it): layout changes are CSS only. No queue or auto-advance. Design notes: `docs/redesign/app-shell.md`.
 - The backend (`../coverly_backend`) is an HTTP dependency only: never modify it. Its CORS allows only `http://localhost:5173`, so the dev server stays on that port.
 - Never commit or push without the user's explicit approval.
 - Use Node 24 (`nvm use`). Checks: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run format:check`.

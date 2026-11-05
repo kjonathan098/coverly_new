@@ -27,8 +27,6 @@ type DiscoverProps = {
   sort: SortKey
   onChange: Change
   onSort: (sort: SortKey) => void
-  playingId: string | null
-  onPlay: (song: CoverSong) => void
 }
 
 /** Every active filter as a removable chip, named by its group so roles never blur together. */
@@ -60,15 +58,7 @@ function ActiveFilters({ filters, onChange }: { filters: Filters; onChange: Chan
 }
 
 /** Search, filters and results. State that must survive a reload lives in the URL, not here. */
-export function Discover({
-  songs,
-  filters,
-  sort,
-  onChange,
-  onSort,
-  playingId,
-  onPlay,
-}: DiscoverProps) {
+export function Discover({ songs, filters, sort, onChange, onSort }: DiscoverProps) {
   const [limit, setLimit] = useState(PAGE)
   const results = useMemo(
     () => sortSongs(filterSongs(songs, filters), sort),
@@ -158,14 +148,7 @@ export function Discover({
           <>
             <ol aria-label="Results" className="m-0 mt-2 grid list-none gap-1 p-0">
               {results.slice(0, limit).map((song) => (
-                <SongRow
-                  key={song.id}
-                  song={song}
-                  playing={playingId === song.id}
-                  onPlay={() => onPlay(song)}
-                  filters={filters}
-                  onFilter={filterFromRow}
-                />
+                <SongRow key={song.id} song={song} filters={filters} onFilter={filterFromRow} />
               ))}
             </ol>
             {results.length > limit && (

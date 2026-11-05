@@ -15,38 +15,23 @@ type ShelfProps = {
   /** The filter that picked this shelf: "See all" opens it in Discover. */
   filters: Filters
   tone?: SurfaceTone
-  playingKey: string | null
-  onToggle: (key: string) => void
 }
 
 const SHOWN = 4
 
 /** A row chosen by a stated rule (a label), with a way into the full set. */
-export function Shelf({
-  id,
-  label,
-  title,
-  intro,
-  songs,
-  filters,
-  tone = 'paper',
-  playingKey,
-  onToggle,
-}: ShelfProps) {
+export function Shelf({ id, label, title, intro, songs, filters, tone = 'paper' }: ShelfProps) {
   if (songs.length < 3) return null
   return (
     <Section tone={tone} grain aria-labelledby={`${id}-title`} className="pb-12 tablet:pb-16">
       <SectionHeading id={`${id}-title`} label={label} title={title} intro={intro} />
       {/* relative: the cards' screen-reader text is absolutely positioned and must clip with the scroller. */}
       <ul className="relative m-0 -mx-margin flex list-none snap-x snap-mandatory scroll-px-margin gap-gutter overflow-x-auto px-margin pb-4 tablet:mx-0 tablet:grid tablet:grid-cols-2 tablet:overflow-visible tablet:px-0 desktop:grid-cols-4">
-        {songs.slice(0, SHOWN).map((song) => {
-          const key = `${id}:${song.id}`
-          return (
-            <li key={song.id} className="w-[78%] shrink-0 snap-start tablet:w-auto">
-              <SongCard song={song} playing={playingKey === key} onToggle={() => onToggle(key)} />
-            </li>
-          )
-        })}
+        {songs.slice(0, SHOWN).map((song) => (
+          <li key={song.id} className="w-[78%] shrink-0 snap-start tablet:w-auto">
+            <SongCard song={song} />
+          </li>
+        ))}
       </ul>
       {songs.length > SHOWN && (
         <Link

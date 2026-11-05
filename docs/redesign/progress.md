@@ -123,9 +123,13 @@ Each combination was checked in Chrome against counts computed independently fro
 - Refresh and Back/Forward walk the exact states, including the sort.
 - No horizontal overflow at 1440 or 390.
 
+### Persistent player in the application shell (implemented, awaiting review, not committed)
+
+Requirement (user, 2026-11-05): playback continues across all in-app navigation, using one shared YouTube player owned by the app shell. It was built in three stages (A: state and IFrame API, B: shell and responsive placement, C: connecting every play action). The design, decisions, what was built, verification and limitations are in [`app-shell.md`](app-shell.md). The Discover version before this was committed as `dc3dafe`.
+
 ### Follow-up improvements (recorded, not started)
 
-- **The Now Playing panel feels too large** (user feedback, 2026-11-04). Don't redesign it until asked. Any redesign must keep these constraints:
+- **The Now Playing panel feels too large** (user feedback, 2026-11-04). Now covered by the player layout options in `app-shell.md`. Don't redesign it until asked. Any redesign must keep these constraints:
   - YouTube's minimum player size (200×200, with nothing laid over the player)
   - a visible Close control
   - results that scroll clear of the panel
