@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { ArrowIcon, CloseIcon, PauseIcon, PlayIcon, Tag, cx } from '../../ui'
-import { discoverHref } from '../discover/useFilters'
+import { ArrowIcon, CloseIcon, PauseIcon, PlayIcon, TagLink, cx } from '../../ui'
+import { ArtistLinks } from '../discover/ArtistLinks'
+import { discoverHref, discoverOne } from '../discover/useFilters'
 import { NO_FILTERS } from '../songs/discover'
 import { artistList, displayName, displayTitle, tagLabel } from '../songs/format'
 import {
@@ -14,6 +15,7 @@ import {
   usePlayback,
   type PlaybackProblem,
 } from './playback'
+import { usePlayerLayout } from './layouts'
 
 const PROBLEMS: Record<PlaybackProblem, string> = {
   removed: 'This video has been removed from YouTube.',
@@ -38,6 +40,7 @@ const iconButton =
  */
 export function PlayerPanel() {
   const playback = usePlayback()
+  const layout = usePlayerLayout()
   const video = useRef<HTMLDivElement>(null)
   const panel = useRef<HTMLElement>(null)
   const [side, setSide] = useState<'right' | 'left'>('right')
@@ -94,8 +97,9 @@ export function PlayerPanel() {
         // Tablet and desktop: a floating card in a bottom corner.
         'tablet:bottom-4 tablet:w-[24.25rem] tablet:rounded-panel tablet:border-t-0 tablet:p-4 tablet:shadow-[0_24px_60px_-20px_rgb(0_0_0/0.8),inset_0_0_0_1px_var(--surface-line)]',
         side === 'right' ? 'tablet:right-4 tablet:left-auto' : 'tablet:right-auto tablet:left-4',
-        // Wide: its own column beside the page, under the header, for as long as something is loaded.
-        'wide:sticky wide:top-14 wide:right-auto wide:bottom-auto wide:left-auto wide:z-10 wide:h-[calc(100dvh-3.5rem)] wide:w-[25rem] wide:overflow-y-auto wide:rounded-none wide:border-l-[1.5px] wide:shadow-none',
+        // Docked: its own column beside the page, under the header, while something is loaded.
+        // Where it docks depends on the layout under review (layouts.ts); classes only, no remount.
+        layout.dock,
       )}
     >
       {/* The video. React never renders inside it: the YouTube player owns its contents. */}
@@ -117,11 +121,14 @@ export function PlayerPanel() {
           </p>
           <p className="type-row m-0 truncate text-[1.0625rem] tablet:text-[1.1875rem]">{title}</p>
           <p className="m-0 truncate text-label">
-            <span className="font-medium">{by}</span>
+            <span className="font-medium">
+              <ArtistLinks artists={song?.artists ?? []} role="artist" />
+            </span>
             {originals && (
               <span className="text-fg-soft">
                 {' '}
-                · <span className="font-semibold">Original</span> {originals}
+                · <span className="font-semibold">Original</span>{' '}
+                <ArtistLinks artists={song?.originalArtists ?? []} role="songBy" />
               </span>
             )}
           </p>
@@ -142,7 +149,8 @@ export function PlayerPanel() {
           onClick={() => setSide(side === 'right' ? 'left' : 'right')}
           className={cx(
             iconButton,
-            'hidden text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] hover:bg-raised tablet:grid wide:hidden',
+            'hidden text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] hover:bg-raised tablet:grid',
+            layout.sideToggle,
           )}
         >
           <ArrowIcon className={cx(side === 'right' && '-scale-x-100')} />
@@ -190,25 +198,30 @@ export function PlayerPanel() {
 
       {/* With a column to itself, the player also shows the recording's labels and where to go next. */}
       {song && (
-        <div className="order-4 hidden wide:mt-5 wide:grid wide:gap-5">
+        <div className={cx('order-4 hidden', layout.extras)}>
           <dl className="m-0 grid gap-3">
             {(
               [
-                ['Cover genre', 'genre', song.genres],
-                ['Subgenre', 'subGenre', song.subGenres],
-                ['Performance style', 'performanceStyle', song.styles],
-                ['Mood', 'mood', song.moods],
+                ['Cover genre', 'genre', 'genre', song.genres],
+                ['Subgenre', 'subGenre', 'sub', song.subGenres],
+                ['Performance style', 'performanceStyle', 'style', song.styles],
+                ['Mood', 'mood', 'mood', song.moods],
               ] as const
             ).map(
-              ([term, type, values]) =>
+              ([term, type, key, values]) =>
                 values.length > 0 && (
                   <div key={term}>
                     <dt className="type-meta mb-1.5 font-semibold text-fg-soft">{term}</dt>
                     <dd className="m-0 flex flex-wrap gap-1.5">
                       {values.map((value) => (
-                        <Tag key={value.id} type={type}>
+                        <TagLink
+                          key={value.id}
+                          type={type}
+                          label={term}
+                          to={discoverOne(key, value.name)}
+                        >
                           {tagLabel(value.name)}
-                        </Tag>
+                        </TagLink>
                       ))}
                     </dd>
                   </div>

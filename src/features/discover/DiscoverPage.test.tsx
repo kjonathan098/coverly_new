@@ -268,10 +268,10 @@ describe('/discover rows', () => {
       name: 'Low Tide, covered by Mara Quill and Ofelia Ruiz',
     })
     expect(
-      within(row).getByRole('button', { name: 'Show covers with cover artist Ofelia Ruiz' }),
+      within(row).getByRole('link', { name: 'Show covers with cover artist Ofelia Ruiz' }),
     ).toBeInTheDocument()
     expect(
-      within(row).getAllByRole('button', {
+      within(row).getAllByRole('link', {
         name: 'Show covers with original artist The Lamplighters',
       }),
     ).not.toHaveLength(0)
@@ -294,13 +294,13 @@ describe('/discover rows', () => {
     // The original genre is never shown as the recording's genre.
     expect(details).not.toHaveTextContent('Pop')
 
-    fireEvent.click(within(details).getByRole('button', { name: 'Performance style: Live' }))
-    expect(rowTitles()).toEqual(['Low Tide', 'Señales'])
+    fireEvent.click(within(details).getByRole('link', { name: 'Performance style: Live' }))
+    await waitFor(() => expect(rowTitles()).toEqual(['Low Tide', 'Señales']))
     expect(
-      within(screen.getAllByRole('article')[0]!.parentElement!).getByRole('button', {
+      within(screen.getAllByRole('article')[0]!.parentElement!).getByRole('link', {
         name: 'Performance style: Live',
       }),
-    ).toHaveAttribute('aria-pressed', 'true')
+    ).toHaveAttribute('aria-current', 'true')
   })
 
   it('narrows to an artist from a row', async () => {
@@ -308,14 +308,49 @@ describe('/discover rows', () => {
     await screen.findByText('All 6 covers')
     const row = screen.getByRole('article', { name: 'Señales, covered by Ofelia Ruiz' })
     fireEvent.click(
-      within(row).getAllByRole('button', {
+      within(row).getAllByRole('link', {
         name: 'Show covers with original artist Los Faroles',
       })[0]!,
     )
-    expect(rowTitles()).toEqual(['Señales', 'No Link Yet'])
+    await waitFor(() => expect(rowTitles()).toEqual(['Señales', 'No Link Yet']))
     expect(
       screen.getByRole('button', { name: 'Remove Original artist: Los Faroles' }),
     ).toBeInTheDocument()
+  })
+
+  it('starts a fresh discovery from a tag, and Back restores the earlier search', async () => {
+    const router = renderAt('/discover?mood=dreamy&q=paper')
+    expect(await screen.findByText('1 cover match')).toBeInTheDocument()
+    const row = screen.getByRole('article', { name: 'Paper Lanterns, covered by Mara Quill' })
+    fireEvent.click(within(row).getByRole('button', { name: /^Details/ }))
+    // Shown on the row and again in Details; both lead to the same place.
+    fireEvent.click(
+      within(row.parentElement!).getAllByRole('link', { name: 'Subgenre: Acoustic' })[0]!,
+    )
+
+    await waitFor(() => expect(router.state.location.search).toBe('?sub=acoustic'))
+    expect(rowTitles()).toEqual(['Paper Lanterns', 'Señales'])
+    expect(screen.getByRole('button', { name: 'Remove Subgenre: Acoustic' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: /^Search songs/ })).toHaveValue('')
+
+    await act(() => router.navigate(-1))
+    expect(router.state.location.search).toBe('?mood=dreamy&q=paper')
+    expect(resultCount()).toHaveTextContent('1 cover match')
+  })
+
+  it('keeps a subgenre and a performance style with the same name in their own filters', async () => {
+    renderAt('/discover')
+    await screen.findByText('All 6 covers')
+    const links = screen.getAllByRole('link', {
+      name: /^(Subgenre|Performance style): Acoustic$/,
+      hidden: true, // some sit in collapsed Details
+    })
+    expect(
+      Object.fromEntries(links.map((l) => [l.getAttribute('aria-label'), l.getAttribute('href')])),
+    ).toEqual({
+      'Subgenre: Acoustic': '/discover?sub=acoustic',
+      'Performance style: Acoustic': '/discover?style=acoustic',
+    })
   })
 })
 

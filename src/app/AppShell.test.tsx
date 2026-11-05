@@ -120,6 +120,37 @@ describe('the app shell’s player', () => {
     ).toBeInTheDocument()
   })
 
+  it('opens a fresh Discover from the player’s tags and names, without interrupting playback', async () => {
+    const router = renderAt('/discover?mood=dreamy')
+    await screen.findByText('3 covers match')
+    fireEvent.click(screen.getByRole('button', { name: 'Play Night Bus by The Tidewater Choir' }))
+    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
+    const instance = livePlayer()
+    await act(() => router.navigate('/'))
+    await screen.findByRole('heading', { level: 1, name: 'Coverly' })
+
+    fireEvent.click(within(player()).getByRole('link', { name: 'Cover genre: Pop' }))
+    await waitFor(() => expect(router.state.location.search).toBe('?genre=pop'))
+    expect(router.state.location.pathname).toBe('/discover')
+    expect(await screen.findByText('3 covers match')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Remove Cover genre: Pop' })).toBeInTheDocument()
+
+    fireEvent.click(
+      within(player()).getByRole('link', { name: 'Show covers with original artist Mara Quill' }),
+    )
+    await waitFor(() => expect(router.state.location.search).toBe('?songBy=Mara+Quill'))
+
+    await act(() => router.navigate(-1))
+    expect(router.state.location.search).toBe('?genre=pop')
+    await act(() => router.navigate(-1))
+    expect(router.state.location.pathname).toBe('/')
+
+    // Same player throughout: never re-created, reloaded or told to change.
+    expect(FakePlayer.instances).toEqual([instance])
+    expect(instance.calls).toEqual([])
+    expect(instance.iframe.isConnected).toBe(true)
+  })
+
   it('stays closed after Close, on every page', async () => {
     const router = renderAt('/discover')
     await screen.findByText('All 6 covers')

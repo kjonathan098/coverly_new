@@ -11,3 +11,12 @@
 - The backend (`../coverly_backend`) is an HTTP dependency only: never modify it. Its CORS allows only `http://localhost:5173`, so the dev server stays on that port.
 - Never commit or push without the user's explicit approval.
 - Use Node 24 (`nvm use`). Checks: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run format:check`.
+
+## Workflow (user preferences, 2026-11-05)
+
+- Visual and layout work: implement, then let the user review in their own browser on the running dev server. Say which route to open and how to switch between alternatives.
+- No screenshots by default: don't capture, save or analyze them unless the user asks, or one is needed to investigate a specific visual issue. Keep essential functional and responsive checks (scripted measurements are fine).
+- During iteration, run only the relevant targeted tests (for example `npx vitest run src/features/player`). Don't run the full suite after every CSS or layout change, and don't add tests for temporary design prototypes.
+- Before a commit is approved: run the full suite plus typecheck, lint, build and format:check.
+- Don't re-read unchanged files. Keep tool output small, reuse existing fixtures and scripts, and summarize results briefly instead of listing every passing check.
+- Never trade away playback behavior or accessibility to save effort.

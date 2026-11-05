@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes } from 'react'
+import { Link, type To } from 'react-router'
 import type { Tag as RecordingTag, TagType } from '../features/recordings/types'
 import { cx } from './cx'
 
@@ -85,5 +86,44 @@ export function ToggleTag({
       {children}
       {count !== undefined && <span className="ml-1.5 tabular-nums opacity-70">{count}</span>}
     </button>
+  )
+}
+
+/**
+ * A tag that leads somewhere: the same shape as Tag, as a link. `label` names the group for
+ * assistive technology ("Subgenre", "Performance style"), so two tags with the same word in
+ * different groups never sound alike. `current` marks a filter that's already on.
+ */
+export function TagLink({
+  type,
+  to,
+  label,
+  current = false,
+  className,
+  children,
+}: {
+  type: TagType
+  to: To
+  label: string
+  current?: boolean
+  className?: string
+  children: string
+}) {
+  return (
+    <Link
+      to={to}
+      aria-label={`${label}: ${children}`}
+      aria-current={current ? 'true' : undefined}
+      className={cx(
+        CHIP,
+        'no-underline transition-colors duration-(--duration-fast)',
+        current
+          ? 'bg-pink text-ink'
+          : cx(SHAPES[type], 'hover:bg-[color-mix(in_srgb,var(--surface-fg)_24%,transparent)]'),
+        className,
+      )}
+    >
+      {children}
+    </Link>
   )
 }

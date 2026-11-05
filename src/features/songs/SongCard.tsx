@@ -1,4 +1,6 @@
-import { PauseIcon, PlayIcon, Tag, cx } from '../../ui'
+import { PauseIcon, PlayIcon, TagLink, cx } from '../../ui'
+import { ArtistLinks } from '../discover/ArtistLinks'
+import { discoverOne } from '../discover/useFilters'
 import { play, playVerb, usePlaybackOf } from '../player/playback'
 import { artistList, displayTitle, tagLabel } from './format'
 import type { CoverSong } from './types'
@@ -16,11 +18,32 @@ export function SongCard({ song, className }: SongCardProps) {
   const verb = playVerb(status)
   const title = displayTitle(song.title)
   const by = artistList(song.artists)
+  // Each label opens a fresh Discover for it, in its own group.
   const labels = [
-    song.genres[0] && { type: 'genre' as const, name: song.genres[0].name },
-    song.moods[0] && { type: 'mood' as const, name: song.moods[0].name },
-    song.styles[0] && { type: 'performanceStyle' as const, name: song.styles[0].name },
-  ].filter(Boolean) as { type: 'genre' | 'mood' | 'performanceStyle'; name: string }[]
+    song.genres[0] && {
+      type: 'genre' as const,
+      key: 'genre' as const,
+      group: 'Cover genre',
+      name: song.genres[0].name,
+    },
+    song.moods[0] && {
+      type: 'mood' as const,
+      key: 'mood' as const,
+      group: 'Mood',
+      name: song.moods[0].name,
+    },
+    song.styles[0] && {
+      type: 'performanceStyle' as const,
+      key: 'style' as const,
+      group: 'Performance style',
+      name: song.styles[0].name,
+    },
+  ].filter((label) => Boolean(label)) as {
+    type: 'genre' | 'mood' | 'performanceStyle'
+    key: 'genre' | 'mood' | 'style'
+    group: string
+    name: string
+  }[]
 
   return (
     <article className={cx('group grid content-start gap-3', className)}>
@@ -28,7 +51,9 @@ export function SongCard({ song, className }: SongCardProps) {
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2">
         <div className="min-w-0">
           <h3 className="type-row m-0 text-[1.25rem] [overflow-wrap:anywhere]">{title}</h3>
-          <p className="text-[0.9375rem] text-fg-soft">by {by}</p>
+          <p className="text-[0.9375rem] text-fg-soft">
+            by <ArtistLinks artists={song.artists} role="artist" />
+          </p>
         </div>
         {song.video ? (
           <button
@@ -51,7 +76,13 @@ export function SongCard({ song, className }: SongCardProps) {
           <ul aria-label="Labels" className="col-span-2 m-0 flex list-none flex-wrap gap-1.5 p-0">
             {labels.map((label) => (
               <li key={label.type} className="flex">
-                <Tag type={label.type}>{tagLabel(label.name)}</Tag>
+                <TagLink
+                  type={label.type}
+                  label={label.group}
+                  to={discoverOne(label.key, label.name)}
+                >
+                  {tagLabel(label.name)}
+                </TagLink>
               </li>
             ))}
           </ul>

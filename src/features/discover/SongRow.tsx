@@ -1,47 +1,20 @@
-import { Fragment, useId, useState } from 'react'
-import { ChevronIcon, PauseIcon, PlayIcon, Tag, ToggleTag, cx } from '../../ui'
+import { useId, useState } from 'react'
+import { Link } from 'react-router'
+import { ChevronIcon, PauseIcon, PlayIcon, TagLink, cx } from '../../ui'
 import { PlaybackBadge } from '../player/PlaybackBadge'
 import { play, playVerb, usePlaybackOf } from '../player/playback'
 import type { FacetKey, Filters } from '../songs/discover'
 import { CoverArt } from '../songs/CoverArt'
-import { artistList, displayName, displayTitle, tagLabel } from '../songs/format'
-import type { CoverArtist, CoverSong, Facet } from '../songs/types'
+import { artistList, displayTitle, tagLabel } from '../songs/format'
+import type { CoverSong, Facet } from '../songs/types'
+import { ArtistLinks } from './ArtistLinks'
 import { FILTER_GROUPS } from './groups'
+import { discoverOne } from './useFilters'
 
 type SongRowProps = {
   song: CoverSong
+  /** The active filters, so a tag that's already on can show it. */
   filters: Filters
-  /**
-   * Narrow Discover by one value. Artist names add their filter (never remove it); the tags in
-   * Details toggle theirs, and show whether it's on.
-   */
-  onFilter: (key: FacetKey, value: string, mode: 'add' | 'toggle') => void
-}
-
-/** Names that each narrow Discover to that artist, in the role they're listed under. */
-function ArtistLinks({
-  artists,
-  role,
-  onFilter,
-}: {
-  artists: CoverArtist[]
-  role: 'artist' | 'songBy'
-  onFilter: SongRowProps['onFilter']
-}) {
-  const what = role === 'artist' ? 'cover artist' : 'original artist'
-  return artists.map((artist, i) => (
-    <Fragment key={artist.id}>
-      {i > 0 && (i === artists.length - 1 ? ' and ' : ', ')}
-      <button
-        type="button"
-        onClick={() => onFilter(role, artist.name, 'add')}
-        aria-label={`Show covers with ${what} ${displayName(artist.name)}`}
-        className="inline cursor-pointer text-left underline-offset-[0.2em] hover:text-fg hover:underline"
-      >
-        {displayName(artist.name)}
-      </button>
-    </Fragment>
-  ))
 }
 
 const DETAIL_GROUPS = FILTER_GROUPS.filter((g) => g.tagType) as (typeof FILTER_GROUPS)[number][]
@@ -66,7 +39,7 @@ function valuesOf(song: CoverSong, key: FacetKey): Facet[] {
  * play; on wider screens also the cover genres with their subgenres. Details opens every label.
  * Nothing is inferred or filled in: a missing value is said to be missing, or left out.
  */
-export function SongRow({ song, filters, onFilter }: SongRowProps) {
+export function SongRow({ song, filters }: SongRowProps) {
   // This row's recording in the shared player, if it's the one loaded there.
   const status = usePlaybackOf(song.id)
   const current = status !== null
@@ -89,9 +62,9 @@ export function SongRow({ song, filters, onFilter }: SongRowProps) {
       <article
         aria-label={`${title}, covered by ${by}`}
         aria-current={current ? 'true' : undefined}
-        className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-2 py-2.5 tablet:grid-cols-[7rem_minmax(0,1fr)_auto] desktop:grid-cols-[auto_7rem_minmax(0,2fr)_minmax(0,1.25fr)_minmax(0,1.6fr)_auto] desktop:gap-x-5 desktop:px-3"
+        className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-2 py-2.5 tablet:grid-cols-[7rem_minmax(0,1fr)_auto] @min-[45rem]:grid-cols-[auto_6rem_minmax(0,1.6fr)_minmax(0,1fr)_auto] @min-[45rem]:gap-x-4 @min-[45rem]:px-3 @min-[60rem]:grid-cols-[auto_7rem_minmax(0,2fr)_minmax(0,1.25fr)_minmax(0,1.6fr)_auto] @min-[60rem]:gap-x-5 @min-[60rem]:px-3"
       >
-        <div className="col-start-3 row-start-1 desktop:col-start-1">
+        <div className="col-start-3 row-start-1 @min-[45rem]:col-start-1">
           {song.video ? (
             <button
               type="button"
@@ -115,14 +88,14 @@ export function SongRow({ song, filters, onFilter }: SongRowProps) {
 
         <CoverArt
           song={song}
-          className="col-start-1 row-span-2 row-start-1 self-start rounded-control desktop:col-start-2 desktop:row-span-1 desktop:self-center"
+          className="col-start-1 row-span-2 row-start-1 self-start rounded-control @min-[45rem]:col-start-2 @min-[45rem]:row-span-1 @min-[45rem]:self-center"
         />
 
-        <div className="col-start-2 row-start-1 min-w-0 desktop:col-start-3">
+        <div className="col-start-2 row-start-1 min-w-0 @min-[45rem]:col-start-3">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
             <h3
               className={cx(
-                'type-row m-0 line-clamp-2 min-w-0 text-[1.0625rem] tablet:text-[1.1875rem] desktop:line-clamp-1',
+                'type-row m-0 line-clamp-2 min-w-0 text-[1.0625rem] tablet:text-[1.1875rem] @min-[60rem]:line-clamp-1',
                 current && 'text-pink',
               )}
             >
@@ -130,30 +103,37 @@ export function SongRow({ song, filters, onFilter }: SongRowProps) {
             </h3>
             {status && <PlaybackBadge status={status} />}
           </div>
-          <p className="m-0 text-label font-medium text-fg desktop:truncate">
+          <p className="m-0 text-label font-medium text-fg @min-[60rem]:truncate">
             <span className="sr-only">Cover artist: </span>
-            <ArtistLinks artists={song.artists} role="artist" onFilter={onFilter} />
+            <ArtistLinks artists={song.artists} role="artist" />
           </p>
-          <p className="m-0 text-meta text-fg-soft desktop:hidden">
+          <p className="m-0 text-meta text-fg-soft @min-[45rem]:hidden">
             <span className="font-semibold">Original</span>
-            <span className="sr-only"> artist:</span> ·{' '}
-            <OriginalArtists song={song} onFilter={onFilter} />
+            <span className="sr-only"> artist:</span> · <OriginalArtists song={song} />
           </p>
         </div>
 
-        <div className="hidden min-w-0 desktop:col-start-4 desktop:row-start-1 desktop:block">
+        <div className="hidden min-w-0 @min-[45rem]:col-start-4 @min-[45rem]:row-start-1 @min-[45rem]:block">
           <p className="type-meta m-0 font-semibold text-fg-soft">Original artist</p>
           <p className="m-0 truncate text-label text-fg-soft">
-            <OriginalArtists song={song} onFilter={onFilter} />
+            <OriginalArtists song={song} />
           </p>
         </div>
 
-        <div className="hidden min-w-0 desktop:col-start-5 desktop:row-start-1 desktop:block">
+        {/* Middle width: a second line under the title and original artist. Full width: its own column. */}
+        <div className="hidden min-w-0 @min-[45rem]:col-span-2 @min-[45rem]:col-start-3 @min-[45rem]:row-start-2 @min-[45rem]:flex @min-[45rem]:flex-wrap @min-[45rem]:items-center @min-[45rem]:gap-x-2 @min-[45rem]:gap-y-1 @min-[60rem]:col-span-1 @min-[60rem]:col-start-5 @min-[60rem]:row-start-1 @min-[60rem]:block">
           {song.genres.length > 0 ? (
             <ul aria-label="Cover genres" className="m-0 flex list-none flex-wrap gap-1 p-0">
               {song.genres.map((genre) => (
                 <li key={genre.id} className="flex">
-                  <Tag type="genre">{tagLabel(genre.name)}</Tag>
+                  <TagLink
+                    type="genre"
+                    label="Cover genre"
+                    to={discoverOne('genre', genre.name)}
+                    current={filters.genre.includes(genre.name)}
+                  >
+                    {tagLabel(genre.name)}
+                  </TagLink>
                 </li>
               ))}
             </ul>
@@ -161,9 +141,19 @@ export function SongRow({ song, filters, onFilter }: SongRowProps) {
             <p className="type-meta m-0 text-fg-soft">Cover genre not listed</p>
           )}
           {song.subGenres.length > 0 && (
-            <p className="type-meta m-0 mt-1 truncate text-fg-soft">
-              <span className="sr-only">Subgenres: </span>
-              {song.subGenres.map((s) => tagLabel(s.name)).join(' · ')}
+            <p className="type-meta m-0 min-w-0 truncate text-fg-soft @min-[60rem]:mt-1">
+              {song.subGenres.map((sub, i) => (
+                <span key={sub.id}>
+                  {i > 0 && ' · '}
+                  <Link
+                    to={discoverOne('sub', sub.name)}
+                    aria-label={`Subgenre: ${tagLabel(sub.name)}`}
+                    className="no-underline decoration-2 underline-offset-[0.2em] hover:text-fg hover:underline"
+                  >
+                    {tagLabel(sub.name)}
+                  </Link>
+                </span>
+              ))}
             </p>
           )}
         </div>
@@ -173,7 +163,7 @@ export function SongRow({ song, filters, onFilter }: SongRowProps) {
           aria-expanded={open}
           aria-controls={detailsId}
           onClick={() => setOpen(!open)}
-          className="type-meta col-start-2 row-start-2 inline-flex min-h-9 cursor-pointer items-center gap-1 justify-self-start font-semibold text-fg-soft hover:text-fg desktop:col-start-6 desktop:row-start-1 desktop:min-h-11 desktop:justify-self-end"
+          className="type-meta col-start-2 row-start-2 inline-flex min-h-9 cursor-pointer items-center gap-1 justify-self-start font-semibold text-fg-soft hover:text-fg @min-[45rem]:col-start-5 @min-[45rem]:row-start-1 @min-[45rem]:min-h-11 @min-[45rem]:justify-self-end @min-[60rem]:col-start-6 @min-[60rem]:justify-self-end"
         >
           Details
           <span className="sr-only"> for {title}</span>
@@ -184,9 +174,9 @@ export function SongRow({ song, filters, onFilter }: SongRowProps) {
       <div
         id={detailsId}
         hidden={!open}
-        className="px-2 pb-4 tablet:pl-[calc(7rem+1.25rem)] desktop:pl-[calc(2.75rem+7rem+2.5rem+0.75rem)]"
+        className="px-2 pb-4 tablet:pl-[calc(7rem+1.25rem)] @min-[45rem]:pl-[calc(2.75rem+6rem+2rem+0.75rem)] @min-[60rem]:pl-[calc(2.75rem+7rem+2.5rem+0.75rem)]"
       >
-        <dl className="m-0 grid gap-3 tablet:grid-cols-2 desktop:grid-cols-4">
+        <dl className="m-0 grid gap-3 tablet:grid-cols-2 @min-[60rem]:grid-cols-4">
           {DETAIL_GROUPS.map((group) => {
             const values = valuesOf(song, group.key)
             return (
@@ -199,15 +189,15 @@ export function SongRow({ song, filters, onFilter }: SongRowProps) {
                     <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
                       {values.map((value) => (
                         <li key={value.id} className="flex">
-                          <ToggleTag
+                          <TagLink
                             type={group.tagType!}
-                            pressed={filters[group.key].includes(value.name)}
-                            onClick={() => onFilter(group.key, value.name, 'toggle')}
-                            aria-label={`${group.title}: ${tagLabel(value.name)}`}
+                            label={group.title}
+                            to={discoverOne(group.key, value.name)}
+                            current={filters[group.key].includes(value.name)}
                             className="min-h-9 px-3"
                           >
                             {tagLabel(value.name)}
-                          </ToggleTag>
+                          </TagLink>
                         </li>
                       ))}
                     </ul>
@@ -222,13 +212,7 @@ export function SongRow({ song, filters, onFilter }: SongRowProps) {
   )
 }
 
-function OriginalArtists({
-  song,
-  onFilter,
-}: {
-  song: CoverSong
-  onFilter: SongRowProps['onFilter']
-}) {
+function OriginalArtists({ song }: { song: CoverSong }) {
   if (song.originalArtists.length === 0) return <span>Not listed</span>
-  return <ArtistLinks artists={song.originalArtists} role="songBy" onFilter={onFilter} />
+  return <ArtistLinks artists={song.originalArtists} role="songBy" />
 }

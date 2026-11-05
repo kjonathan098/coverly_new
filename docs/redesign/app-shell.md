@@ -315,3 +315,30 @@ If the container-query refactor isn't wanted now, use **B everywhere from 720px 
 
 - **Full page loads still end playback:** refresh, a new tab, external links, and later the OAuth redirect. Restoring the last recording after a reload is deferred.
 - **iOS and Safari autoplay rules may need a tap on YouTube's own play button** for the first video. The player handles `onAutoplayBlocked` as Paused. This hasn't been tested on a real iPhone yet.
+
+## Layout comparison under review (2026-11-05)
+
+Two layouts share the same player element and shell. `src/features/player/layouts.ts` holds their class sets, and switching changes classes only, so playback continues and the iframe is never recreated. Phones are the same in both.
+
+- **A** (the implementation above): floating card from 720px, docked from 1536px.
+- **B:** floating card from 720px, an integrated 390px column from 1280px (the new `laptop` breakpoint). At 1280px the page keeps about 890px.
+
+To compare in development, use the Player A/B switch in the header (desktop widths), or `?player=a` or `?player=b` in the URL. The choice is remembered in localStorage. Production builds always use A until a decision is made. Once one is chosen, delete the other's class set, the switch and the unused breakpoint.
+
+### Refinements for B (2026-11-06)
+
+- **Discover's result rows lay out by the list's own width** (container queries), not the window's:
+  - under 45rem: unchanged phone and tablet rows
+  - 45–60rem: a middle layout (play, art, title and cover artists, original artist, Details, with cover genres and subgenres on a second line)
+  - 60rem and wider: the full desktop row
+
+  With B docked, the list is about 806px at 1280 and 955px at 1440, so both use the middle layout. Titles, original artists, genres and Details stay visible, and nothing is cut off or overflows.
+
+- **The docked player's metadata scrolls on its own;** the video and controls stay in view (both layouts).
+
+## Clickable metadata (2026-11-06)
+
+- Every artist name and tag opens a fresh Discover for that one value, through `discoverOne(key, value)` in `src/features/discover/useFilters.ts`. That covers cover and original artists, cover genres, subgenres, performance styles and moods, in Discover rows and their Details, homepage cards, and the player.
+- Each group keeps its own parameter: `sub=acoustic` and `style=acoustic` stay distinct.
+- Links are real router links: Back and Forward restore earlier searches, and playback is never touched.
+- `TagLink` (in `src/ui/Tag.tsx`) keeps the tag shapes, adds a hover tint, and fills pink (`aria-current`) when that filter is on. Its accessible name includes the group ("Subgenre: Acoustic").

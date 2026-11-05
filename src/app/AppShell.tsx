@@ -1,5 +1,7 @@
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { PlayerPanel } from '../features/player/PlayerPanel'
+import { usePlayerLayout } from '../features/player/layouts'
+import { PlayerLayoutToggle } from '../features/player/PlayerLayoutToggle'
 import { usePlayback } from '../features/player/playback'
 import { Container, Surface, Wordmark, cx } from '../ui'
 
@@ -27,17 +29,20 @@ function SiteHeader() {
             Every song has another side
           </p>
         </div>
-        <nav aria-label="Main" className="flex gap-4 text-label font-medium tablet:gap-7">
-          <NavLink to="/discover" className={({ isActive }) => navLink(isActive)}>
-            Discover
-          </NavLink>
-          <Link to={{ pathname: '/', hash: '#moods' }} className={navLink()}>
-            Moods
-          </Link>
-          <Link to={{ pathname: '/', hash: '#artists' }} className={navLink()}>
-            Artists
-          </Link>
-        </nav>
+        <div className="flex items-center gap-5">
+          {import.meta.env.DEV && <PlayerLayoutToggle />}
+          <nav aria-label="Main" className="flex gap-4 text-label font-medium tablet:gap-7">
+            <NavLink to="/discover" className={({ isActive }) => navLink(isActive)}>
+              Discover
+            </NavLink>
+            <Link to={{ pathname: '/', hash: '#moods' }} className={navLink()}>
+              Moods
+            </Link>
+            <Link to={{ pathname: '/', hash: '#artists' }} className={navLink()}>
+              Artists
+            </Link>
+          </nav>
+        </div>
       </Container>
     </Surface>
   )
@@ -68,6 +73,7 @@ function SiteFooter() {
  */
 export function AppShell() {
   const open = usePlayback().song !== null
+  const layout = usePlayerLayout()
   return (
     <>
       <a
@@ -85,7 +91,7 @@ export function AppShell() {
         </a>
       )}
       <SiteHeader />
-      <div className={cx(open && 'wide:grid wide:grid-cols-[minmax(0,1fr)_auto]')}>
+      <div className={cx(open && layout.shell)}>
         <div className="min-w-0 pb-(--player-inset,0px)">
           {/* data-shell="page": what a full-screen sheet makes inert. The player is never marked. */}
           <main id="main" data-shell="page">

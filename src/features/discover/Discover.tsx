@@ -6,7 +6,6 @@ import {
   hasFilters,
   selectedCount,
   sortSongs,
-  type FacetKey,
   type Filters,
   type SortKey,
 } from '../songs/discover'
@@ -70,13 +69,6 @@ export function Discover({ songs, filters, sort, onChange, onSort }: DiscoverPro
   const change: Change = (next, options) => {
     setLimit(PAGE)
     onChange(next, options)
-  }
-
-  // From a row, a filter changes what's above the reader too; bring them back to the top.
-  const filterFromRow = (key: FacetKey, value: string, mode: 'add' | 'toggle') => {
-    if (mode === 'add' && filters[key].includes(value)) return
-    change(toggleValue(filters, key, value))
-    window.scrollTo({ top: 0 })
   }
 
   return (
@@ -146,9 +138,11 @@ export function Discover({ songs, filters, sort, onChange, onSort }: DiscoverPro
           </div>
         ) : (
           <>
-            <ol aria-label="Results" className="m-0 mt-2 grid list-none gap-1 p-0">
+            {/* A size container: rows lay themselves out by the room they have, which shrinks when the
+                player docks beside the page (layout B), not by the window's width. */}
+            <ol aria-label="Results" className="@container m-0 mt-2 grid list-none gap-1 p-0">
               {results.slice(0, limit).map((song) => (
-                <SongRow key={song.id} song={song} filters={filters} onFilter={filterFromRow} />
+                <SongRow key={song.id} song={song} filters={filters} />
               ))}
             </ol>
             {results.length > limit && (

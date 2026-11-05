@@ -1,9 +1,11 @@
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 import {
+  NO_FILTERS,
   filtersFromParams,
   filtersToParams,
   parseSort,
+  type FacetKey,
   type Filters,
   type SortKey,
 } from '../songs/discover'
@@ -49,3 +51,11 @@ export function discoverHref(filters: Filters): string {
   const query = filtersToParams(filters).toString()
   return query ? `${DISCOVER_PATH}?${query}` : DISCOVER_PATH
 }
+
+/**
+ * A fresh discovery for one value: Discover with only this filter on. Used by every clickable
+ * artist name and tag, so following one never mixes with whatever was filtered before.
+ * Each group keeps its own parameter (sub=acoustic and style=acoustic are different filters).
+ */
+export const discoverOne = (key: FacetKey, value: string) =>
+  discoverHref({ ...NO_FILTERS, [key]: [value] })

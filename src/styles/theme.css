@@ -111,6 +111,8 @@
   --breakpoint-*: initial;
   --breakpoint-tablet: 45rem;
   --breakpoint-desktop: 68.75rem;
+  /* Player layout B (under review) docks the player from here. */
+  --breakpoint-laptop: 80rem;
   /* Wide enough to give the player its own column and keep the full desktop layout beside it. */
   --breakpoint-wide: 96rem;
 }
