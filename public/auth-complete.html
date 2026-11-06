@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Coverly login</title>
+    <style>
+      body {
+        margin: 0;
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        background: #14121a;
+        color: #f6efe3;
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="message">Finishing login…</p>
+    <script>
+      // The end of the popup Google login (backend: GET /api/auth/google?mode=popup). Tells the
+      // main Coverly window over a same-origin BroadcastChannel that login finished, with no user
+      // data or tokens (it re-reads the session from the backend), then closes. If this isn't a
+      // closable popup, it continues to the Coverly route login started from instead.
+      ;(function () {
+        var params = new URLSearchParams(location.search)
+        var status = params.get('status') === 'success' ? 'success' : 'failed'
+        // Same rule as src/features/auth/returnPath.ts.
+        var from = params.get('from') || '/'
+        var safe =
+          from.length <= 2000 &&
+          from.charAt(0) === '/' &&
+          from.charAt(1) !== '/' &&
+          !/[\\\u0000-\u001f\u007f]/.test(from)
+            ? from
+            : '/'
+        try {
+          var channel = new BroadcastChannel('coverly-auth')
+          channel.postMessage({ type: 'coverly:auth', status: status })
+          channel.close()
+        } catch (error) {
+          // No BroadcastChannel: the main window re-checks the session when it regains focus.
+        }
+        document.getElementById('message').textContent =
+          status === 'success' ? 'Logged in. You can close this window.' : 'Login didn’t finish.'
+        window.close()
+        setTimeout(function () {
+          location.replace(safe)
+        }, 400)
+      })()
+    </script>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 # Coverly redesign: progress handoff
 
-Last updated: 2026-11-04. Read this first in a new session, then `CLAUDE.md` and `docs/design-system.md`.
+Last updated: 2026-11-06. Read this first in a new session, then `CLAUDE.md` and `docs/design-system.md`.
 
 ## Product vision (current, approved)
 
@@ -44,6 +44,49 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | 3: Discovery homepage           | Done (cover-of-the-week version); superseded by 3B, **not committed**                  | First homepage with Discover embedded in it                                                                                                                                                |
 | 3B: Homepage and Discover split | Implemented and verified, **awaiting review, not committed**                           | See below                                                                                                                                                                                  |
 | 4: Discover as a music app      | Direction and layout approved; final verification passed; **commit awaiting approval** | See "Phase 4" below. Homepage paused.                                                                                                                                                      |
+| MVP 1: Authentication           | Implemented, **awaiting the user's manual Google login check, not committed**          | See "MVP Phase 1: Authentication" below. Next: Favorites, then Playlists.                                                                                                                  |
+
+## MVP Phase 1: Authentication (2026-11-06)
+
+Google login on the existing backend (Passport, server-side `express-session`, HttpOnly `connect.sid` cookie, 24 h), in a popup so Coverly and the music stay put. No tokens in the browser, no second auth system, no Google Identity Services.
+
+- **`src/features/auth`:**
+  - `session.ts`: `fetchSession()` reads `GET /api/user/getUser`. The backend's logged-out answer (200 `{success:false, message:null}`) is a guest (`null`), not an error. A user is `{id, name}`: Google gives only a display name (scope `profile`; no email, `profileImage` stays empty), so nothing else is shown.
+  - `useSession()`: query key `['session']`, staleTime 60 s. `data` is undefined until the first answer.
+  - `loginUrl(path + search, { popup })`: `/api/auth/google?from=…` (plus `&mode=popup`).
+  - `openLoginPopup()`: opens that URL in a popup from the click. If the browser blocks it, the link's default full-page login runs instead and returns to the same route and search.
+  - `useLoginResult()`: listens on `BroadcastChannel('coverly-auth')` for `{type:'coverly:auth', status:'success'|'failed'}` and re-reads the session (no reload, player untouched). The message carries no token or user data, and anything else on the channel is ignored. The session query also re-checks on every window focus (`refetchOnWindowFocus: 'always'`), which covers a popup closed by hand.
+  - `useLogout()`: `GET /api/auth/logout`, then the session becomes `null`. Only the session query changes; the player is untouched.
+  - `returnPath.ts`: `safeReturnPath()` passes only same-site paths (one leading `/`, no `//`, backslashes or control characters, at most 2000 characters), otherwise `/`.
+  - `AccountControl.tsx`, in the app shell header: "Log in", or the name (tablet and up) plus "Log out". Hidden until the first answer. If the session check fails, it shows "Log in"; if logout fails, it stays logged in and says so; if the popup login is canceled or fails, it says "Login didn’t finish." Modified clicks (Ctrl/Cmd/Shift) open the full-page login.
+- **`public/auth-complete.html`:** static page where popup logins end. It posts the result on the channel and closes. If it can't close (not a script-opened popup), it continues to the validated `from` route, so nobody is stranded on it.
+- **Guests:** nothing is restricted. There are no route guards yet; personal features will ask for login where they appear.
+- **Playback:** the popup login, session checks and logout never touch the player. Only the blocked-popup fallback leaves the page, so playback stops then.
+- **Backend changes (approved 2026-11-06, auth only):**
+  - `src/config/passport-setup.js`: `state: true`, a one-time OAuth state nonce in the session, checked on the callback (CSRF protection).
+  - `src/3-routes/auth.route.js`:
+    - `prompt: 'select_account'`: Google always shows the account chooser.
+    - `safePath()` validates `from` on the backend (single leading `/`, no `//`, backslashes or control characters, at most 2000 characters, otherwise `/`).
+    - `mode=popup` ends on `/auth-complete.html?status=…&from=…`; the full-page login ends on the `from` route.
+    - The callback uses a custom Passport callback: cancellation (`access_denied`), a state mismatch or an error never logs in and ends as `status=failed` (popup) or back on the `from` route as a guest (full page).
+    - `req.logIn(user, { keepSessionInfo: true })`: Passport 0.7 regenerates the session at login and used to drop the return path, so logins always landed on `/`. The session id still changes (fixation protection).
+  - Verified with scripted requests: `prompt=select_account` and `state` reach Google; cancel, a forged state and a missing state end as failed with no session; unsafe `from` values become `/`. A standalone script confirmed the session id rotates and the destination survives with `keepSessionInfo`. A real Google login is verified by the user.
+- **Sessions are in backend memory:** every backend restart (including nodemon's) logs everyone out. Fine for development.
+- **Mocks and tests:** the `auth` MSW group answers as a guest by default; `loggedInHandlers()` gives a session that ends at logout (`src/mocks/fixtures/users.ts`). Tests: `src/features/auth/auth.test.tsx` (guest, logged in, logout, failed logout, unusable session check, return-path validation, popup login, blocked popup, canceled popup, ignored channel messages).
+- **Phones:** the header's right side wraps to a second row when it doesn't fit (below 390 px for guests, at 390 px when logged in). No horizontal overflow from 320 px.
+
+### Roadmap: backend changes for Favorites and Playlists
+
+- **Allowed from the next phases:** narrowly scoped backend changes for Favorites and Playlists, each reviewed and approved by the user before it is made. Everything else in the backend stays off limits.
+- **Needed:** Favorites has no model or routes. Playlists has a model, but `POST /api/playlist/create/:id` ignores the login (owner hardcoded to one user id, `ensureAuthenticated` imported but unused), reads `req.body.title`, never updates `user.userPlaylists`, and answers with a misspelled `succcess`. `GET /api/playlist/by-name/:name` returns anyone's playlist. There is no list, add/remove song, rename or delete.
+- **Not doing:** browser-only (localStorage) Favorites or Playlists as a workaround.
+
+### Backend issues (production security, to address separately)
+
+- **Unauthenticated write endpoints:** `POST /api/songs/add`, `/api/songs/add-ai`, `/api/artists/add`, `/api/tags/add`, `/api/tags/addBulk`, `/api/admin/songs/bulk` and `/api/playlist/create/:id` accept anyone's request, and `GET /api/admin/songs` is open too.
+- **Hardcoded origins:** CORS and the post-login redirect use `http://localhost:5173`.
+- **Sessions:** in-memory store (lost on restart, not for production), `secure: false` cookie, logout on `GET`.
+- Fixed during MVP Phase 1: the unvalidated OAuth `from` (open redirect), the missing OAuth `state`, and the canceled login ending on a backend error page.
 
 ## Phase 4: Discover as a music app (current state)
 
@@ -356,13 +399,12 @@ Do not build timers, pop-ups or dismissal persistence until the user asks.
    - cover-artist pages
    - normalizing the label data
    - "Highlight of the Day"
-   - real auth
    - server-side pagination and search
 
 ## Instructions for the next session
 
 - Do not commit or push without explicit approval.
-- Work only in `/Users/coding/Desktop/coverly_new`. Never modify the backend or the old frontend (`/Users/coding/Desktop/coverly`).
+- Work only in `/Users/coding/Desktop/coverly_new`. Never modify the old frontend (`/Users/coding/Desktop/coverly`). Never modify the backend, except narrowly scoped, user-approved changes for Favorites and Playlists (see "Roadmap: backend changes for Favorites and Playlists").
 - Don't add unnecessary dependencies, and don't copy Pinterest or reference images into production.
 - No fake functionality: never show a control that can't work, including play buttons without a video.
 - No global player, queue or persistent player. Page-local playback only.

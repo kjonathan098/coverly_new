@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
+import { AccountControl } from '../features/auth/AccountControl'
 import { PlayerPanel } from '../features/player/PlayerPanel'
 import { usePlayerLayout } from '../features/player/layouts'
 import { PlayerLayoutToggle } from '../features/player/PlayerLayoutToggle'
@@ -29,7 +30,7 @@ function SiteHeader() {
             Every song has another side
           </p>
         </div>
-        <div className="flex items-center gap-5">
+        <div className="flex min-w-0 flex-wrap items-center justify-end gap-x-3 gap-y-1 py-1 tablet:gap-x-5">
           {import.meta.env.DEV && <PlayerLayoutToggle />}
           <nav aria-label="Main" className="flex gap-3 text-label font-medium tablet:gap-7">
             <NavLink to="/discover" className={({ isActive }) => navLink(isActive)}>
@@ -39,6 +40,7 @@ function SiteHeader() {
               Magazine
             </NavLink>
           </nav>
+          <AccountControl />
         </div>
       </Container>
     </Surface>

@@ -14,7 +14,8 @@
 - `design-experiments/` holds approved visual prototypes. It is reference material, not production code.
 - No fake functionality: never render a control that can't work (for example, no play button without a video).
 - Playback: one YouTube player for the whole app, owned by the app shell (`src/app/AppShell.tsx`, `src/features/player`). Pages call `play(song)` and read `usePlaybackOf(id)`; never embed YouTube anywhere else. The player element must never move or remount (moving an iframe reloads it): layout changes are CSS only. No queue or auto-advance. Design notes: `docs/redesign/app-shell.md`.
-- The backend (`../coverly_backend`) is an HTTP dependency only: never modify it. Its CORS allows only `http://localhost:5173`, so the dev server stays on that port.
+- The backend (`../coverly_backend`) is an HTTP dependency: don't modify it, except narrowly scoped changes for Favorites and Playlists that the user has reviewed and approved one by one. No browser-only (localStorage) Favorites or Playlists. Its CORS allows only `http://localhost:5173`, so the dev server stays on that port.
+- Auth: Google OAuth through the backend's server-side session cookie, via `src/features/auth` (`useSession()`, `loginUrl()`, `openLoginPopup()`, `useLoginResult()`, `useLogout()`). Login runs in a popup that reports back on `BroadcastChannel('coverly-auth')` (no tokens or user data on the channel), with the full-page login as fallback. Backend auth changes are limited to `auth.route.js` and `passport-setup.js`, as approved. Guests can use everything except personal features. Never store tokens in the browser or add a second auth system. Login return paths go through `safeReturnPath()`. Known backend security issues: `docs/redesign/progress.md`, "Backend issues".
 - Never commit or push without the user's explicit approval.
 - Use Node 24 (`nvm use`). Checks: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run format:check`.
 
