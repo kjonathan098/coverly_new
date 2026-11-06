@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -8,10 +8,10 @@ import { apiUrl } from '../../lib/api'
 import { createQueryClient } from '../../lib/queryClient'
 import { songFixtures } from '../../mocks/fixtures/songs'
 import { server } from '../../mocks/server'
-import { livePlayer } from '../../test/fakeYouTube'
+import { FakePlayer, livePlayer } from '../../test/fakeYouTube'
 
-function renderAt(url = '/') {
-  const router = createMemoryRouter(routes, { initialEntries: [url] })
+function renderHome() {
+  const router = createMemoryRouter(routes, { initialEntries: ['/'] })
   render(
     <QueryClientProvider client={createQueryClient()}>
       <RouterProvider router={router} />
@@ -20,164 +20,115 @@ function renderAt(url = '/') {
   return router
 }
 
-/**
- * The shared fixtures are too small for any real collection (6 covers minimum). This catalog
- * repeats the first fixture (folk, acoustic, dreamy + nostalgic, stripped-down, by Mara Quill)
- * seven times, so "Nostalgic" and "Acoustic & stripped down" qualify, and nothing else does.
- */
-function serveLargerCatalog() {
-  const [base] = songFixtures
-  const catalog = Array.from({ length: 7 }, (_, i) => ({
-    ...base,
-    _id: `repeat${i}`,
-    title: `repeat song ${i + 1}`,
-    links: [{ url: `https://youtu.be/REPEAT0000${i}`, platform: 'youtube', timeStamp: 0 }],
-  }))
-  server.use(
-    http.get(apiUrl('/api/songs/all-songs'), () =>
-      HttpResponse.json({ success: true, message: [...catalog, ...songFixtures] }),
-    ),
-  )
-}
-
-const carousel = () => screen.getByRole('region', { name: 'Featured collections' })
-const slides = () => within(carousel()).getAllByRole('group', { hidden: true })
+const section = (name: string) => screen.getByRole('region', { name })
 
 beforeEach(() => {
   window.scrollTo = vi.fn() as unknown as typeof window.scrollTo
-  Element.prototype.scrollIntoView = vi.fn()
 })
 
-describe('homepage', () => {
-  it('falls back to browsing everything when no collection has enough covers', async () => {
-    renderAt('/')
-    expect(await screen.findByRole('link', { name: 'Browse all 6 covers' })).toHaveAttribute(
+describe('Home', () => {
+  it('welcomes, then explores real covers with their original artists', async () => {
+    renderHome()
+    expect(screen.getByRole('heading', { level: 1, name: 'Coverly' })).toBeInTheDocument()
+    const explore = await screen.findByRole('region', { name: 'Explore covers' })
+    const cards = within(explore).getAllByRole('article')
+    // The fixture without a video isn't picked; the other five are.
+    expect(cards).toHaveLength(5)
+    expect(within(explore).getAllByText('Original').length).toBe(5)
+    expect(within(explore).getByRole('link', { name: /^See all 6/ })).toHaveAttribute(
       'href',
       '/discover',
     )
-    expect(screen.queryByRole('region', { name: 'Featured collections' })).toBeNull()
   })
 
-  it('features only collections the catalog can fill, with live counts', async () => {
-    serveLargerCatalog()
-    renderAt('/')
-    await screen.findByRole('region', { name: 'Featured collections' })
-    expect(slides()).toHaveLength(2)
-
-    const [first] = slides()
-    expect(first).toHaveAccessibleName('1 of 2')
-    expect(within(first!).getByRole('heading', { level: 2, name: 'Nostalgic' })).toBeInTheDocument()
-    // 7 repeats + paper lanterns + Señales; Mara Quill and Ofelia Ruiz.
-    expect(within(first!).getByText('9 covers · 2 cover artists')).toBeInTheDocument()
-    expect(within(first!).getByRole('link', { name: 'Explore the collection' })).toHaveAttribute(
-      'href',
-      '/discover?mood=nostalgic',
-    )
-  })
-
-  it('opens Discover on exactly the collection’s covers', async () => {
-    serveLargerCatalog()
-    const router = renderAt('/')
-    const explore = await screen.findAllByRole('link', { name: 'Explore the collection' })
-    fireEvent.click(explore[0]!)
-    expect(await screen.findByText('9 covers match')).toBeInTheDocument()
+  it('opens Discover on a real mood, as a fresh filter', async () => {
+    const router = renderHome()
+    const moods = await screen.findByRole('region', { name: 'Discover by mood' })
+    const tiles = within(moods).getAllByRole('link', { name: /^Mood: / })
+    expect(tiles.map((t) => t.getAttribute('aria-label'))).toEqual([
+      'Mood: Dreamy, 3 covers',
+      'Mood: Soulful, 3 covers',
+      'Mood: Nostalgic, 2 covers',
+    ])
+    fireEvent.click(tiles[0]!)
+    await waitFor(() => expect(router.state.location.search).toBe('?mood=dreamy'))
     expect(router.state.location.pathname).toBe('/discover')
   })
 
-  it('moves between collections only when asked, with buttons and arrow keys', async () => {
-    serveLargerCatalog()
-    renderAt('/')
-    await screen.findByRole('region', { name: 'Featured collections' })
-    const [first, second] = slides()
-    expect(first).not.toHaveAttribute('inert')
-    expect(second).toHaveAttribute('inert')
-
-    fireEvent.click(screen.getByRole('button', { name: 'Next collection' }))
-    expect(first).toHaveAttribute('inert')
-    expect(second).not.toHaveAttribute('inert')
-    expect(screen.getByRole('button', { name: /^02/ })).toHaveAttribute('aria-current', 'true')
-    expect(
-      within(carousel()).getByText('Collection 2 of 2: Acoustic & stripped down'),
-    ).toBeInTheDocument()
-
-    fireEvent.keyDown(screen.getByRole('button', { name: /^02/ }), { key: 'ArrowRight' })
-    expect(first).not.toHaveAttribute('inert')
-    fireEvent.click(screen.getByRole('button', { name: 'Previous collection' }))
-    expect(second).not.toHaveAttribute('inert')
+  it('hides "Same song, different voices" when no song is covered twice', async () => {
+    renderHome()
+    await screen.findByRole('region', { name: 'Explore covers' })
+    expect(screen.queryByRole('region', { name: 'Same song, different voices' })).toBeNull()
   })
 
-  it('plays a collection’s first cover in the shared player, and keeps playing across slides', async () => {
-    serveLargerCatalog()
-    renderAt('/')
-    await screen.findByRole('region', { name: 'Featured collections' })
-    // Both slides open on the same repeated song; play the one on the visible slide.
-    fireEvent.click(
-      within(slides()[0]!).getByRole('button', { name: 'Play Repeat Song 1 by Mara Quill' }),
+  it('pairs two voices on the same song, and plays either in the shared player', async () => {
+    const nightBus = songFixtures.find((s) => s.title === 'night bus')!
+    const secondVoice = {
+      ...nightBus,
+      _id: 'night-bus-2',
+      artist: { ...nightBus.artist, coverArtist: [{ _id: 'x1', name: 'Second Voice' }] },
+      links: [{ url: 'https://youtu.be/SECONDVOIC1', platform: 'youtube', timeStamp: 0 }],
+    }
+    server.use(
+      http.get(apiUrl('/api/songs/all-songs'), () =>
+        HttpResponse.json({ success: true, message: [...songFixtures, secondVoice] }),
+      ),
     )
-    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
-    const instance = livePlayer()
-    const player = screen.getByRole('complementary', { name: 'Now playing' })
-    expect(within(player).getByTitle('Repeat Song 1, playing from YouTube')).toBe(instance.iframe)
-    // The video plays in the shell, not inside the slide's artwork.
-    expect(within(carousel()).queryByTitle(/playing from YouTube/)).toBeNull()
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Next collection' }))
-    })
-    expect(instance.destroyed).toBe(false)
-    expect(livePlayer()).toBe(instance)
-    // The same recording opens the next slide too, and is shown as the one playing there.
+    renderHome()
+    const same = await screen.findByRole('region', { name: 'Same song, different voices' })
+    const pair = within(same).getByRole('article', { name: 'Night Bus' })
+    fireEvent.click(within(pair).getByRole('button', { name: 'Play Night Bus by Second Voice' }))
+    await waitFor(() => expect(livePlayer().videoId).toBe('SECONDVOIC1'))
     expect(
-      within(slides()[1]!).getByRole('button', { name: 'Pause Repeat Song 1 by Mara Quill' }),
+      within(pair).getByRole('button', { name: 'Play Night Bus by The Tidewater Choir' }),
     ).toBeInTheDocument()
   })
 
-  it('links moods, the piano shelf and artists into Discover', async () => {
-    renderAt('/')
-    const moods = await screen.findByRole('region', { name: 'Start with a mood' })
-    expect(within(moods).getByRole('link', { name: /^Soulful/ })).toHaveAttribute(
-      'href',
-      '/discover?mood=soulful',
-    )
-    const artists = screen.getByRole('region', { name: 'Artists who keep coming back' })
-    expect(within(artists).getByRole('link', { name: 'The Tidewater Choir' })).toHaveAttribute(
-      'href',
-      '/discover?artist=the+tidewater+choir',
-    )
-    // The fixtures have no piano-driven covers, so the shelf stays out rather than showing a stub.
-    expect(screen.queryByRole('region', { name: 'Piano-driven' })).toBeNull()
-  })
+  it('The Cover Machine shows a real cover, plays it, and deals another on Surprise me', async () => {
+    renderHome()
+    const machine = await screen.findByRole('region', { name: 'The Cover Machine' })
+    const playButton = await within(machine).findByRole('button', { name: /^Play / })
+    const first = playButton.getAttribute('aria-label')!
+    expect(within(machine).getByText('(Cover)')).toBeInTheDocument()
+    expect(within(machine).getByText(/^Original by/)).toBeInTheDocument()
 
-  it('links to the whole catalog with live totals', async () => {
-    renderAt('/')
+    // Surprise swaps the song but never starts playback.
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    fireEvent.click(within(machine).getByRole('button', { name: 'Surprise me' }))
+    random.mockRestore()
+    const second = within(machine)
+      .getByRole('button', { name: /^Play / })
+      .getAttribute('aria-label')!
+    expect(second).not.toBe(first)
+    expect(FakePlayer.instances).toHaveLength(0)
+    expect(within(machine).getByText(/^Now showing /)).toBeInTheDocument()
+
+    // Play hands it to the shared player, and the button becomes Pause.
+    fireEvent.click(within(machine).getByRole('button', { name: second }))
+    await waitFor(() => expect(FakePlayer.instances).toHaveLength(1))
+    expect(livePlayer().iframe.isConnected).toBe(true)
     expect(
-      await screen.findByRole('heading', { name: '6 covers by 3 cover artists' }),
+      await within(machine).findByRole('button', { name: second.replace(/^Play/, 'Pause') }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Open Discover' })).toHaveAttribute('href', '/discover')
   })
 
-  it('navigates between pages from the header', async () => {
-    const router = renderAt('/')
-    await screen.findByRole('region', { name: 'Start with a mood' })
-    const nav = screen.getByRole('navigation', { name: 'Main' })
-    fireEvent.click(within(nav).getByRole('link', { name: 'Discover' }))
-    expect(await screen.findByRole('heading', { level: 1, name: 'Discover' })).toBeInTheDocument()
-    expect(within(nav).getByRole('link', { name: 'Discover' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    )
-
-    fireEvent.click(within(nav).getByRole('link', { name: 'Artists' }))
-    expect(router.state.location).toMatchObject({ pathname: '/', hash: '#artists' })
+  it('invites to the Magazine', async () => {
+    renderHome()
+    expect(
+      within(section('Collections, moods and the artists who keep coming back')).getByRole('link', {
+        name: 'Open the Magazine',
+      }),
+    ).toHaveAttribute('href', '/magazine')
   })
 
-  it('shows a retry when the catalog does not load', async () => {
+  it('offers a retry when the catalog does not load', async () => {
     server.use(
       http.get(apiUrl('/api/songs/all-songs'), () =>
         HttpResponse.json({ success: true, message: 'oops' }),
       ),
     )
-    renderAt('/')
+    renderHome()
     expect(await screen.findByRole('alert')).toHaveTextContent('The catalog didn’t load.')
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument()
   })
 })

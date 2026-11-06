@@ -75,3 +75,11 @@ export function CloseIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+export function ShuffleIcon({ className }: { className?: string }) {
+  return (
+    <svg {...STROKE} className={className}>
+      <path d="M4 7 H7.5 C10 7 11.5 8.5 12.5 10.5 L13.5 13.5 C14.5 15.5 16 17 18.5 17 H20 M17 14 L20 17 L17 20 M4 17 H7.5 C8.7 17 9.7 16.6 10.5 15.9 M13.5 8.1 C14.3 7.4 15.3 7 16.5 7 H20 M17 4 L20 7 L17 10" />
+    </svg>
+  )
+}

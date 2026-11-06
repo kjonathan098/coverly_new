@@ -18,6 +18,8 @@
   --color-pink: #ff3e8f;
   --color-blue: #3159ff;
   --color-turquoise: #1ed6c1;
+  /* Sticker yellow, from the Cover Machine collage: stickers and labels only, never text on ink. */
+  --color-yellow: #ffd23f;
   --color-indigo: #221a4d;
 
   /* Text-safe variants, each checked to WCAG AA on its surface */
@@ -97,6 +99,19 @@
   --duration-slow: 750ms;
   /* The playing badge's bars. Reduced motion stops them, full height (base.css). */
   --animate-equalize: equalize 0.8s var(--ease-snap) infinite alternate;
+  /* The Cover Machine flipping to another record. Reduced motion skips it (base.css). */
+  --animate-flip-in: flip-in 0.45s var(--ease-snap) both;
+
+  @keyframes flip-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) rotate(-1.5deg);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 
   @keyframes equalize {
     from {

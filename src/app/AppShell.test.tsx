@@ -95,8 +95,8 @@ describe('the app shell’s player', () => {
     await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
     const instance = livePlayer()
 
-    // On the homepage, the carousel's first cover goes into the same player.
-    await act(() => router.navigate('/'))
+    // On the Magazine, the carousel's first cover goes into the same player.
+    await act(() => router.navigate('/magazine'))
     const carousel = await screen.findByRole('region', { name: 'Featured collections' })
     const [slide] = within(carousel).getAllByRole('group', { hidden: true })
     fireEvent.click(

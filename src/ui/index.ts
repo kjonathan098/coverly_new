@@ -13,6 +13,7 @@ export {
   PauseIcon,
   PlayIcon,
   SearchIcon,
+  ShuffleIcon,
   StopIcon,
 } from './Icons'
 export { RecordingTile } from './RecordingTile'

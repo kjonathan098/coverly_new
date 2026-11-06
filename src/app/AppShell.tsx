@@ -35,12 +35,9 @@ function SiteHeader() {
             <NavLink to="/discover" className={({ isActive }) => navLink(isActive)}>
               Discover
             </NavLink>
-            <Link to={{ pathname: '/', hash: '#moods' }} className={navLink()}>
-              Moods
-            </Link>
-            <Link to={{ pathname: '/', hash: '#artists' }} className={navLink()}>
-              Artists
-            </Link>
+            <NavLink to="/magazine" className={({ isActive }) => navLink(isActive)}>
+              Magazine
+            </NavLink>
           </nav>
         </div>
       </Container>

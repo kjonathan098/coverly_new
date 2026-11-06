@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router'
 import { DiscoverPage } from '../features/discover/DiscoverPage'
 import { HomePage } from '../features/home/HomePage'
+import { MagazinePage } from '../features/magazine/MagazinePage'
 import { AppShell } from './AppShell'
 import { RouteError } from './RouteError'
 
@@ -28,6 +29,7 @@ export const routes: RouteObject[] = [
         children: [
           { path: '/', element: <HomePage /> },
           { path: '/discover', element: <DiscoverPage /> },
+          { path: '/magazine', element: <MagazinePage /> },
           ...developmentRoutes,
           // Any path Coverly doesn't have: a 404, shown by RouteError inside the shell.
           {

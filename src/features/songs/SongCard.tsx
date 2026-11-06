@@ -8,11 +8,13 @@ import { CoverArt } from './CoverArt'
 
 type SongCardProps = {
   song: CoverSong
+  /** Also show the original artist (off by default, so existing uses stay as they are). */
+  showOriginal?: boolean
   className?: string
 }
 
 /** A cover as a card. Its button drives the app shell's player; the artwork shows when it's loaded. */
-export function SongCard({ song, className }: SongCardProps) {
+export function SongCard({ song, showOriginal = false, className }: SongCardProps) {
   const status = usePlaybackOf(song.id)
   const current = status !== null
   const verb = playVerb(status)
@@ -54,6 +56,12 @@ export function SongCard({ song, className }: SongCardProps) {
           <p className="text-[0.9375rem] text-fg-soft">
             by <ArtistLinks artists={song.artists} role="artist" />
           </p>
+          {showOriginal && song.originalArtists.length > 0 && (
+            <p className="type-meta mt-0.5 text-fg-soft">
+              <span className="font-semibold">Original</span>{' '}
+              <ArtistLinks artists={song.originalArtists} role="songBy" />
+            </p>
+          )}
         </div>
         {song.video ? (
           <button
