@@ -31,7 +31,7 @@ function SiteHeader() {
         </div>
         <div className="flex items-center gap-5">
           {import.meta.env.DEV && <PlayerLayoutToggle />}
-          <nav aria-label="Main" className="flex gap-4 text-label font-medium tablet:gap-7">
+          <nav aria-label="Main" className="flex gap-3 text-label font-medium tablet:gap-7">
             <NavLink to="/discover" className={({ isActive }) => navLink(isActive)}>
               Discover
             </NavLink>

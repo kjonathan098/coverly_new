@@ -15,8 +15,18 @@
 ## Workflow (user preferences, 2026-11-05)
 
 - Visual and layout work: implement, then let the user review in their own browser on the running dev server. Say which route to open and how to switch between alternatives.
-- No screenshots by default: don't capture, save or analyze them unless the user asks, or one is needed to investigate a specific visual issue. Keep essential functional and responsive checks (scripted measurements are fine).
+- Screenshots: never generate or capture them automatically. Only when the user asks, or one is needed for a specific issue. Scripted functional and responsive checks are fine.
 - During iteration, run only the relevant targeted tests (for example `npx vitest run src/features/player`). Don't run the full suite after every CSS or layout change, and don't add tests for temporary design prototypes.
 - Before a commit is approved: run the full suite plus typecheck, lint, build and format:check.
-- Don't re-read unchanged files. Keep tool output small, reuse existing fixtures and scripts, and summarize results briefly instead of listing every passing check.
+- Token efficiency: avoid unnecessary exploration, broad refactors, excessive tests and repeated design iterations. Don't re-read unchanged files. Keep tool output small, reuse existing fixtures and scripts, and summarize results briefly instead of listing every passing check.
 - Never trade away playback behavior or accessibility to save effort.
+
+## MVP Product Priorities & Decisions (ongoing, 2026-11-06)
+
+- **Phase:** Coverly is an MVP. Functionality and stability come before visual perfection.
+- **Priorities:** core discovery, search, filters, playback, playlists, favorites, metadata and application stability.
+- **Approach:** small, incremental changes, each with a clearly defined scope and acceptance criteria.
+- **Mobile UI:** detailed mobile redesign is postponed, not abandoned. Mobile must have basic usability, working navigation, working playback and no critical layout issues (for example, no horizontal overflow from 320px).
+- **Mobile player:** the C1/C2 experiments are concluded. Keep the current full-width bottom bar (a title and controls strip above a 16:9 video). Don't experiment with mobile layouts unless explicitly asked.
+- **Desktop:** preserve the existing working experience. The player layout A/B comparison (dev-only switch, `?player=`, `src/features/player/layouts.ts`) is still awaiting the user's decision. The user leaned toward B. Production uses A.
+- **Later:** revisit mobile polish and advanced visual design once core MVP functionality is stable.
