@@ -7,6 +7,7 @@ import { RouteError } from './RouteError'
 import { FavoritesPage } from '../features/favorites/FavoritesPage'
 import { LibraryPage } from '../features/library/LibraryPage'
 import { OfficialPlaylistPage, PlaylistPage } from '../features/library/PlaylistPage'
+import { ArtistPage } from '../features/artists/ArtistPage'
 
 // The living design system. Registered only in development: in production builds this branch is
 // dead code, so the page and its fixtures are never bundled.
@@ -37,6 +38,7 @@ export const routes: RouteObject[] = [
           { path: '/library/favorites', element: <FavoritesPage /> },
           { path: '/library/playlists/:id', element: <PlaylistPage /> },
           { path: '/playlists/:id', element: <OfficialPlaylistPage /> },
+          { path: '/artists/:id', element: <ArtistPage /> },
           // Favorites moved into Your Library.
           { path: '/favorites', element: <Navigate to="/library/favorites" replace /> },
           ...developmentRoutes,

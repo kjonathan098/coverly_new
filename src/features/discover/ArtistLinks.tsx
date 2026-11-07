@@ -3,11 +3,12 @@ import { Link } from 'react-router'
 import { cx } from '../../ui'
 import { displayName } from '../songs/format'
 import type { CoverArtist } from '../songs/types'
-import { discoverOne } from './useFilters'
 
 /**
- * Artist names as links, each opening a fresh Discover for that artist in the role it's listed
- * under: cover artist (artist=) or original artist (songBy=). Joined as "A, B and C".
+ * Artist names as links to their profiles (/artists/:id, by id, so every name reaches the right
+ * artist), joined as "A, B and C". The accessible name says the role they're listed under here.
+ * Links, never buttons: they navigate and never start playback. Discover's artist filters are one
+ * click further, from the profile.
  */
 export function ArtistLinks({
   artists,
@@ -23,8 +24,8 @@ export function ArtistLinks({
     <Fragment key={artist.id}>
       {i > 0 && (i === artists.length - 1 ? ' and ' : ', ')}
       <Link
-        to={discoverOne(role, artist.name)}
-        aria-label={`Show covers with ${what} ${displayName(artist.name)}`}
+        to={`/artists/${encodeURIComponent(artist.id)}`}
+        aria-label={`${displayName(artist.name)}, ${what}`}
         className={cx(
           'no-underline decoration-2 underline-offset-[0.2em] hover:text-fg hover:underline focus-visible:underline',
           className,

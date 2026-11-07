@@ -10,6 +10,7 @@ import { server } from '../../mocks/server'
 import { FakePlayer, livePlayer } from '../../test/fakeYouTube'
 import { YOUTUBE_HOST } from '../player/playback'
 import { PlayerState } from '../player/youtubeApi'
+import { songFixtures } from '../../mocks/fixtures/songs'
 
 /*
  * The fixtures (src/mocks/fixtures/songs.ts), as Discover sees them:
@@ -267,13 +268,13 @@ describe('/discover rows', () => {
     const row = screen.getByRole('article', {
       name: 'Low Tide, covered by Mara Quill and Ofelia Ruiz',
     })
+    const ofelia = (songFixtures[1]!.artist.coverArtist[1] as { _id: string })._id
+    expect(within(row).getByRole('link', { name: 'Ofelia Ruiz, cover artist' })).toHaveAttribute(
+      'href',
+      `/artists/${ofelia}`,
+    )
     expect(
-      within(row).getByRole('link', { name: 'Show covers with cover artist Ofelia Ruiz' }),
-    ).toBeInTheDocument()
-    expect(
-      within(row).getAllByRole('link', {
-        name: 'Show covers with original artist The Lamplighters',
-      }),
+      within(row).getAllByRole('link', { name: 'The Lamplighters, original artist' }),
     ).not.toHaveLength(0)
     expect(within(row).getByRole('list', { name: 'Cover genres' })).toHaveTextContent(
       'R&B and soul',
@@ -303,15 +304,17 @@ describe('/discover rows', () => {
     ).toHaveAttribute('aria-current', 'true')
   })
 
-  it('narrows to an artist from a row', async () => {
-    renderAt('/discover')
+  it('opens an artist’s profile from a row, and narrows Discover to them from there', async () => {
+    const router = renderAt('/discover')
     await screen.findByText('All 6 covers')
     const row = screen.getByRole('article', { name: 'Señales, covered by Ofelia Ruiz' })
-    fireEvent.click(
-      within(row).getAllByRole('link', {
-        name: 'Show covers with original artist Los Faroles',
-      })[0]!,
-    )
+    fireEvent.click(within(row).getAllByRole('link', { name: 'Los Faroles, original artist' })[0]!)
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Los Faroles' }),
+    ).toBeInTheDocument()
+    expect(router.state.location.pathname).toMatch(/^\/artists\//)
+
+    fireEvent.click(screen.getByRole('link', { name: /Covers of their songs in Discover/ }))
     await waitFor(() => expect(rowTitles()).toEqual(['Señales', 'No Link Yet']))
     expect(
       screen.getByRole('button', { name: 'Remove Original artist: Los Faroles' }),

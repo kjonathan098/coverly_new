@@ -91,7 +91,7 @@ describe('artwork as the play button', () => {
         name: /The Tidewater Choir/,
       }),
     )
-    await waitFor(() => expect(router.state.location.search).toContain('artist='))
+    await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/artists\//))
 
     expect(FakePlayer.instances).toEqual([])
     expect(screen.queryByRole('complementary', { name: 'Now playing' })).toBeNull()
@@ -124,7 +124,7 @@ describe('artwork as the play button', () => {
     const instance = livePlayer()
 
     fireEvent.click(within(pair).getByRole('link', { name: /Second Voice/ }))
-    await waitFor(() => expect(router.state.location.pathname).toBe('/discover'))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/artists/x1'))
     expect(instance.calls).toEqual([])
   })
 

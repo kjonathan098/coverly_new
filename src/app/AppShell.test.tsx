@@ -120,7 +120,7 @@ describe('the app shell’s player', () => {
     ).toBeInTheDocument()
   })
 
-  it('opens a fresh Discover from the player’s tags and names, without interrupting playback', async () => {
+  it('opens Discover from the player’s tags and a profile from its names, without interrupting playback', async () => {
     const router = renderAt('/discover?mood=dreamy')
     await screen.findByText('3 covers match')
     fireEvent.click(screen.getByRole('button', { name: 'Play Night Bus by The Tidewater Choir' }))
@@ -135,10 +135,11 @@ describe('the app shell’s player', () => {
     expect(await screen.findByText('3 covers match')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Remove Cover genre: Pop' })).toBeInTheDocument()
 
-    fireEvent.click(
-      within(player()).getByRole('link', { name: 'Show covers with original artist Mara Quill' }),
-    )
-    await waitFor(() => expect(router.state.location.search).toBe('?songBy=Mara+Quill'))
+    // An artist's name opens their profile.
+    const mara = (songFixtures[4]!.artist.original[0] as { _id: string })._id
+    fireEvent.click(within(player()).getByRole('link', { name: 'Mara Quill, original artist' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe(`/artists/${mara}`))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Mara Quill' })).toBeInTheDocument()
 
     await act(() => router.navigate(-1))
     expect(router.state.location.search).toBe('?genre=pop')

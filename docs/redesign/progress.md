@@ -49,6 +49,15 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | MVP 3: Playlists + Your Library | Done (committed `29addd9`, backend `f72d3af`)                                          | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
 | MVP 4: Coverly playlists        | Implemented, **awaiting review, not committed**                                        | See "MVP Phase 4: Official Coverly playlists" below.                                                                                                                                       |
 
+## Artist profiles (2026-11-07, awaiting review)
+
+- `/artists/:id` (`src/features/artists/ArtistPage.tsx`): public, frontend only, built from the cached catalog by `artistProfile(songs, id)` (`profile.ts`), which matches artists **by id**. No backend change, no migration, no third-party data.
+- Header: "Artist" label, the name in display type, role labels with counts ("Cover artist · 3 covers performed", "Original artist · 5 covers of their songs"; counts are cover performances, not distinct songs), and a fading pink halftone as the only decoration. No photo, biography or placeholder art (the Artist model's extra fields are all empty).
+- Sections: "Covers by {name}" (`SongCard` with the original artist) and "Covers of songs by {name}" (`SongCard` showing who covered it), each linking to Discover's matching filter ("Their covers in Discover", "Covers of their songs in Discover"). Both appear for artists with both roles. Cards: a swipeable row on phones, 2 columns on tablets, 4 on desktop, as on Home. "Artist not found" for unknown ids and artists no cover credits.
+- `ArtistLinks` (every artist name: Discover rows, Favorites and playlist rows, cards, Now Playing, Home) now links to the profile, by id; accessible name "{Name}, cover artist" / "{Name}, original artist". Links never start playback.
+- Data audit (2026-11-07, read-only): 122 artists, 119 credited on songs (79 cover, 45 original, 5 both); most have one cover; no near-duplicate names; 7 duo/group records (e.g. "Simon & Garfunkel") stay their own artists; 3 artists without songs show "Artist not found".
+- Tests: `artists/profile.test.ts`, `artists/artistPage.test.tsx`; Discover, app shell and artwork tests updated for profile links.
+
 ## Artwork is the play button, everywhere (2026-11-07, awaiting review)
 
 - `src/features/songs/PlayableCoverArt.tsx`: one component for every song thumbnail. A `<button>` wrapping `CoverArt` (labels as before: Play / Pause / Resume / Replay … by …) that calls `play(song)`, so the current song toggles pause/resume. Only the artwork is inside it: titles, artist links, tags, Details and Remove stay outside.
