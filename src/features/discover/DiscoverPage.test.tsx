@@ -393,7 +393,8 @@ describe('/discover playback (the app shell’s player)', () => {
     await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
     expect(livePlayer().options).toMatchObject({ host: YOUTUBE_HOST, videoId: 'EEEEEEEEEE5' })
     expect(within(player()).getByTitle('Night Bus, playing from YouTube')).toBe(livePlayer().iframe)
-    expect(player()).toHaveTextContent('The Tidewater Choir · Original Mara Quill')
+    // Cover and original artists, each on its own labelled line.
+    expect(player()).toHaveTextContent('Cover byThe Tidewater ChoirOriginal byMara Quill')
     const row = screen.getByRole('article', { current: true })
     expect(row).toHaveAccessibleName('Night Bus, covered by The Tidewater Choir')
     expect(await within(row).findByText('Playing')).toBeInTheDocument()

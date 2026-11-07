@@ -110,9 +110,11 @@ export function PlayerPanel() {
         className="relative order-2 aspect-video min-h-[200px] w-full shrink-0 overflow-hidden bg-ink tablet:order-1 tablet:rounded-control [&>iframe]:absolute [&>iframe]:inset-0 [&>iframe]:size-full"
       />
 
-      <div className="order-1 flex min-w-0 items-center gap-3 px-margin py-2 tablet:order-2 tablet:px-0 tablet:pt-3 tablet:pb-0">
-        <div className="min-w-0 flex-1">
-          <p className="type-meta m-0 font-semibold text-accent max-tablet:sr-only">
+      {/* The song, then its people. The controls share one row with the status, so the title and
+          artists get the full width and wrap instead of being cut off. */}
+      <div className="order-1 grid min-w-0 gap-1 px-margin pt-1.5 pb-3 tablet:order-2 tablet:px-0 tablet:pt-2 tablet:pb-0">
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <p className="type-meta m-0 min-w-0 truncate font-semibold text-accent">
             {status === 'paused'
               ? 'Paused'
               : status === 'ended'
@@ -121,59 +123,67 @@ export function PlayerPanel() {
                   ? 'Can’t play here'
                   : 'Now playing'}
           </p>
-          <p className="type-row m-0 truncate text-[1.0625rem] tablet:text-[1.1875rem]">{title}</p>
-          <p className="m-0 truncate text-label">
-            <span className="font-medium">
-              <ArtistLinks artists={song?.artists ?? []} role="artist" />
-            </span>
-            {originals && (
-              <span className="text-fg-soft">
-                {' '}
-                · <span className="font-semibold">Original</span>{' '}
-                <ArtistLinks artists={song?.originalArtists ?? []} role="songBy" />
-              </span>
+          <div className="-mr-2 flex shrink-0 items-center tablet:mr-0">
+            {song && (
+              <>
+                <FavoriteButton song={song} />
+                <AddToPlaylistButton song={song} />
+                <span aria-hidden="true" className="mx-1.5 h-6 w-px bg-line" />
+              </>
             )}
-          </p>
-        </div>
-        {song && (
-          <div className="flex shrink-0">
-            <FavoriteButton song={song} />
-            <AddToPlaylistButton song={song} />
+            {main && (
+              <button
+                type="button"
+                aria-label={main.label}
+                onClick={main.run}
+                className={cx(iconButton, 'bg-pink text-ink hover:bg-fg')}
+              >
+                {main.icon}
+              </button>
+            )}
+            <button
+              type="button"
+              aria-label={`Move the player to the ${side === 'right' ? 'left' : 'right'}`}
+              onClick={() => setSide(side === 'right' ? 'left' : 'right')}
+              className={cx(
+                iconButton,
+                'ml-1.5 hidden text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] hover:bg-raised tablet:grid',
+                layout.sideToggle,
+              )}
+            >
+              <ArrowIcon className={cx(side === 'right' && '-scale-x-100')} />
+            </button>
+            <button
+              type="button"
+              aria-label="Close player"
+              onClick={close}
+              className={cx(
+                iconButton,
+                'ml-1.5 text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] hover:bg-pink hover:text-ink hover:shadow-none',
+              )}
+            >
+              <CloseIcon />
+            </button>
           </div>
-        )}
-        {main && (
-          <button
-            type="button"
-            aria-label={main.label}
-            onClick={main.run}
-            className={cx(iconButton, 'bg-pink text-ink hover:bg-fg')}
-          >
-            {main.icon}
-          </button>
-        )}
-        <button
-          type="button"
-          aria-label={`Move the player to the ${side === 'right' ? 'left' : 'right'}`}
-          onClick={() => setSide(side === 'right' ? 'left' : 'right')}
-          className={cx(
-            iconButton,
-            'hidden text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] hover:bg-raised tablet:grid',
-            layout.sideToggle,
+        </div>
+        <p className="type-row m-0 text-[1.0625rem] [overflow-wrap:anywhere] tablet:text-[1.1875rem]">
+          {title}
+        </p>
+        {/* Who sings this version, and whose song it is: always both, on their own lines. */}
+        <dl className="m-0 grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-2 gap-y-0.5 text-label">
+          <dt className="text-fg-soft">Cover by</dt>
+          <dd className="m-0 font-medium [overflow-wrap:anywhere]">
+            <ArtistLinks artists={song?.artists ?? []} role="artist" />
+          </dd>
+          {originals && (
+            <>
+              <dt className="text-fg-soft">Original by</dt>
+              <dd className="m-0 [overflow-wrap:anywhere]">
+                <ArtistLinks artists={song?.originalArtists ?? []} role="songBy" />
+              </dd>
+            </>
           )}
-        >
-          <ArrowIcon className={cx(side === 'right' && '-scale-x-100')} />
-        </button>
-        <button
-          type="button"
-          aria-label="Close player"
-          onClick={close}
-          className={cx(
-            iconButton,
-            'text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] hover:bg-pink hover:text-ink hover:shadow-none',
-          )}
-        >
-          <CloseIcon />
-        </button>
+        </dl>
       </div>
 
       {song && status === 'unavailable' && problem && (
