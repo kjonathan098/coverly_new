@@ -55,6 +55,6 @@ Rules:
 - **Priorities:** core discovery, search, filters, playback, playlists, favorites, metadata and application stability.
 - **Approach:** small, incremental changes, each with a clearly defined scope and acceptance criteria.
 - **Mobile UI:** detailed mobile redesign is postponed, not abandoned. Mobile must have basic usability, working navigation, working playback and no critical layout issues (for example, no horizontal overflow from 320px).
-- **Mobile player:** the C1/C2 experiments are concluded. Keep the current full-width bottom bar (a title and controls strip above a 16:9 video). Don't experiment with mobile layouts unless explicitly asked.
+- **Mobile player:** optimizing it (for example the bar's height with long titles and several artists) is deferred to a dedicated responsive-design milestone (`docs/redesign/roadmap.md`, decided 2026-11-07); make no mobile UI changes until then. The C1/C2 experiments are concluded. Keep the current full-width bottom bar (a title and controls strip above a 16:9 video). Don't experiment with mobile layouts unless explicitly asked.
 - **Desktop:** preserve the existing working experience. The player layout A/B comparison (dev-only switch, `?player=`, `src/features/player/layouts.ts`) is still awaiting the user's decision. The user leaned toward B. Production uses A.
 - **Later:** revisit mobile polish and advanced visual design once core MVP functionality is stable.

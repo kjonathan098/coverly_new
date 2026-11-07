@@ -1,6 +1,6 @@
 # Coverly redesign: progress handoff
 
-Last updated: 2026-11-07. Read this first in a new session, then `CLAUDE.md` and `docs/design-system.md`.
+Last updated: 2026-11-07. Read this first in a new session, then `CLAUDE.md`, `docs/design-system.md` and `docs/redesign/roadmap.md`.
 
 ## Product vision (current, approved)
 
@@ -49,7 +49,13 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | MVP 3: Playlists + Your Library | Done (committed `29addd9`, backend `f72d3af`)                                          | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
 | MVP 4: Coverly playlists        | Implemented, **awaiting review, not committed**                                        | See "MVP Phase 4: Official Coverly playlists" below.                                                                                                                                       |
 
-## Artist profiles (2026-11-07, awaiting review)
+## Now Playing information (2026-11-07, desktop design approved)
+
+- `PlayerPanel`: the controls (heart, +, a divider, Play/Pause, move, Close) share the top row with the status label ("Now playing", "Paused"…), so the song's text gets the full width. The title wraps (no truncation); "Cover by" and "Original by" are a label/value list on separate lines, every artist linked to their profile, names wrapping. Same on phones (the bar grows by the extra lines). The video element and the DOM order are unchanged.
+- Tests: `player/nowPlaying.test.tsx`; the Discover playback test checks the new labelled lines.
+- **Mobile deferred (user decision, 2026-11-07):** the phone bar grows with long titles and several artists. Optimizing the mobile player waits for a dedicated responsive-design milestone (`docs/redesign/roadmap.md`); no mobile UI changes until then.
+
+## Artist profiles (complete, committed `0717ba5`)
 
 - `/artists/:id` (`src/features/artists/ArtistPage.tsx`): public, frontend only, built from the cached catalog by `artistProfile(songs, id)` (`profile.ts`), which matches artists **by id**. No backend change, no migration, no third-party data.
 - Header: "Artist" label, the name in display type, role labels with counts ("Cover artist · 3 covers performed", "Original artist · 5 covers of their songs"; counts are cover performances, not distinct songs), and a fading pink halftone as the only decoration. No photo, biography or placeholder art (the Artist model's extra fields are all empty).
