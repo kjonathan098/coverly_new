@@ -46,7 +46,26 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | 4: Discover as a music app      | Direction and layout approved; final verification passed; **commit awaiting approval** | See "Phase 4" below. Homepage paused.                                                                                                                                                      |
 | MVP 1: Authentication           | Done (committed)                                                                       | See "MVP Phase 1: Authentication" below. Next: Favorites, then Playlists.                                                                                                                  |
 | MVP 2: Favorites                | Done (committed `3ff0c3e`, backend `ee65d40`)                                          | See "MVP Phase 2: Favorites" below. Next: Playlists and Your Library.                                                                                                                      |
-| MVP 3: Playlists + Your Library | Implemented, **awaiting the user's manual check, not committed**                       | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
+| MVP 3: Playlists + Your Library | Done (committed `29addd9`, backend `f72d3af`)                                          | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
+| MVP 4: Coverly playlists        | Implemented, **awaiting review, not committed**                                        | See "MVP Phase 4: Official Coverly playlists" below.                                                                                                                                       |
+
+## MVP Phase 4: Official Coverly playlists (2026-11-07, awaiting review)
+
+- **Model** (no migration): `Playlist.type` (`user` | `official`, default `user`; **missing = personal**) and `description` (≤ 200). `type` alone decides access; the legacy `public` flag never grants anything (kept in sync on publish/unpublish only).
+- **Backend** (`src/3-routes/playlists.route.js`, one handler factory for both kinds):
+  - Personal `/api/playlists`: login (401), every query `{ createdBy: req.user._id, type: { $ne: 'official' } }`, so a published playlist is out of reach even for its creator. Create always writes `type: 'user'`; `type`, `createdBy`, `public` from requests are ignored everywhere.
+  - Official `/api/official-playlists`: `GET /` and `GET /:id` public (guests too), never personal ones; `POST`, `PATCH` (name, description), `DELETE`, songs `PUT`/`DELETE`, `POST /:id/unpublish` need `requireAdmin` (401 guests, 403 users), any admin, whoever created it. Responses never include `createdBy` (credited to Coverly).
+  - `POST /api/playlists/:id/publish`: admin **and** owner of that personal playlist; same id and songs. Unpublish returns it, private, to its creator.
+  - `getUser` adds server-derived `isAdmin` (UI only).
+  - Tests: `test/playlists.test.js` (official suite), `test/favorites.test.js` (`isAdmin`).
+- **Frontend:**
+  - Data: `PlaylistKind` (`mine` | `official`) on the API calls and hooks; `useOfficialPlaylists()` (public, key `['official-playlists']`); `useUpdatePlaylist` (name, description), `usePublishPlaylist(id, publish)`. `SessionUser.isAdmin`.
+  - `/playlists/:id` (`OfficialPlaylistPage`): public, "By Coverly" badge (`CoverlyBadge`), description, "Coverly playlist · N covers", rows play in the global player. Covers gone from the catalog are hidden from visitors. Admins: Edit (name + description), Delete, Unpublish, Remove per row.
+  - Personal pages say "Private playlist"; admins get "Publish as Coverly playlist" (with a confirmation step).
+  - Home: "Playlists by Coverly" (`home/CoverlyPlaylists.tsx`, after Explore covers), up to 4 compact cards, rendered only when official playlists exist.
+  - "+" modal: admins also see a "Coverly playlists · admin" group; everyone else never sees official playlists there.
+  - "The Beatles Covers" was not changed: the user publishes it from the UI.
+  - Tests: `playlists/officialPlaylists.test.tsx`, additions to `playlistsData.test.tsx`.
 
 ## MVP Phase 3: Playlists and Your Library (2026-11-07, awaiting review)
 

@@ -11,8 +11,11 @@ import { safeReturnPath } from './returnPath'
  * the backend who is logged in. Guests can use everything except personal features.
  */
 
-/** The logged-in user: only what the backend actually returns (Google gives a display name). */
-export type SessionUser = { id: string; name: string }
+/**
+ * The logged-in user: only what the backend returns (Google gives a display name). `isAdmin` only
+ * shows or hides admin controls; the backend checks every admin action itself.
+ */
+export type SessionUser = { id: string; name: string; isAdmin: boolean }
 
 export const sessionKeys = { current: ['session'] as const }
 
@@ -32,8 +35,10 @@ export async function fetchSession(): Promise<SessionUser | null> {
   const { success, message } = (body ?? {}) as { success?: unknown; message?: unknown }
   if (success === false && message === null) return null
   if (success === true && typeof message === 'object' && message !== null) {
-    const { _id, name } = message as { _id?: unknown; name?: unknown }
-    if (typeof _id === 'string' && typeof name === 'string') return { id: _id, name }
+    const { _id, name, isAdmin } = message as { _id?: unknown; name?: unknown; isAdmin?: unknown }
+    if (typeof _id === 'string' && typeof name === 'string') {
+      return { id: _id, name, isAdmin: isAdmin === true }
+    }
   }
   throw new ContractError(`${GET_USER}: unexpected response`)
 }

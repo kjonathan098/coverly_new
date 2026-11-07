@@ -25,6 +25,7 @@ import { tintFor } from '../songs/tint'
 import type { CoverSong } from '../songs/types'
 import { CoverMachine } from './CoverMachine'
 import { dailySelection, sameSongPairs, type SameSong } from './selection'
+import { CoverlyPlaylists } from './CoverlyPlaylists'
 
 const PICKS = 8
 const MOODS = 8
@@ -272,6 +273,8 @@ export function HomePage() {
                 ))}
               </ul>
             </Row>
+
+            <CoverlyPlaylists songs={songs} />
 
             {moods.length > 0 && (
               <Row

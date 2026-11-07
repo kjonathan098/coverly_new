@@ -6,7 +6,7 @@ import { AppShell } from './AppShell'
 import { RouteError } from './RouteError'
 import { FavoritesPage } from '../features/favorites/FavoritesPage'
 import { LibraryPage } from '../features/library/LibraryPage'
-import { PlaylistPage } from '../features/library/PlaylistPage'
+import { OfficialPlaylistPage, PlaylistPage } from '../features/library/PlaylistPage'
 
 // The living design system. Registered only in development: in production builds this branch is
 // dead code, so the page and its fixtures are never bundled.
@@ -36,6 +36,7 @@ export const routes: RouteObject[] = [
           { path: '/library', element: <LibraryPage /> },
           { path: '/library/favorites', element: <FavoritesPage /> },
           { path: '/library/playlists/:id', element: <PlaylistPage /> },
+          { path: '/playlists/:id', element: <OfficialPlaylistPage /> },
           // Favorites moved into Your Library.
           { path: '/favorites', element: <Navigate to="/library/favorites" replace /> },
           ...developmentRoutes,

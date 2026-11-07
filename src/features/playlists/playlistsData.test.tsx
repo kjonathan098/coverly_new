@@ -6,16 +6,22 @@ import { describe, expect, it, vi } from 'vitest'
 import { apiUrl } from '../../lib/api'
 import { createQueryClient } from '../../lib/queryClient'
 import { userFixture } from '../../mocks/fixtures/users'
-import { loggedInHandlers, type MockAccount } from '../../mocks/handlers/auth'
+import {
+  loggedInHandlers,
+  officialPlaylistHandlers,
+  type MockAccount,
+} from '../../mocks/handlers/auth'
 import { server } from '../../mocks/server'
 import { useLogout } from '../auth/session'
 import { playlistKeys } from './keys'
 import {
   useCreatePlaylist,
   useDeletePlaylist,
+  useOfficialPlaylists,
+  usePublishPlaylist,
+  useUpdatePlaylist,
   usePlaylists,
   usePlaylistSong,
-  useRenamePlaylist,
 } from './usePlaylists'
 
 const SONG = 'song00000000000000000001'
@@ -51,7 +57,7 @@ describe('playlists data', () => {
     const account = logIn()
     const { wrapper } = setup()
     const { result } = renderHook(
-      () => ({ ...usePlaylists(), create: useCreatePlaylist(), rename: useRenamePlaylist(MIX) }),
+      () => ({ ...usePlaylists(), create: useCreatePlaylist(), rename: useUpdatePlaylist(MIX) }),
       { wrapper },
     )
     await waitFor(() => expect(result.current.playlists).toHaveLength(1))
@@ -63,7 +69,7 @@ describe('playlists data', () => {
         ['Mix', []],
       ]),
     )
-    act(() => result.current.rename.mutate('After hours'))
+    act(() => result.current.rename.mutate({ name: 'After hours' }))
     await waitFor(() =>
       expect(result.current.playlists?.map((p) => p.name)).toEqual(['Late night', 'After hours']),
     )
@@ -138,5 +144,60 @@ describe('playlists data', () => {
     act(() => result.current.logout.mutate())
     await waitFor(() => expect(result.current.user).toBeNull())
     expect(client.getQueryData(playlistKeys.of(userFixture._id))).toBeUndefined()
+  })
+
+  it('guests read Coverly playlists; an admin publishes one of theirs and unpublishes it, moving it between lists', async () => {
+    const { wrapper: guestWrapper } = setup()
+    server.use(
+      ...officialPlaylistHandlers(
+        [{ _id: 'beatles', name: 'Beatles covers', songs: [SONG] }],
+        () => 'guest',
+      ),
+    )
+    const { result: guest } = renderHook(() => useOfficialPlaylists(), { wrapper: guestWrapper })
+    await waitFor(() =>
+      expect(guest.current.playlists?.map((p) => [p.name, p.official])).toEqual([
+        ['Beatles covers', true],
+      ]),
+    )
+
+    const account: MockAccount = {
+      favorites: [],
+      isAdmin: true,
+      playlists: [{ _id: MIX, name: 'The Beatles Covers', songs: [SONG] }],
+      official: [],
+    }
+    server.use(...loggedInHandlers(account))
+    const { wrapper } = setup()
+    const { result } = renderHook(
+      () => ({
+        mine: usePlaylists(),
+        official: useOfficialPlaylists(),
+        publish: usePublishPlaylist(MIX, true),
+        unpublish: usePublishPlaylist(MIX, false),
+        toggle: usePlaylistSong(MIX, 'song00000000000000000002', 'official'),
+      }),
+      { wrapper },
+    )
+    await waitFor(() => expect(result.current.mine.playlists).toHaveLength(1))
+    await waitFor(() => expect(result.current.official.playlists).toEqual([]))
+
+    act(() => result.current.publish.mutate())
+    await waitFor(() => expect(result.current.mine.playlists).toEqual([]))
+    await waitFor(() =>
+      expect(result.current.official.playlists?.map((p) => [p.id, p.songIds])).toEqual([
+        [MIX, [SONG]],
+      ]),
+    )
+
+    // An admin edits it as a Coverly playlist.
+    act(() => result.current.toggle.mutate(true))
+    await waitFor(() =>
+      expect(account.official![0]!.songs).toEqual([SONG, 'song00000000000000000002']),
+    )
+
+    act(() => result.current.unpublish.mutate())
+    await waitFor(() => expect(result.current.official.playlists).toEqual([]))
+    await waitFor(() => expect(result.current.mine.playlists?.map((p) => p.id)).toEqual([MIX]))
   })
 })

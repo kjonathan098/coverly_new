@@ -1,14 +1,14 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Button, CloseIcon, PlusIcon, SearchIcon, cx } from '../../ui'
 import { useSession } from '../auth/session'
 import { CoverArt } from '../songs/CoverArt'
 import { artistList, displayTitle } from '../songs/format'
 import type { CoverSong } from '../songs/types'
-import { playlistErrorMessage, type Playlist } from './api'
+import { playlistErrorMessage, type Playlist, type PlaylistKind } from './api'
 import { NewPlaylistForm, textInput } from './NewPlaylistForm'
 import { closePlaylistPicker, usePlaylistPickerState } from './pickerStore'
-import { usePlaylists, usePlaylistSong } from './usePlaylists'
+import { useOfficialPlaylists, usePlaylists, usePlaylistSong } from './usePlaylists'
 
 /**
  * The add-to-playlist modal: one for the whole app, mounted by the app shell. Any "+" opens it.
@@ -42,7 +42,10 @@ function PickerDialog({ song, opener }: { song: CoverSong; opener: HTMLElement |
   const songId = useId()
   const [search, setSearch] = useState('')
   const [creating, setCreating] = useState(false)
-  const { playlists, query } = usePlaylists()
+  const { user, playlists, query } = usePlaylists()
+  // Admins also curate Coverly's playlists from here. Everyone else never sees them in this list.
+  const isAdmin = Boolean(user?.isAdmin)
+  const official = useOfficialPlaylists()
 
   useEffect(() => {
     const el = dialog.current
@@ -66,7 +69,9 @@ function PickerDialog({ song, opener }: { song: CoverSong; opener: HTMLElement |
   }, [opener])
 
   const term = search.trim().toLowerCase()
-  const shown = playlists?.filter((playlist) => playlist.name.toLowerCase().includes(term))
+  const matches = (playlist: Playlist) => playlist.name.toLowerCase().includes(term)
+  const shown = playlists?.filter(matches)
+  const shownOfficial = isAdmin ? (official.playlists?.filter(matches) ?? []) : []
   const title = displayTitle(song.title)
 
   return (
@@ -144,12 +149,28 @@ function PickerDialog({ song, opener }: { song: CoverSong; opener: HTMLElement |
             <p aria-busy="true" className="m-0 px-2 py-2 text-label text-fg-soft">
               Loading your playlists…
             </p>
-          ) : shown.length > 0 ? (
-            <ul aria-label="Your playlists" className="m-0 grid list-none gap-0.5 p-0">
-              {shown.map((playlist) => (
-                <PlaylistChoice key={playlist.id} playlist={playlist} songId={song.id} />
-              ))}
-            </ul>
+          ) : shown.length + shownOfficial.length > 0 ? (
+            <>
+              {shown.length > 0 && (
+                <ChoiceGroup title={isAdmin ? 'Your playlists' : undefined} label="Your playlists">
+                  {shown.map((playlist) => (
+                    <PlaylistChoice key={playlist.id} playlist={playlist} songId={song.id} />
+                  ))}
+                </ChoiceGroup>
+              )}
+              {shownOfficial.length > 0 && (
+                <ChoiceGroup title="Coverly playlists · admin" label="Coverly playlists">
+                  {shownOfficial.map((playlist) => (
+                    <PlaylistChoice
+                      key={playlist.id}
+                      playlist={playlist}
+                      songId={song.id}
+                      kind="official"
+                    />
+                  ))}
+                </ChoiceGroup>
+              )}
+            </>
           ) : (
             <p className="m-0 px-2 py-2 text-label text-fg-soft">
               {term ? `No playlist called “${search.trim()}”.` : 'No playlists yet.'}
@@ -184,8 +205,36 @@ function PickerDialog({ song, opener }: { song: CoverSong; opener: HTMLElement |
   )
 }
 
-function PlaylistChoice({ playlist, songId }: { playlist: Playlist; songId: string }) {
-  const toggle = usePlaylistSong(playlist.id, songId)
+/** A list of playlists to tick; with a visible heading when there's more than one group. */
+function ChoiceGroup({
+  title,
+  label,
+  children,
+}: {
+  title?: string
+  label: string
+  children: ReactNode
+}) {
+  return (
+    <div className="grid gap-0.5">
+      {title && <p className="type-meta m-0 px-2 pt-2 font-semibold text-fg-soft">{title}</p>}
+      <ul aria-label={label} className="m-0 grid list-none gap-0.5 p-0">
+        {children}
+      </ul>
+    </div>
+  )
+}
+
+function PlaylistChoice({
+  playlist,
+  songId,
+  kind = 'mine',
+}: {
+  playlist: Playlist
+  songId: string
+  kind?: PlaylistKind
+}) {
+  const toggle = usePlaylistSong(playlist.id, songId, kind)
   const checked = playlist.songIds.includes(songId)
   return (
     <li>

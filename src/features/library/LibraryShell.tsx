@@ -6,14 +6,14 @@ import { ArrowIcon, Button, Container, Surface } from '../../ui'
 export function LibraryShell({
   title,
   meta,
-  back = true,
+  back = { to: '/library', label: 'Your Library' },
   actions,
   children,
 }: {
   title: string
   meta?: ReactNode
-  /** Show "Your Library" above the title (sub-pages). */
-  back?: boolean
+  /** The link above the title: "Your Library" by default; false for none. */
+  back?: false | { to: string; label: string }
   actions?: ReactNode
   children: ReactNode
 }) {
@@ -28,11 +28,11 @@ export function LibraryShell({
       <Container className="grid gap-1 pt-5">
         {back && (
           <Link
-            to="/library"
+            to={back.to}
             className="type-meta inline-flex w-max items-center gap-1 font-semibold text-fg-soft no-underline hover:text-fg"
           >
             <ArrowIcon className="size-4 -scale-x-100" />
-            Your Library
+            {back.label}
           </Link>
         )}
         <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
