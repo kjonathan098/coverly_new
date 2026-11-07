@@ -6,6 +6,23 @@ export function PlayIcon({ className }: { className?: string }) {
   )
 }
 
+/** A heart: filled when `filled`, an outline otherwise. */
+export function HeartIcon({ className, filled = false }: { className?: string; filled?: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className={className}
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinejoin="round"
+    >
+      <path d="M12 20.5 C 5 15.6 2.5 12.4 2.5 8.9 A 4.6 4.6 0 0 1 12 6.6 A 4.6 4.6 0 0 1 21.5 8.9 C 21.5 12.4 19 15.6 12 20.5 Z" />
+    </svg>
+  )
+}
+
 export function PauseIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">

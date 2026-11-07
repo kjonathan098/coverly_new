@@ -9,6 +9,7 @@ export { halftoneDots } from './halftone'
 export {
   ArrowIcon,
   ChevronIcon,
+  HeartIcon,
   CloseIcon,
   PauseIcon,
   PlayIcon,

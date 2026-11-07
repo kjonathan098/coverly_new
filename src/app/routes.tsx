@@ -4,6 +4,7 @@ import { HomePage } from '../features/home/HomePage'
 import { MagazinePage } from '../features/magazine/MagazinePage'
 import { AppShell } from './AppShell'
 import { RouteError } from './RouteError'
+import { FavoritesPage } from '../features/favorites/FavoritesPage'
 
 // The living design system. Registered only in development: in production builds this branch is
 // dead code, so the page and its fixtures are never bundled.
@@ -30,6 +31,7 @@ export const routes: RouteObject[] = [
           { path: '/', element: <HomePage /> },
           { path: '/discover', element: <DiscoverPage /> },
           { path: '/magazine', element: <MagazinePage /> },
+          { path: '/favorites', element: <FavoritesPage /> },
           ...developmentRoutes,
           // Any path Coverly doesn't have: a 404, shown by RouteError inside the shell.
           {

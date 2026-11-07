@@ -1,6 +1,7 @@
 import { PauseIcon, PlayIcon, TagLink, cx } from '../../ui'
 import { ArtistLinks } from '../discover/ArtistLinks'
 import { discoverOne } from '../discover/useFilters'
+import { FavoriteButton } from '../favorites/FavoriteButton'
 import { play, playVerb, usePlaybackOf } from '../player/playback'
 import { artistList, displayTitle, tagLabel } from './format'
 import type { CoverSong } from './types'
@@ -63,23 +64,26 @@ export function SongCard({ song, showOriginal = false, className }: SongCardProp
             </p>
           )}
         </div>
-        {song.video ? (
-          <button
-            type="button"
-            aria-label={`${verb} ${title} by ${by}`}
-            onClick={() => play(song)}
-            className={cx(
-              'grid size-11 shrink-0 cursor-pointer place-items-center rounded-pill transition-colors duration-(--duration-fast) *:size-5',
-              current
-                ? 'bg-pink text-ink'
-                : 'text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] hover:bg-pink hover:text-ink hover:shadow-none',
-            )}
-          >
-            {verb === 'Pause' ? <PauseIcon /> : <PlayIcon />}
-          </button>
-        ) : (
-          <p className="type-meta pt-1 text-fg-soft">No video yet</p>
-        )}
+        <div className="flex items-start">
+          <FavoriteButton song={song} />
+          {song.video ? (
+            <button
+              type="button"
+              aria-label={`${verb} ${title} by ${by}`}
+              onClick={() => play(song)}
+              className={cx(
+                'grid size-11 shrink-0 cursor-pointer place-items-center rounded-pill transition-colors duration-(--duration-fast) *:size-5',
+                current
+                  ? 'bg-pink text-ink'
+                  : 'text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] hover:bg-pink hover:text-ink hover:shadow-none',
+              )}
+            >
+              {verb === 'Pause' ? <PauseIcon /> : <PlayIcon />}
+            </button>
+          ) : (
+            <p className="type-meta pt-1 text-fg-soft">No video yet</p>
+          )}
+        </div>
         {labels.length > 0 && (
           <ul aria-label="Labels" className="col-span-2 m-0 flex list-none flex-wrap gap-1.5 p-0">
             {labels.map((label) => (

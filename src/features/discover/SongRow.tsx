@@ -10,6 +10,7 @@ import type { CoverSong, Facet } from '../songs/types'
 import { ArtistLinks } from './ArtistLinks'
 import { FILTER_GROUPS } from './groups'
 import { discoverOne } from './useFilters'
+import { FavoriteButton } from '../favorites/FavoriteButton'
 
 type SongRowProps = {
   song: CoverSong
@@ -62,7 +63,7 @@ export function SongRow({ song, filters }: SongRowProps) {
       <article
         aria-label={`${title}, covered by ${by}`}
         aria-current={current ? 'true' : undefined}
-        className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-2 py-2.5 tablet:grid-cols-[7rem_minmax(0,1fr)_auto] @min-[45rem]:grid-cols-[auto_6rem_minmax(0,1.6fr)_minmax(0,1fr)_auto] @min-[45rem]:gap-x-4 @min-[45rem]:px-3 @min-[60rem]:grid-cols-[auto_7rem_minmax(0,2fr)_minmax(0,1.25fr)_minmax(0,1.6fr)_auto] @min-[60rem]:gap-x-5 @min-[60rem]:px-3"
+        className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-2 py-2.5 tablet:grid-cols-[7rem_minmax(0,1fr)_auto] @min-[45rem]:grid-cols-[auto_6rem_minmax(0,1.6fr)_minmax(0,1fr)_auto_auto] @min-[45rem]:gap-x-4 @min-[45rem]:px-3 @min-[60rem]:grid-cols-[auto_7rem_minmax(0,2fr)_minmax(0,1.25fr)_minmax(0,1.6fr)_auto_auto] @min-[60rem]:gap-x-5 @min-[60rem]:px-3"
       >
         <div className="col-start-3 row-start-1 @min-[45rem]:col-start-1">
           {song.video ? (
@@ -158,12 +159,18 @@ export function SongRow({ song, filters }: SongRowProps) {
           )}
         </div>
 
+        {/* Phones: under the play button. Wider: just before Details. */}
+        <FavoriteButton
+          song={song}
+          className="col-start-3 row-start-2 @min-[45rem]:col-start-5 @min-[45rem]:row-start-1 @min-[60rem]:col-start-6"
+        />
+
         <button
           type="button"
           aria-expanded={open}
           aria-controls={detailsId}
           onClick={() => setOpen(!open)}
-          className="type-meta col-start-2 row-start-2 inline-flex min-h-9 cursor-pointer items-center gap-1 justify-self-start font-semibold text-fg-soft hover:text-fg @min-[45rem]:col-start-5 @min-[45rem]:row-start-1 @min-[45rem]:min-h-11 @min-[45rem]:justify-self-end @min-[60rem]:col-start-6 @min-[60rem]:justify-self-end"
+          className="type-meta col-start-2 row-start-2 inline-flex min-h-9 cursor-pointer items-center gap-1 justify-self-start font-semibold text-fg-soft hover:text-fg @min-[45rem]:col-start-6 @min-[45rem]:row-start-1 @min-[45rem]:min-h-11 @min-[45rem]:justify-self-end @min-[60rem]:col-start-7 @min-[60rem]:justify-self-end"
         >
           Details
           <span className="sr-only"> for {title}</span>

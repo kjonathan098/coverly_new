@@ -44,7 +44,25 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | 3: Discovery homepage           | Done (cover-of-the-week version); superseded by 3B, **not committed**                  | First homepage with Discover embedded in it                                                                                                                                                |
 | 3B: Homepage and Discover split | Implemented and verified, **awaiting review, not committed**                           | See below                                                                                                                                                                                  |
 | 4: Discover as a music app      | Direction and layout approved; final verification passed; **commit awaiting approval** | See "Phase 4" below. Homepage paused.                                                                                                                                                      |
-| MVP 1: Authentication           | Implemented, **awaiting the user's manual Google login check, not committed**          | See "MVP Phase 1: Authentication" below. Next: Favorites, then Playlists.                                                                                                                  |
+| MVP 1: Authentication           | Done (committed)                                                                       | See "MVP Phase 1: Authentication" below. Next: Favorites, then Playlists.                                                                                                                  |
+| MVP 2: Favorites                | Implemented, **awaiting the user's manual check, not committed**                       | See "MVP Phase 2: Favorites" below. Next: Playlists.                                                                                                                                       |
+
+## MVP Phase 2: Favorites (2026-11-07)
+
+- **Backend** (approved): `favorites: [ObjectId → Song]` on `User`, changed only with `$addToSet` / `$pull` (no duplicates). Routes in `user.route.js`, all behind `ensureAuthenticated` (401), owner always `req.user._id`:
+  - `GET /api/user/favorites` → song ids, oldest first.
+  - `PUT /api/user/favorites/:songId` → add (idempotent). 400 for a malformed id, 404 if the song isn't in the catalog.
+  - `DELETE /api/user/favorites/:songId` → remove (idempotent). No catalog check, so a song that left the catalog can still be removed.
+  - Each answers with the updated id list. `getUser` now returns only `{_id, name}` (the frontend reads nothing else).
+  - `rejectCrossSiteWrites` now treats `Content-Length: 0` as no body (bodyless PUT/DELETE from fetch were getting 415).
+  - Tests: `test/favorites.test.js` (fake models).
+- **Frontend** (`src/features/favorites`):
+  - `useFavorites()`: one query, key `['favorites', userId]`, enabled only when logged in. Every heart and the Favorites page read it, so they always agree. Logout removes it.
+  - `useFavoriteToggle(songId)`: optimistic. Changes to one song run one at a time in click order (mutation `scope`); only the last of overlapping changes re-reads the list, so the cache ends on the server's truth. A failure re-reads too, and is announced (`role="status"`).
+  - `FavoriteButton`: the heart (`HeartIcon` in `src/ui`), `aria-pressed`, its own button so it never plays anything. On `SongRow` (Discover, Favorites), `SongCard` (Home's Explore, Magazine shelf) and the Now Playing panel.
+  - Guests: the heart's click opens the Google popup (`startLogin()`, full-page fallback) and keeps the song id in `sessionStorage` (`pending.ts`, 5 minutes, id only). `useCompletePendingFavorite()` (in `AppShell`) saves it once after login; a canceled login drops it.
+  - `/favorites` (nav link for everyone): guests get a login prompt; users get their favorites newest first as `SongRow`s, an empty state, an error state, and a removable row for a song that left the catalog.
+  - Tests: `favoritesData.test.tsx` (cache, rapid clicks, rollback, logout, pending), `favoritesUi.test.tsx` (sync across row, player, Home and Favorites; guest popup flow; cancel; missing song; logout). No horizontal overflow at 320–1440 px.
 
 ## MVP Phase 1: Authentication (2026-11-06)
 
@@ -81,11 +99,24 @@ Google login on the existing backend (Passport, server-side `express-session`, H
 - **Needed:** Favorites has no model or routes. Playlists has a model, but `POST /api/playlist/create/:id` ignores the login (owner hardcoded to one user id, `ensureAuthenticated` imported but unused), reads `req.body.title`, never updates `user.userPlaylists`, and answers with a misspelled `succcess`. `GET /api/playlist/by-name/:name` returns anyone's playlist. There is no list, add/remove song, rename or delete.
 - **Not doing:** browser-only (localStorage) Favorites or Playlists as a workaround.
 
-### Backend issues (production security, to address separately)
+### Backend security milestone (2026-11-06, verified 2026-11-07, awaiting commit approval)
 
-- **Unauthenticated write endpoints:** `POST /api/songs/add`, `/api/songs/add-ai`, `/api/artists/add`, `/api/tags/add`, `/api/tags/addBulk`, `/api/admin/songs/bulk` and `/api/playlist/create/:id` accept anyone's request, and `GET /api/admin/songs` is open too.
-- **Hardcoded origins:** CORS and the post-login redirect use `http://localhost:5173`.
-- **Sessions:** in-memory store (lost on restart, not for production), `secure: false` cookie, logout on `GET`.
+Backend changes, approved for this milestone only. Tests: `npm test` in `coverly_backend` (`test/security.test.js`, Node's built-in runner, models replaced by in-memory fakes; no database).
+
+- **Roles:** guest (browse, play), user (later: own Favorites and Playlists), admin (catalog writes). Admins are the Google OAuth ids in the backend env var `ADMIN_OAUTH_IDS` (comma-separated). Unset or empty means nobody is admin (fail closed). Nothing in a request can grant admin.
+- **`requireAdmin`** (`src/8-middlewares/authVerification.js`, reusing `ensureAuthenticated`): 401 for guests, 403 for non-admins. Applied to `POST /api/songs/add`, `/api/songs/add-ai`, `/api/artists/add`, `/api/tags/add`, `/api/tags/addBulk` and the whole `/api/admin` router.
+- **CSRF** (`src/8-middlewares/requestSecurity.js`): POST/PUT/PATCH/DELETE with an `Origin` other than the frontend's get 403, and non-JSON bodies get 415. This is layered on `SameSite=lax`; routes still check the session for authorization.
+- **Query injection:** Express uses the `simple` query parser, so query values are only strings or arrays of strings, never objects. `search-song` accepts only `title`, `lang` (one exact value) and tag/artist id fields (24-hex ids, repeatable); anything else is 400. `tags/getAll` ignores the request body. Artist and title searches escape regex text (`src/helpers/escapeRegex.js`). Mongoose `sanitizeFilter` was evaluated and not enabled: it would also neutralize the backend's own `$regex`/`$in`/`$all` filters unless each is wrapped in `mongoose.trusted()`.
+- **Playlists:** `POST /api/playlist/create/:id` is disabled (401 for guests, 501 for users; the hardcoded owner is gone). `GET /api/playlist/by-name/:name` returns only public playlists, or the signed-in owner's private ones.
+- **Shared origin constant:** `src/9-constants/frontend.js` (CORS, OAuth redirects, CSRF).
+- **Admin setup:** `ADMIN_OAUTH_IDS` belongs in the **backend** `.env` (not the frontend's `.env.local`), then restart the backend (nodemon doesn't watch `.env`: type `rs`). Verified 2026-11-07: one id configured, it matches an existing user, and `requireAdmin` passes for that user.
+- **Song imports** (`POST /api/songs/add-ai`, sent by hand, for example with curl or Postman: no import script exists) now need an admin session: log in through Coverly, copy the `connect.sid` cookie value, and send it as a `Cookie` header with `Content-Type: application/json`. Sessions last 24 h and end on every backend restart. Covered by `test/security.test.js`.
+
+### Backend issues still open
+
+- **Before Playlists:** ownership-aware playlist routes (owner = `req.user._id`, filters by `createdBy`), `errorMiddleware` statuses (every error is 500 with the raw message, including Joi validation errors), logout on `POST`.
+- **Production:** session store (in memory now), `secure` cookies and `trust proxy`, origins from env (still hardcoded `http://localhost:5173`), rate limiting.
+- **Pre-existing bugs found:** `/api/tags/add` lowercases `type` before checking it, so `coverGenre`, `subGenre` and `performanceStyle` tags can't be added. `POST /api/admin/songs/bulk` calls an `addAISongs` it never imports. `addSong` creates artists before validating. `GET /api/songs/getByName` reads a route param that doesn't exist.
 - Fixed during MVP Phase 1: the unvalidated OAuth `from` (open redirect), the missing OAuth `state`, and the canceled login ending on a backend error page.
 
 ## Phase 4: Discover as a music app (current state)

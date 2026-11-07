@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { AccountControl } from '../features/auth/AccountControl'
+import { useCompletePendingFavorite } from '../features/favorites/useFavorites'
 import { PlayerPanel } from '../features/player/PlayerPanel'
 import { usePlayerLayout } from '../features/player/layouts'
 import { PlayerLayoutToggle } from '../features/player/PlayerLayoutToggle'
@@ -39,6 +40,9 @@ function SiteHeader() {
             <NavLink to="/magazine" className={({ isActive }) => navLink(isActive)}>
               Magazine
             </NavLink>
+            <NavLink to="/favorites" className={({ isActive }) => navLink(isActive)}>
+              Favorites
+            </NavLink>
           </nav>
           <AccountControl />
         </div>
@@ -71,6 +75,8 @@ function SiteFooter() {
  * column while something is loaded, and the page keeps the rest.
  */
 export function AppShell() {
+  // A guest's heart click, finished once they've logged in.
+  useCompletePendingFavorite()
   const open = usePlayback().song !== null
   const layout = usePlayerLayout()
   return (

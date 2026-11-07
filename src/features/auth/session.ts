@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { ApiError, ContractError, apiFetch, apiUrl } from '../../lib/api'
+import { favoriteKeys } from '../favorites/keys'
 import { safeReturnPath } from './returnPath'
 
 /*
@@ -80,6 +81,11 @@ export function openLoginPopup(returnTo: string): boolean {
   return true
 }
 
+/** Starts Google login from a click: the popup, or the full-page login if the browser blocks it. */
+export function startLogin(returnTo: string) {
+  if (!openLoginPopup(returnTo)) window.location.assign(loginUrl(returnTo))
+}
+
 /**
  * Same-origin channel the popup's completion page (public/auth-complete.html) reports on. Its
  * messages say only that login finished, never who logged in: the session is always re-read from
@@ -126,7 +132,11 @@ export function useLogout() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: logout,
-    onSuccess: () => queryClient.setQueryData(sessionKeys.current, null),
+    onSuccess: () => {
+      queryClient.setQueryData(sessionKeys.current, null)
+      // Personal data goes with the session.
+      queryClient.removeQueries({ queryKey: favoriteKeys.all })
+    },
     // If logout failed, show whatever the backend now says rather than guessing.
     onError: () => queryClient.invalidateQueries({ queryKey: sessionKeys.current }),
   })
