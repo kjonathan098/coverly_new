@@ -6,10 +6,9 @@ import type { CoverSong } from '../songs/types'
  * counts and artwork are computed from the live catalog with the same filterSongs() Discover uses,
  * so a collection always shows exactly what "Explore" opens, and grows with the catalog.
  *
- * A CURATED playlist (an explicit, ordered song selection) is a different thing. The backend
- * already models it (Playlist: name, createdBy, songs[], public; GET /api/playlist/by-name/:name),
- * but a Discover query can't express "these songs in this order", so it needs its own page.
- * Not built yet; see docs/redesign/progress.md.
+ * A playlist (an explicit, ordered song selection) is a different thing: a Discover query can't
+ * express "these songs in this order". Users' own playlists live in Your Library
+ * (src/features/playlists, GET /api/playlists, private to their owner).
  */
 
 export type CollectionDefinition = {

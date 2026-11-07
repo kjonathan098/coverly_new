@@ -61,39 +61,37 @@ afterEach(() => {
   sessionStorage.clear()
 })
 
-describe('hearts', () => {
-  it('favorite from a row; the player, Favorites and Home agree, and the music never stops', async () => {
+describe('the heart in Now Playing', () => {
+  it('favorites the playing cover; Favorites agrees and removes it from its row; the music never stops', async () => {
     const account = logIn()
     const router = renderAt('/discover')
     const instance = await playNightBus()
-    const results = screen.getByRole('list', { name: 'Results' })
-    const rowHeart = await waitFor(() => {
-      const button = heart(results, 'Favorite Night Bus by The Tidewater Choir')
+    const playerHeart = await waitFor(() => {
+      const button = heart(player(), 'Favorite Night Bus by The Tidewater Choir')
       expect(button).toBeEnabled()
       return button
     })
-    expect(rowHeart).toHaveAttribute('aria-pressed', 'false')
+    expect(playerHeart).toHaveAttribute('aria-pressed', 'false')
 
-    fireEvent.click(rowHeart)
-    await waitFor(() => expect(rowHeart).toHaveAttribute('aria-pressed', 'true'))
-    // The Now Playing panel's heart is the same favorite.
-    expect(heart(player(), 'Favorite Night Bus by The Tidewater Choir')).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
+    fireEvent.click(playerHeart)
+    await waitFor(() => expect(playerHeart).toHaveAttribute('aria-pressed', 'true'))
     await waitFor(() => expect(account.favorites).toEqual([NIGHT_BUS]))
 
     await act(() => router.navigate('/favorites'))
     const list = await screen.findByRole('list', { name: 'Favorite covers' })
-    expect(within(list).getAllByRole('article')).toHaveLength(1)
     expect(within(list).getByRole('article')).toHaveAccessibleName(
       'Night Bus, covered by The Tidewater Choir',
     )
 
-    // Remove it from the player: it leaves the page at once.
-    fireEvent.click(heart(player(), 'Favorite Night Bus by The Tidewater Choir'))
+    // Remove it from its row: it leaves the page, and the player's heart empties.
+    fireEvent.click(
+      within(list).getByRole('button', {
+        name: 'Remove Night Bus by The Tidewater Choir from Favorites',
+      }),
+    )
     expect(await screen.findByText('No favorites yet.')).toBeInTheDocument()
     await waitFor(() => expect(account.favorites).toEqual([]))
+    expect(playerHeart).toHaveAttribute('aria-pressed', 'false')
 
     expectPlayerUntouched(instance)
   })
@@ -102,8 +100,7 @@ describe('hearts', () => {
     const open = vi.spyOn(window, 'open').mockReturnValue({ focus: vi.fn() } as unknown as Window)
     renderAt('/discover')
     const instance = await playNightBus()
-    const results = screen.getByRole('list', { name: 'Results' })
-    const guestHeart = await within(results).findByRole('button', {
+    const guestHeart = await within(player()).findByRole('button', {
       name: 'Log in to favorite Night Bus by The Tidewater Choir',
     })
     expect(guestHeart).not.toHaveAttribute('aria-pressed')
@@ -121,7 +118,7 @@ describe('hearts', () => {
     finishPopupLogin('success')
 
     await waitFor(() => expect(account.favorites).toEqual([NIGHT_BUS]))
-    const userHeart = await within(results).findByRole('button', {
+    const userHeart = await within(player()).findByRole('button', {
       name: 'Favorite Night Bus by The Tidewater Choir',
     })
     await waitFor(() => expect(userHeart).toHaveAttribute('aria-pressed', 'true'))
@@ -133,9 +130,9 @@ describe('hearts', () => {
   it('a canceled login drops the guest’s click', async () => {
     vi.spyOn(window, 'open').mockReturnValue({ focus: vi.fn() } as unknown as Window)
     renderAt('/discover')
-    const results = await screen.findByRole('list', { name: 'Results' })
+    await playNightBus()
     fireEvent.click(
-      await within(results).findByRole('button', {
+      await within(player()).findByRole('button', {
         name: 'Log in to favorite Night Bus by The Tidewater Choir',
       }),
     )
@@ -145,34 +142,34 @@ describe('hearts', () => {
     // Logging in later doesn't add it.
     const account = logIn()
     finishPopupLogin('success')
-    await within(results).findByRole('button', {
+    await within(player()).findByRole('button', {
       name: 'Favorite Night Bus by The Tidewater Choir',
     })
     expect(account.favorites).toEqual([])
   })
 
-  it('Home’s cards show the same favorites', async () => {
+  it('is the only place for hearts and +: cards and Discover rows keep just Play', async () => {
     logIn([NIGHT_BUS])
-    renderAt('/')
+    const router = renderAt('/')
     const explore = await screen.findByRole('region', { name: 'Explore covers' })
-    await waitFor(() =>
-      expect(heart(explore, 'Favorite Night Bus by The Tidewater Choir')).toHaveAttribute(
-        'aria-pressed',
-        'true',
-      ),
-    )
-    expect(heart(explore, 'Favorite Glass Houses by The Tidewater Choir')).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    )
+    await within(explore).findAllByRole('button', { name: /^Play / })
+    expect(within(explore).queryAllByRole('button', { name: /Favorite|to a playlist/ })).toEqual([])
+
+    await act(() => router.navigate('/discover'))
+    const results = await screen.findByRole('list', { name: 'Results' })
+    expect(within(results).getAllByRole('button', { name: /^Play / }).length).toBeGreaterThan(0)
+    expect(
+      within(results).queryAllByRole('button', { name: /Favorite|to a playlist|^Remove/ }),
+    ).toEqual([])
   })
 })
 
 describe('the Favorites page', () => {
-  it('asks guests to log in', async () => {
-    renderAt('/favorites')
+  it('moved into Your Library (/favorites redirects), and asks guests to log in', async () => {
+    const router = renderAt('/favorites')
     expect(await screen.findByRole('button', { name: 'Log in with Google' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Favorites' })).toHaveAttribute('href', '/favorites')
+    expect(router.state.location.pathname).toBe('/library/favorites')
+    expect(screen.getByRole('link', { name: 'Library' })).toHaveAttribute('href', '/library')
   })
 
   it('lists newest first, and lets a song that left the catalog be removed', async () => {

@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { AccountControl } from '../features/auth/AccountControl'
 import { useCompletePendingFavorite } from '../features/favorites/useFavorites'
+import { PlaylistPickerDialog } from '../features/playlists/PlaylistPickerDialog'
 import { PlayerPanel } from '../features/player/PlayerPanel'
 import { usePlayerLayout } from '../features/player/layouts'
 import { PlayerLayoutToggle } from '../features/player/PlayerLayoutToggle'
@@ -40,8 +41,8 @@ function SiteHeader() {
             <NavLink to="/magazine" className={({ isActive }) => navLink(isActive)}>
               Magazine
             </NavLink>
-            <NavLink to="/favorites" className={({ isActive }) => navLink(isActive)}>
-              Favorites
+            <NavLink to="/library" className={({ isActive }) => navLink(isActive)}>
+              Library
             </NavLink>
           </nav>
           <AccountControl />
@@ -106,6 +107,8 @@ export function AppShell() {
         </div>
         <PlayerPanel />
       </div>
+      {/* The one add-to-playlist modal; any "+" opens it. Outside the page, like the player. */}
+      <PlaylistPickerDialog />
       {/* New pages start at the top; Back and Forward return to where the reader was. */}
       <ScrollRestoration />
     </>

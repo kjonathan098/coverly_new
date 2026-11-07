@@ -46,6 +46,11 @@
     color: var(--color-ink);
   }
 
+  /* The page behind an open playlist picker: dimmed (and inert), while the player stays as it is. */
+  [data-dimmed] {
+    filter: brightness(0.45);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;

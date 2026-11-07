@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router'
-import { HeartIcon, cx } from '../../ui'
+import { HeartIcon, actionButtonClasses, cx } from '../../ui'
 import { startLogin, useSession } from '../auth/session'
 import { artistList, displayTitle } from '../songs/format'
 import type { CoverSong } from '../songs/types'
@@ -37,10 +37,7 @@ export function FavoriteButton({ song, className }: { song: CoverSong; className
         aria-label={user ? `Favorite ${name}` : `Log in to favorite ${name}`}
         aria-pressed={user ? favorite : undefined}
         title={toggle.isError ? 'Couldn’t save. Try again.' : undefined}
-        className={cx(
-          'grid size-11 shrink-0 cursor-pointer place-items-center rounded-pill transition-colors duration-(--duration-fast) *:size-5 hover:text-pink disabled:cursor-default disabled:opacity-50',
-          favorite ? 'text-pink' : 'text-fg-soft',
-        )}
+        className={actionButtonClasses({ active: favorite })}
       >
         <HeartIcon filled={favorite} />
       </button>

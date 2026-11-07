@@ -1,6 +1,6 @@
 # Coverly redesign: progress handoff
 
-Last updated: 2026-11-06. Read this first in a new session, then `CLAUDE.md` and `docs/design-system.md`.
+Last updated: 2026-11-07. Read this first in a new session, then `CLAUDE.md` and `docs/design-system.md`.
 
 ## Product vision (current, approved)
 
@@ -45,9 +45,31 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | 3B: Homepage and Discover split | Implemented and verified, **awaiting review, not committed**                           | See below                                                                                                                                                                                  |
 | 4: Discover as a music app      | Direction and layout approved; final verification passed; **commit awaiting approval** | See "Phase 4" below. Homepage paused.                                                                                                                                                      |
 | MVP 1: Authentication           | Done (committed)                                                                       | See "MVP Phase 1: Authentication" below. Next: Favorites, then Playlists.                                                                                                                  |
-| MVP 2: Favorites                | Implemented, **awaiting the user's manual check, not committed**                       | See "MVP Phase 2: Favorites" below. Next: Playlists.                                                                                                                                       |
+| MVP 2: Favorites                | Done (committed `3ff0c3e`, backend `ee65d40`)                                          | See "MVP Phase 2: Favorites" below. Next: Playlists and Your Library.                                                                                                                      |
+| MVP 3: Playlists + Your Library | Implemented, **awaiting the user's manual check, not committed**                       | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
 
-## MVP Phase 2: Favorites (2026-11-07)
+## MVP Phase 3: Playlists and Your Library (2026-11-07, awaiting review)
+
+- **Backend** (approved):
+  - `Playlist` model: `name` (trimmed, 1–100), `createdBy` (indexed), `songs` (ids in the order added, default `[]`, only `$addToSet` / `$pull`), `public` (default **false**), `timestamps: true` (same field names as before).
+  - `/api/playlists` (`src/3-routes/playlists.route.js`), all behind `ensureAuthenticated` (401). Every query filters by `{ _id, createdBy: req.user._id }`, so anyone else's playlist is a 404, whatever `public` says. No owner id is read from the request.
+    - `GET /` mine, newest first · `POST /` `{ name, songId? }` (201) · `PATCH /:id` `{ name }` · `DELETE /:id` · `PUT /:id/songs/:songId` (404 if not in the catalog) · `DELETE /:id/songs/:songId` (no catalog check, so removed songs can be removed).
+    - 400 for bad ids or names; 409 at the limits (200 playlists per user, 500 songs per playlist). Adding a song is one atomic `findOneAndUpdate` (only if it's already there or there's room).
+  - Removed: the legacy `/api/playlist` router (disabled create, `by-name`) and `playlistValidation.js`. Only the retired old frontend referenced them. `User.userPlaylists` stays in the schema, unused.
+  - Data: `scripts/makePlaylistsPrivate.js` (dry run by default, `--apply` to write) set the one existing playlist to `public: false`. Verified: only `public` changed (name, owner, 10 songs and timestamps identical); no duplicates; all its songs are in the catalog.
+  - Tests: `test/playlists.test.js` (fake models); `test/security.test.js` now uses the new router.
+- **Frontend:**
+  - `src/features/playlists`: `usePlaylists()` (one query, `['playlists', userId]`, cleared at logout), `usePlaylistSong()` (optimistic, scoped per playlist and song, settles on the server's list), create / rename / delete hooks, `NewPlaylistForm`.
+  - **Add-to-playlist modal** (revised 2026-11-07 after the user's review; the first version's inline panels caused layout problems): one `PlaylistPickerDialog`, mounted once by `AppShell`; any `AddToPlaylistButton` ("+") opens it through `pickerStore.ts` (`openPlaylistPicker(song, opener)`). It shows the song and cover artist, a "Find a playlist" search, a scrollable checkbox list (only the list scrolls; works with 5 or 100 playlists), and "New playlist" (prefilled from the search; creates it with the song). Close button, Escape and a click outside close it; focus returns to "+". Like the filter sheet, it's a non-modal `<dialog>`: the page (`[data-shell="page"]`) is made inert and dimmed (`data-dimmed`, `base.css`), the player is not, and the dialog sits above a floating player (`--player-inset`) and clear of a docked one, so it never covers the video and the iframe never moves. Guests: "+" opens the Google popup, no automatic action after login.
+  - Where the actions are (user decision, 2026-11-07, after reviewing hearts and "+" on artwork and rows): **only in the Now Playing panel**, beside the song information. `SongCard` (Home, Magazine) and Discover's `SongRow` keep just Play, so artwork stays uncovered; no hover controls or overflow menus for now (to revisit if users need a quicker way to save while browsing). Favorites and playlist pages give each row a Remove (×) at the end of its Details line. Card titles are at most two lines (no mid-word breaks); artist lines truncate.
+  - `src/features/library`: `/library` (Favorites first, then playlists newest first, "New playlist"), `/library/playlists/:id` (songs in the order added, rename inline, delete with confirmation, Remove on each row in place of "+", removable rows for songs gone from the catalog, "Playlist not found"), `LibraryShell`. `/library/favorites` is the Favorites page; `/favorites` redirects there. The header nav is Discover · Magazine · Library.
+  - Shared: `LoginPrompt` (auth), `MissingSongRow` (songs), `PlusIcon` (ui).
+  - No queue, Play All or auto-advance: each row plays on its own through the global player.
+  - Tests: `playlistsData.test.tsx`, `addToPlaylist.test.tsx`, `library/library.test.tsx`. No horizontal overflow at 320–1440 px.
+
+## MVP Phase 2: Favorites (complete, 2026-11-07)
+
+Verified manually by the user (Google login, hearts, sync, playback). Committed: frontend `3ff0c3e`, backend `ee65d40`.
 
 - **Backend** (approved): `favorites: [ObjectId → Song]` on `User`, changed only with `$addToSet` / `$pull` (no duplicates). Routes in `user.route.js`, all behind `ensureAuthenticated` (401), owner always `req.user._id`:
   - `GET /api/user/favorites` → song ids, oldest first.
@@ -99,7 +121,7 @@ Google login on the existing backend (Passport, server-side `express-session`, H
 - **Needed:** Favorites has no model or routes. Playlists has a model, but `POST /api/playlist/create/:id` ignores the login (owner hardcoded to one user id, `ensureAuthenticated` imported but unused), reads `req.body.title`, never updates `user.userPlaylists`, and answers with a misspelled `succcess`. `GET /api/playlist/by-name/:name` returns anyone's playlist. There is no list, add/remove song, rename or delete.
 - **Not doing:** browser-only (localStorage) Favorites or Playlists as a workaround.
 
-### Backend security milestone (2026-11-06, verified 2026-11-07, awaiting commit approval)
+### Backend security milestone (complete, committed: backend `2ab81b8`)
 
 Backend changes, approved for this milestone only. Tests: `npm test` in `coverly_backend` (`test/security.test.js`, Node's built-in runner, models replaced by in-memory fakes; no database).
 
@@ -114,7 +136,7 @@ Backend changes, approved for this milestone only. Tests: `npm test` in `coverly
 
 ### Backend issues still open
 
-- **Before Playlists:** ownership-aware playlist routes (owner = `req.user._id`, filters by `createdBy`), `errorMiddleware` statuses (every error is 500 with the raw message, including Joi validation errors), logout on `POST`.
+- **Still open:** `errorMiddleware` statuses (every error is 500 with the raw message, including Joi validation errors), logout on `POST`.
 - **Production:** session store (in memory now), `secure` cookies and `trust proxy`, origins from env (still hardcoded `http://localhost:5173`), rate limiting.
 - **Pre-existing bugs found:** `/api/tags/add` lowercases `type` before checking it, so `coverGenre`, `subGenre` and `performanceStyle` tags can't be added. `POST /api/admin/songs/bulk` calls an `addAISongs` it never imports. `addSong` creates artists before validating. `GET /api/songs/getByName` reads a route param that doesn't exist.
 - Fixed during MVP Phase 1: the unvalidated OAuth `from` (open redirect), the missing OAuth `state`, and the canceled login ending on a backend error page.

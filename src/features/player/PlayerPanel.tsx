@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { ArrowIcon, CloseIcon, PauseIcon, PlayIcon, TagLink, cx } from '../../ui'
 import { ArtistLinks } from '../discover/ArtistLinks'
 import { FavoriteButton } from '../favorites/FavoriteButton'
+import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton'
 import { discoverHref, discoverOne } from '../discover/useFilters'
 import { NO_FILTERS } from '../songs/discover'
 import { artistList, displayName, displayTitle, tagLabel } from '../songs/format'
@@ -134,7 +135,12 @@ export function PlayerPanel() {
             )}
           </p>
         </div>
-        {song && <FavoriteButton song={song} />}
+        {song && (
+          <div className="flex shrink-0">
+            <FavoriteButton song={song} />
+            <AddToPlaylistButton song={song} />
+          </div>
+        )}
         {main && (
           <button
             type="button"

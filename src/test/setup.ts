@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest'
 import { resetPlayback } from '../features/player/playback'
+import { closePlaylistPicker } from '../features/playlists/pickerStore'
 import { API_BASE_URL } from '../lib/api'
 import { server } from '../mocks/server'
 import { installFakeYouTube, uninstallFakeYouTube } from './fakeYouTube'
@@ -27,6 +28,7 @@ afterEach(() => {
   cleanup()
   server.resetHandlers()
   resetPlayback()
+  closePlaylistPicker()
   uninstallFakeYouTube()
 })
 

@@ -6,7 +6,7 @@
   - `/` Home (`src/features/home`): functional, music-first discovery with subtle visual personality. It has a compact welcome, Explore covers (a daily-rotating selection), Discover by mood (real moods, linking to Discover), Same song, different voices (recordings grouped by normalized title plus original-artist ids, with two different cover artists; the section hides when none qualify) and a Magazine invitation. No trending, popularity, personalization or hand-picked content. Selection rules are in `home/selection.ts`.
   - `/discover` (`src/features/discover`): advanced search and filtering. Six filter groups, a list of results, all state in the URL.
   - `/magazine` (`src/features/magazine`): expressive editorial content. The previous homepage design is preserved here as-is.
-  - `/favorites` (`src/features/favorites`): the logged-in user's favorite covers (song ids on the backend `User`). Hearts (`FavoriteButton`) on `SongRow`, `SongCard` and the Now Playing panel all read one query (`useFavorites()`); guests get a login prompt.
+  - `/library` (`src/features/library`): Your Library. Favorites (`/library/favorites`, `src/features/favorites`; `/favorites` redirects) and the user's private playlists (`/library/playlists/:id`, `src/features/playlists`, backend `/api/playlists`). The heart (`FavoriteButton`) and "+" (opens the one shared add-to-playlist modal, `PlaylistPickerDialog`) are only in the Now Playing panel: cards and Discover rows keep just Play, so artwork stays uncovered (user decision, 2026-11-07). Favorites and playlist pages give their rows a Remove action. Each reads one shared query (`useFavorites()`, `usePlaylists()`). Guests get a login prompt.
   - Future Magazine features: Original vs. Cover, Cover vs. Cover, Behind the Song, Creator Spotlight, and Suggest a Cover with Picks rewards. Content is initially curated by the product owner.
 - `approved` on songs is reserved for future moderation of user submissions. It is not enforced: never filter by it.
 - All pages read the real catalog from `GET /api/songs/all-songs` (not paginated; fetched once and cached by `useCoverSongs()`) through `src/features/songs` (parser in `contract.ts`, filtering in `discover.ts`). Keep cover artist (`artist`) and original artist (`songBy`) separate everywhere, and never show the original genre as a recording's genre. Collections (`src/features/collections`) are saved Discover queries resolved with the same `filterSongs()`. The Phase 1 recordings contract is kept but not used by these pages.
@@ -15,7 +15,7 @@
 - `design-experiments/` holds approved visual prototypes. It is reference material, not production code.
 - No fake functionality: never render a control that can't work (for example, no play button without a video).
 - Playback: one YouTube player for the whole app, owned by the app shell (`src/app/AppShell.tsx`, `src/features/player`). Pages call `play(song)` and read `usePlaybackOf(id)`; never embed YouTube anywhere else. The player element must never move or remount (moving an iframe reloads it): layout changes are CSS only. No queue or auto-advance. Design notes: `docs/redesign/app-shell.md`.
-- The backend (`../coverly_backend`) is an HTTP dependency: don't modify it, except narrowly scoped changes the user has reviewed and approved one by one (so far: popup login, the security milestone, Favorites; next: Playlists). No browser-only (localStorage) Favorites or Playlists. Its CORS allows only `http://localhost:5173`, so the dev server stays on that port.
+- The backend (`../coverly_backend`) is an HTTP dependency: don't modify it, except narrowly scoped changes the user has reviewed and approved one by one (so far: popup login, the security milestone, Favorites, Playlists). No browser-only (localStorage) Favorites or Playlists. Its CORS allows only `http://localhost:5173`, so the dev server stays on that port.
 - Auth: Google OAuth through the backend's server-side session cookie, via `src/features/auth` (`useSession()`, `loginUrl()`, `openLoginPopup()`, `useLoginResult()`, `useLogout()`). Login runs in a popup that reports back on `BroadcastChannel('coverly-auth')` (no tokens or user data on the channel), with the full-page login as fallback. Catalog writes are admin-only on the backend (`requireAdmin`, `ADMIN_OAUTH_IDS` in the backend `.env`). Guests can use everything except personal features. Never store tokens in the browser or add a second auth system. Login return paths go through `safeReturnPath()`. Known backend security issues: `docs/redesign/progress.md`, "Backend issues".
 - Never commit or push without the user's explicit approval.
 - Use Node 24 (`nvm use`). Checks: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run format:check`.
@@ -28,6 +28,23 @@
 - Before a commit is approved: run the full suite plus typecheck, lint, build and format:check.
 - Token efficiency: avoid unnecessary exploration, broad refactors, excessive tests and repeated design iterations. Don't re-read unchanged files. Keep tool output small, reuse existing fixtures and scripts, and summarize results briefly instead of listing every passing check.
 - Never trade away playback behavior or accessibility to save effort.
+
+## Testing Report (user preference, 2026-11-07; same rule in both Coverly repos)
+
+After every feature, bug fix or significant UI change, end the final summary with a short, practical Testing Report:
+
+- **Implemented:** a brief summary.
+- **Verified automatically:** the specific behaviors and edge cases confirmed, and whether each passed or failed. Not just test counts. Say which kind of test checked what (unit, integration, browser/UI), and which pages, interactions and viewport sizes were checked in a real browser, including playback continuity, navigation and responsive layout where relevant. Keep mocked or simulated checks clearly apart from real ones: a test with mocks (MSW, fake models, a fake YouTube player, intercepted requests) does not verify the real external service, so say so.
+- **Not verified:** important behavior that wasn't checked, and tests that were skipped or couldn't run. Typecheck, lint or build passing is not evidence that a feature works.
+- **Manual QA needed:** only checks that need a person: real Google OAuth login, real YouTube playback continuity, visual appearance and UX quality, and anything automation can't reliably check. Don't ask for checks automation already covers, unless there's a specific reason.
+- **Git status:** committed or uncommitted (and which repos).
+
+Rules:
+
+- Never claim a test ran if it didn't.
+- During development, run targeted tests only; run the full suite before major commits.
+- Avoid unnecessary screenshots.
+- Never commit without the user's approval.
 
 ## MVP Product Priorities & Decisions (ongoing, 2026-11-06)
 

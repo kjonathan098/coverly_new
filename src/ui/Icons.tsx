@@ -23,6 +23,22 @@ export function HeartIcon({ className, filled = false }: { className?: string; f
   )
 }
 
+export function PlusIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.25"
+      strokeLinecap="round"
+    >
+      <path d="M12 5 V19 M5 12 H19" />
+    </svg>
+  )
+}
+
 export function PauseIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">

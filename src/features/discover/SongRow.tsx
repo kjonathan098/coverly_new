@@ -1,6 +1,6 @@
 import { useId, useState } from 'react'
 import { Link } from 'react-router'
-import { ChevronIcon, PauseIcon, PlayIcon, TagLink, cx } from '../../ui'
+import { ChevronIcon, CloseIcon, PauseIcon, PlayIcon, TagLink, cx } from '../../ui'
 import { PlaybackBadge } from '../player/PlaybackBadge'
 import { play, playVerb, usePlaybackOf } from '../player/playback'
 import type { FacetKey, Filters } from '../songs/discover'
@@ -10,12 +10,13 @@ import type { CoverSong, Facet } from '../songs/types'
 import { ArtistLinks } from './ArtistLinks'
 import { FILTER_GROUPS } from './groups'
 import { discoverOne } from './useFilters'
-import { FavoriteButton } from '../favorites/FavoriteButton'
 
 type SongRowProps = {
   song: CoverSong
   /** The active filters, so a tag that's already on can show it. */
   filters: Filters
+  /** A "remove from this list" action (a playlist page). */
+  remove?: { label: string; onRemove: () => void; pending?: boolean }
 }
 
 const DETAIL_GROUPS = FILTER_GROUPS.filter((g) => g.tagType) as (typeof FILTER_GROUPS)[number][]
@@ -40,7 +41,7 @@ function valuesOf(song: CoverSong, key: FacetKey): Facet[] {
  * play; on wider screens also the cover genres with their subgenres. Details opens every label.
  * Nothing is inferred or filled in: a missing value is said to be missing, or left out.
  */
-export function SongRow({ song, filters }: SongRowProps) {
+export function SongRow({ song, filters, remove }: SongRowProps) {
   // This row's recording in the shared player, if it's the one loaded there.
   const status = usePlaybackOf(song.id)
   const current = status !== null
@@ -63,7 +64,7 @@ export function SongRow({ song, filters }: SongRowProps) {
       <article
         aria-label={`${title}, covered by ${by}`}
         aria-current={current ? 'true' : undefined}
-        className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-2 py-2.5 tablet:grid-cols-[7rem_minmax(0,1fr)_auto] @min-[45rem]:grid-cols-[auto_6rem_minmax(0,1.6fr)_minmax(0,1fr)_auto_auto] @min-[45rem]:gap-x-4 @min-[45rem]:px-3 @min-[60rem]:grid-cols-[auto_7rem_minmax(0,2fr)_minmax(0,1.25fr)_minmax(0,1.6fr)_auto_auto] @min-[60rem]:gap-x-5 @min-[60rem]:px-3"
+        className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-2 py-2.5 tablet:grid-cols-[7rem_minmax(0,1fr)_auto] @min-[45rem]:grid-cols-[auto_6rem_minmax(0,1.6fr)_minmax(0,1fr)_auto] @min-[45rem]:gap-x-4 @min-[45rem]:px-3 @min-[60rem]:grid-cols-[auto_7rem_minmax(0,2fr)_minmax(0,1.25fr)_minmax(0,1.6fr)_auto] @min-[60rem]:gap-x-5 @min-[60rem]:px-3"
       >
         <div className="col-start-3 row-start-1 @min-[45rem]:col-start-1">
           {song.video ? (
@@ -159,23 +160,32 @@ export function SongRow({ song, filters }: SongRowProps) {
           )}
         </div>
 
-        {/* Phones: under the play button. Wider: just before Details. */}
-        <FavoriteButton
-          song={song}
-          className="col-start-3 row-start-2 @min-[45rem]:col-start-5 @min-[45rem]:row-start-1 @min-[60rem]:col-start-6"
-        />
-
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={detailsId}
-          onClick={() => setOpen(!open)}
-          className="type-meta col-start-2 row-start-2 inline-flex min-h-9 cursor-pointer items-center gap-1 justify-self-start font-semibold text-fg-soft hover:text-fg @min-[45rem]:col-start-6 @min-[45rem]:row-start-1 @min-[45rem]:min-h-11 @min-[45rem]:justify-self-end @min-[60rem]:col-start-7 @min-[60rem]:justify-self-end"
-        >
-          Details
-          <span className="sr-only"> for {title}</span>
-          <ChevronIcon className={cx('size-4 transition-transform', open && 'rotate-180')} />
-        </button>
+        {/* Details, plus Remove in a personal collection (Favorites, a playlist). Phones: one line
+            under the title, Remove at its end, so rows don't grow. Wider: the last column. */}
+        <div className="col-span-2 col-start-2 row-start-2 flex items-center justify-between gap-1 @min-[45rem]:col-span-1 @min-[45rem]:col-start-5 @min-[45rem]:row-start-1 @min-[45rem]:justify-end @min-[60rem]:col-start-6">
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={detailsId}
+            onClick={() => setOpen(!open)}
+            className="type-meta inline-flex min-h-9 cursor-pointer items-center gap-1 font-semibold text-fg-soft hover:text-fg @min-[45rem]:min-h-11"
+          >
+            Details
+            <span className="sr-only"> for {title}</span>
+            <ChevronIcon className={cx('size-4 transition-transform', open && 'rotate-180')} />
+          </button>
+          {remove && (
+            <button
+              type="button"
+              aria-label={remove.label}
+              disabled={remove.pending}
+              onClick={remove.onRemove}
+              className="grid size-11 shrink-0 cursor-pointer place-items-center rounded-pill text-fg-soft transition-colors duration-(--duration-fast) *:size-5 hover:text-pink disabled:cursor-default disabled:opacity-50"
+            >
+              <CloseIcon />
+            </button>
+          )}
+        </div>
       </article>
 
       <div

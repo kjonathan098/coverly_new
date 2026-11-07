@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { ApiError, ContractError, apiFetch, apiUrl } from '../../lib/api'
 import { favoriteKeys } from '../favorites/keys'
+import { playlistKeys } from '../playlists/keys'
 import { safeReturnPath } from './returnPath'
 
 /*
@@ -136,6 +137,7 @@ export function useLogout() {
       queryClient.setQueryData(sessionKeys.current, null)
       // Personal data goes with the session.
       queryClient.removeQueries({ queryKey: favoriteKeys.all })
+      queryClient.removeQueries({ queryKey: playlistKeys.all })
     },
     // If logout failed, show whatever the backend now says rather than guessing.
     onError: () => queryClient.invalidateQueries({ queryKey: sessionKeys.current }),

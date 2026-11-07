@@ -1,4 +1,5 @@
 export { Button, ButtonIcon, ButtonLink } from './Button'
+export { actionButtonClasses } from './actionButton'
 export { buttonClasses } from './buttonClasses'
 export type { ButtonSize, ButtonVariant } from './buttonClasses'
 export { Container, Section } from './Container'
@@ -13,6 +14,7 @@ export {
   CloseIcon,
   PauseIcon,
   PlayIcon,
+  PlusIcon,
   SearchIcon,
   ShuffleIcon,
   StopIcon,

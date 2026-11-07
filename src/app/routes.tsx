@@ -1,10 +1,12 @@
-import type { RouteObject } from 'react-router'
+import { Navigate, type RouteObject } from 'react-router'
 import { DiscoverPage } from '../features/discover/DiscoverPage'
 import { HomePage } from '../features/home/HomePage'
 import { MagazinePage } from '../features/magazine/MagazinePage'
 import { AppShell } from './AppShell'
 import { RouteError } from './RouteError'
 import { FavoritesPage } from '../features/favorites/FavoritesPage'
+import { LibraryPage } from '../features/library/LibraryPage'
+import { PlaylistPage } from '../features/library/PlaylistPage'
 
 // The living design system. Registered only in development: in production builds this branch is
 // dead code, so the page and its fixtures are never bundled.
@@ -31,7 +33,11 @@ export const routes: RouteObject[] = [
           { path: '/', element: <HomePage /> },
           { path: '/discover', element: <DiscoverPage /> },
           { path: '/magazine', element: <MagazinePage /> },
-          { path: '/favorites', element: <FavoritesPage /> },
+          { path: '/library', element: <LibraryPage /> },
+          { path: '/library/favorites', element: <FavoritesPage /> },
+          { path: '/library/playlists/:id', element: <PlaylistPage /> },
+          // Favorites moved into Your Library.
+          { path: '/favorites', element: <Navigate to="/library/favorites" replace /> },
           ...developmentRoutes,
           // Any path Coverly doesn't have: a 404, shown by RouteError inside the shell.
           {
