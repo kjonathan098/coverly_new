@@ -7,6 +7,8 @@ import { displayName, plural } from '../songs/format'
 import { useCoverSongs } from '../songs/hooks'
 import { SongCard } from '../songs/SongCard'
 import type { CoverSong } from '../songs/types'
+import { HeroBackdrop, HeroVariantToggle } from './ArtistHero'
+import { heroSong, useHeroVariant } from './heroVariant'
 import { artistProfile, type ArtistProfile } from './profile'
 
 /**
@@ -71,6 +73,9 @@ function Frame({ children }: { children: ReactNode }) {
 function Profile({ profile }: { profile: ArtistProfile }) {
   const name = displayName(profile.name)
   const { covers, coversOfTheirSongs } = profile
+  const [variant, setVariant] = useHeroVariant()
+  // Variant B needs a performance by this artist; original-only artists keep the text header.
+  const backdrop = variant === 'b' ? heroSong(covers) : null
   return (
     <Surface
       as="article"
@@ -79,13 +84,23 @@ function Profile({ profile }: { profile: ArtistProfile }) {
       aria-labelledby="artist-title"
       className="min-h-[60vh] pb-16"
     >
-      <header className="relative overflow-hidden">
-        {/* Print texture, fading in from the right: the header's one decoration. */}
-        <span
-          aria-hidden="true"
-          className="halftone pointer-events-none absolute inset-y-0 right-0 w-2/3 opacity-25 [--halftone-color:var(--color-pink)] [--halftone-size:10px] mask-[linear-gradient(to_left,#000_10%,transparent)]"
-        />
-        <Container className="relative grid gap-5 pt-8 pb-8 tablet:pt-12 tablet:pb-10">
+      <header className={cx('relative overflow-hidden', backdrop && 'tablet:min-h-[22rem]')}>
+        {backdrop ? (
+          <HeroBackdrop key={backdrop.id} song={backdrop} />
+        ) : (
+          // Print texture, fading in from the right: the text header's one decoration.
+          <span
+            aria-hidden="true"
+            className="halftone pointer-events-none absolute inset-y-0 right-0 w-2/3 opacity-25 [--halftone-color:var(--color-pink)] [--halftone-size:10px] mask-[linear-gradient(to_left,#000_10%,transparent)]"
+          />
+        )}
+        <HeroVariantToggle variant={variant} onChange={setVariant} />
+        <Container
+          className={cx(
+            'relative grid gap-5 pt-8 pb-8 tablet:pt-12 tablet:pb-10',
+            backdrop && 'content-end tablet:min-h-[22rem] tablet:pt-16',
+          )}
+        >
           <p className="type-label m-0 text-accent">Artist</p>
           <h1
             id="artist-title"

@@ -49,6 +49,13 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | MVP 3: Playlists + Your Library | Done (committed `29addd9`, backend `f72d3af`)                                          | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
 | MVP 4: Coverly playlists        | Implemented, **awaiting review, not committed**                                        | See "MVP Phase 4: Official Coverly playlists" below.                                                                                                                                       |
 
+## Experiment: artist header A/B (2026-11-07, awaiting the user's choice, not committed)
+
+- Dev-only switch on artist pages: `?hero=a` (text header, production) or `?hero=b`, or the "Header A / Header B" toggle at the header's top right. Production always shows A.
+- B (`artists/ArtistHero.tsx`, `heroVariant.ts`): a frame from one of the artist's own cover performances (a solo one first; `heroSong()`), as a duotone in its genre's ink with a halftone, on the right 68% from tablets (full width on phones, under a stronger fade), fading into ink toward the name. Captioned "From their cover of {title}" (it's a video frame, not a portrait). Tries `maxresdefault`, then `hqdefault`, then falls back to the text header. Original-only artists keep A. From tablets the header is at least 22rem tall.
+- `youtubeThumbnail()` moved to `songs/thumbnail.ts` (used by `CoverArt` and the hero).
+- Remove the losing variant and the switch once decided.
+
 ## Now Playing information (2026-11-07, desktop design approved)
 
 - `PlayerPanel`: the controls (heart, +, a divider, Play/Pause, move, Close) share the top row with the status label ("Now playing", "Paused"…), so the song's text gets the full width. The title wraps (no truncation); "Cover by" and "Original by" are a label/value list on separate lines, every artist linked to their profile, names wrapping. Same on phones (the bar grows by the extra lines). The video element and the DOM order are unchanged.

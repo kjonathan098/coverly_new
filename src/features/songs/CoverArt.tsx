@@ -4,6 +4,7 @@ import { PlaybackBadge } from '../player/PlaybackBadge'
 import type { PlaybackStatus } from '../player/playback'
 import type { CoverSong } from './types'
 import { tintFor } from './tint'
+import { youtubeThumbnail } from './thumbnail'
 
 type CoverArtProps = {
   song: CoverSong
@@ -33,7 +34,7 @@ export function CoverArt({
   const [failed, setFailed] = useState(false)
   const tint = tintOverride ?? tintFor(song.genres[0]?.name)
   const thumbnail = song.video
-    ? `https://i.ytimg.com/vi/${song.video.videoId}/${size === 'hero' ? 'hqdefault' : 'mqdefault'}.jpg`
+    ? youtubeThumbnail(song.video.videoId, size === 'hero' ? 'hqdefault' : 'mqdefault')
     : null
 
   return (

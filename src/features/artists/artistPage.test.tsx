@@ -120,3 +120,49 @@ describe('an artist profile', () => {
     ).toBeInTheDocument()
   })
 })
+
+describe('the header experiment (dev only)', () => {
+  const heroImage = () => document.querySelector<HTMLImageElement>('header img')
+  const FAROLES = credit('Señales', 'original') // an original artist only
+
+  it('A, the text header, is the default', async () => {
+    renderAt(`/artists/${MARA}`)
+    await screen.findByRole('heading', { level: 1, name: 'Mara Quill' })
+    expect(heroImage()).toBeNull()
+    expect(screen.getByRole('button', { name: 'Header a' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('B shows a frame from one of their own solo performances, falling back to text if none loads', async () => {
+    renderAt(`/artists/${MARA}?hero=b`)
+    await screen.findByRole('heading', { level: 1, name: 'Mara Quill' })
+    // Low Tide is a duet and No Link Yet has no video: Paper Lanterns, performed alone.
+    expect(heroImage()).toHaveAttribute(
+      'src',
+      'https://i.ytimg.com/vi/AAAAAAAAAA1/maxresdefault.jpg',
+    )
+    expect(heroImage()).toHaveAttribute('alt', '')
+    expect(screen.getByText('From their cover of Paper Lanterns')).toBeInTheDocument()
+
+    fireEvent.error(heroImage()!)
+    expect(heroImage()).toHaveAttribute('src', 'https://i.ytimg.com/vi/AAAAAAAAAA1/hqdefault.jpg')
+    fireEvent.error(heroImage()!)
+    expect(heroImage()).toBeNull()
+    expect(screen.getByRole('heading', { level: 1, name: 'Mara Quill' })).toBeInTheDocument()
+  })
+
+  it('B keeps the text header for an artist with no performances', async () => {
+    renderAt(`/artists/${FAROLES}?hero=b`)
+    await screen.findByRole('heading', { level: 1, name: 'Los Faroles' })
+    expect(heroImage()).toBeNull()
+  })
+
+  it('switches between A and B in place', async () => {
+    const router = renderAt(`/artists/${MARA}`)
+    await screen.findByRole('heading', { level: 1, name: 'Mara Quill' })
+    fireEvent.click(screen.getByRole('button', { name: 'Header b' }))
+    await waitFor(() => expect(heroImage()).not.toBeNull())
+    expect(router.state.location.search).toBe('?hero=b')
+    fireEvent.click(screen.getByRole('button', { name: 'Header a' }))
+    await waitFor(() => expect(heroImage()).toBeNull())
+  })
+})
