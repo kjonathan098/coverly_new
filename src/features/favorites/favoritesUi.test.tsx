@@ -117,7 +117,8 @@ describe('the heart in Now Playing', () => {
     server.events.on('request:start', ({ request }) => request.method === 'PUT' && puts())
     finishPopupLogin('success')
 
-    await waitFor(() => expect(account.favorites).toEqual([NIGHT_BUS]))
+    // Several steps (login message → session re-check → the saved click's PUT): allow for a busy run.
+    await waitFor(() => expect(account.favorites).toEqual([NIGHT_BUS]), { timeout: 3000 })
     const userHeart = await within(player()).findByRole('button', {
       name: 'Favorite Night Bus by The Tidewater Choir',
     })

@@ -37,8 +37,9 @@ export function CoverArt({
     : null
 
   return (
-    <div
-      className={cx('relative aspect-video overflow-hidden bg-ink-3', className)}
+    // Spans (displayed as blocks), so the artwork can sit inside a button, as on SongCard.
+    <span
+      className={cx('relative block aspect-video overflow-hidden bg-ink-3', className)}
       style={{ backgroundColor: tint, ...style }}
     >
       {thumbnail && !failed && (
@@ -53,11 +54,11 @@ export function CoverArt({
           className="absolute inset-0 size-full object-cover mix-blend-multiply contrast-125 grayscale transition-[filter,mix-blend-mode] duration-(--duration-slow) ease-snap group-hover:mix-blend-normal group-hover:grayscale-0"
         />
       )}
-      <div
+      <span
         aria-hidden="true"
-        className="halftone pointer-events-none absolute inset-0 opacity-60 [--halftone-color:var(--color-ink)] [--halftone-size:7px] mask-[linear-gradient(200deg,transparent_40%,#000_100%)] transition-opacity duration-(--duration-slow) group-hover:opacity-0"
+        className="halftone pointer-events-none absolute inset-0 block opacity-60 [--halftone-color:var(--color-ink)] [--halftone-size:7px] mask-[linear-gradient(200deg,transparent_40%,#000_100%)] transition-opacity duration-(--duration-slow) group-hover:opacity-0"
       />
       {status && <PlaybackBadge status={status} className="absolute top-2 left-2 shadow-sm" />}
-    </div>
+    </span>
   )
 }

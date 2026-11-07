@@ -49,6 +49,16 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | MVP 3: Playlists + Your Library | Done (committed `29addd9`, backend `f72d3af`)                                          | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
 | MVP 4: Coverly playlists        | Implemented, **awaiting review, not committed**                                        | See "MVP Phase 4: Official Coverly playlists" below.                                                                                                                                       |
 
+## Artwork is the play button, everywhere (2026-11-07, awaiting review)
+
+- `src/features/songs/PlayableCoverArt.tsx`: one component for every song thumbnail. A `<button>` wrapping `CoverArt` (labels as before: Play / Pause / Resume / Replay … by …) that calls `play(song)`, so the current song toggles pause/resume. Only the artwork is inside it: titles, artist links, tags, Details and Remove stay outside.
+  - Hover (devices that can hover) and keyboard focus: a translucent pink circle (`bg-pink/50`, pink ring) at the center over a slight darkening, 150ms fade and scale; the duotone-to-color reveal stays. Touch screens (`pointer-coarse:`): a small permanent dark icon in the corner. Sizes: `card` (56px circle) and `row` (36px circle, 24px corner icon).
+  - No video: plain artwork with a "No video" chip, not a button. Reduced motion: the global rule in `base.css`.
+  - `badge`: the Playing/Paused badge on the artwork (cards); rows keep theirs beside the title.
+- Used by `SongCard` (Home's Explore, Magazine's shelf), Home's same-song takes, and `SongRow` (Discover, Favorites, personal and Coverly playlists). The separate Play/Pause buttons are gone; `SongRow` lost its play column (rows on phones got shorter, desktop unchanged).
+- Not changed: the Magazine carousel's labelled "Play …" call-to-action, the Cover Machine's strip, and the Now Playing panel.
+- `CoverArt` renders spans (displayed as blocks) so it can sit inside a button.
+
 ## MVP Phase 4: Official Coverly playlists (2026-11-07, awaiting review)
 
 - **Model** (no migration): `Playlist.type` (`user` | `official`, default `user`; **missing = personal**) and `description` (≤ 200). `type` alone decides access; the legacy `public` flag never grants anything (kept in sync on publish/unpublish only).

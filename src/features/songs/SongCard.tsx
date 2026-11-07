@@ -1,10 +1,9 @@
-import { PauseIcon, PlayIcon, TagLink, cx } from '../../ui'
+import { TagLink, cx } from '../../ui'
 import { ArtistLinks } from '../discover/ArtistLinks'
 import { discoverOne } from '../discover/useFilters'
-import { play, playVerb, usePlaybackOf } from '../player/playback'
-import { artistList, displayTitle, tagLabel } from './format'
+import { displayTitle, tagLabel } from './format'
 import type { CoverSong } from './types'
-import { CoverArt } from './CoverArt'
+import { PlayableCoverArt } from './PlayableCoverArt'
 
 type SongCardProps = {
   song: CoverSong
@@ -13,13 +12,9 @@ type SongCardProps = {
   className?: string
 }
 
-/** A cover as a card. Its button drives the app shell's player; the artwork shows when it's loaded. */
+/** A cover as a card. Its artwork is the Play/Pause button (PlayableCoverArt). */
 export function SongCard({ song, showOriginal = false, className }: SongCardProps) {
-  const status = usePlaybackOf(song.id)
-  const current = status !== null
-  const verb = playVerb(status)
   const title = displayTitle(song.title)
-  const by = artistList(song.artists)
   // Each label opens a fresh Discover for it, in its own group.
   const labels = [
     song.genres[0] && {
@@ -49,8 +44,8 @@ export function SongCard({ song, showOriginal = false, className }: SongCardProp
 
   return (
     <article className={cx('group grid content-start gap-3', className)}>
-      <CoverArt song={song} status={status} className="rounded-card" />
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2">
+      <PlayableCoverArt song={song} artClassName="rounded-card" />
+      <div className="grid gap-y-2">
         <div className="min-w-0">
           {/* At most two lines; words break only if one alone is wider than the card. */}
           <h3 className="type-row m-0 line-clamp-2 text-[1.25rem] break-words" title={title}>
@@ -66,25 +61,8 @@ export function SongCard({ song, showOriginal = false, className }: SongCardProp
             </p>
           )}
         </div>
-        {song.video ? (
-          <button
-            type="button"
-            aria-label={`${verb} ${title} by ${by}`}
-            onClick={() => play(song)}
-            className={cx(
-              'grid size-11 shrink-0 cursor-pointer place-items-center rounded-pill transition-colors duration-(--duration-fast) *:size-5',
-              current
-                ? 'bg-pink text-ink'
-                : 'text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] hover:bg-pink hover:text-ink hover:shadow-none',
-            )}
-          >
-            {verb === 'Pause' ? <PauseIcon /> : <PlayIcon />}
-          </button>
-        ) : (
-          <p className="type-meta pt-1 text-fg-soft">No video yet</p>
-        )}
         {labels.length > 0 && (
-          <ul aria-label="Labels" className="col-span-2 m-0 flex list-none flex-wrap gap-1.5 p-0">
+          <ul aria-label="Labels" className="m-0 flex list-none flex-wrap gap-1.5 p-0">
             {labels.map((label) => (
               <li key={label.type} className="flex">
                 <TagLink

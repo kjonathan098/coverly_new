@@ -1,10 +1,10 @@
 import { useId, useState } from 'react'
 import { Link } from 'react-router'
-import { ChevronIcon, CloseIcon, PauseIcon, PlayIcon, TagLink, cx } from '../../ui'
+import { ChevronIcon, CloseIcon, TagLink, cx } from '../../ui'
 import { PlaybackBadge } from '../player/PlaybackBadge'
-import { play, playVerb, usePlaybackOf } from '../player/playback'
+import { usePlaybackOf } from '../player/playback'
 import type { FacetKey, Filters } from '../songs/discover'
-import { CoverArt } from '../songs/CoverArt'
+import { PlayableCoverArt } from '../songs/PlayableCoverArt'
 import { artistList, displayTitle, tagLabel } from '../songs/format'
 import type { CoverSong, Facet } from '../songs/types'
 import { ArtistLinks } from './ArtistLinks'
@@ -45,7 +45,6 @@ export function SongRow({ song, filters, remove }: SongRowProps) {
   // This row's recording in the shared player, if it's the one loaded there.
   const status = usePlaybackOf(song.id)
   const current = status !== null
-  const verb = playVerb(status)
   const [open, setOpen] = useState(false)
   const detailsId = useId()
   const title = displayTitle(song.title)
@@ -64,36 +63,18 @@ export function SongRow({ song, filters, remove }: SongRowProps) {
       <article
         aria-label={`${title}, covered by ${by}`}
         aria-current={current ? 'true' : undefined}
-        className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-2 py-2.5 tablet:grid-cols-[7rem_minmax(0,1fr)_auto] @min-[45rem]:grid-cols-[auto_6rem_minmax(0,1.6fr)_minmax(0,1fr)_auto] @min-[45rem]:gap-x-4 @min-[45rem]:px-3 @min-[60rem]:grid-cols-[auto_7rem_minmax(0,2fr)_minmax(0,1.25fr)_minmax(0,1.6fr)_auto] @min-[60rem]:gap-x-5 @min-[60rem]:px-3"
+        className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 px-2 py-2.5 tablet:grid-cols-[7rem_minmax(0,1fr)] @min-[45rem]:grid-cols-[6rem_minmax(0,1.6fr)_minmax(0,1fr)_auto] @min-[45rem]:gap-x-4 @min-[45rem]:px-3 @min-[60rem]:grid-cols-[7rem_minmax(0,2fr)_minmax(0,1.25fr)_minmax(0,1.6fr)_auto] @min-[60rem]:gap-x-5 @min-[60rem]:px-3"
       >
-        <div className="col-start-3 row-start-1 @min-[45rem]:col-start-1">
-          {song.video ? (
-            <button
-              type="button"
-              aria-label={`${verb} ${title} by ${by}`}
-              onClick={() => play(song)}
-              className={cx(
-                'grid size-11 cursor-pointer place-items-center rounded-pill transition-colors duration-(--duration-fast) *:size-5',
-                current
-                  ? 'bg-pink text-ink'
-                  : 'text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] group-hover:bg-pink group-hover:text-ink group-hover:shadow-none',
-              )}
-            >
-              {verb === 'Pause' ? <PauseIcon /> : <PlayIcon />}
-            </button>
-          ) : (
-            <span className="type-meta block w-11 text-center leading-tight text-fg-soft">
-              No video
-            </span>
-          )}
-        </div>
-
-        <CoverArt
+        {/* The artwork is the row's Play/Pause button; the badge shows beside the title. */}
+        <PlayableCoverArt
           song={song}
-          className="col-start-1 row-span-2 row-start-1 self-start rounded-control @min-[45rem]:col-start-2 @min-[45rem]:row-span-1 @min-[45rem]:self-center"
+          size="row"
+          badge={false}
+          artClassName="rounded-control"
+          className="col-start-1 row-span-2 row-start-1 self-start @min-[45rem]:row-span-1 @min-[45rem]:self-center"
         />
 
-        <div className="col-start-2 row-start-1 min-w-0 @min-[45rem]:col-start-3">
+        <div className="col-start-2 row-start-1 min-w-0">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
             <h3
               className={cx(
@@ -115,7 +96,7 @@ export function SongRow({ song, filters, remove }: SongRowProps) {
           </p>
         </div>
 
-        <div className="hidden min-w-0 @min-[45rem]:col-start-4 @min-[45rem]:row-start-1 @min-[45rem]:block">
+        <div className="hidden min-w-0 @min-[45rem]:col-start-3 @min-[45rem]:row-start-1 @min-[45rem]:block">
           <p className="type-meta m-0 font-semibold text-fg-soft">Original artist</p>
           <p className="m-0 truncate text-label text-fg-soft">
             <OriginalArtists song={song} />
@@ -123,7 +104,7 @@ export function SongRow({ song, filters, remove }: SongRowProps) {
         </div>
 
         {/* Middle width: a second line under the title and original artist. Full width: its own column. */}
-        <div className="hidden min-w-0 @min-[45rem]:col-span-2 @min-[45rem]:col-start-3 @min-[45rem]:row-start-2 @min-[45rem]:flex @min-[45rem]:flex-wrap @min-[45rem]:items-center @min-[45rem]:gap-x-2 @min-[45rem]:gap-y-1 @min-[60rem]:col-span-1 @min-[60rem]:col-start-5 @min-[60rem]:row-start-1 @min-[60rem]:block">
+        <div className="hidden min-w-0 @min-[45rem]:col-span-2 @min-[45rem]:col-start-2 @min-[45rem]:row-start-2 @min-[45rem]:flex @min-[45rem]:flex-wrap @min-[45rem]:items-center @min-[45rem]:gap-x-2 @min-[45rem]:gap-y-1 @min-[60rem]:col-span-1 @min-[60rem]:col-start-4 @min-[60rem]:row-start-1 @min-[60rem]:block">
           {song.genres.length > 0 ? (
             <ul aria-label="Cover genres" className="m-0 flex list-none flex-wrap gap-1 p-0">
               {song.genres.map((genre) => (
@@ -162,7 +143,7 @@ export function SongRow({ song, filters, remove }: SongRowProps) {
 
         {/* Details, plus Remove in a personal collection (Favorites, a playlist). Phones: one line
             under the title, Remove at its end, so rows don't grow. Wider: the last column. */}
-        <div className="col-span-2 col-start-2 row-start-2 flex items-center justify-between gap-1 @min-[45rem]:col-span-1 @min-[45rem]:col-start-5 @min-[45rem]:row-start-1 @min-[45rem]:justify-end @min-[60rem]:col-start-6">
+        <div className="col-start-2 row-start-2 flex items-center justify-between gap-1 @min-[45rem]:col-start-4 @min-[45rem]:row-start-1 @min-[45rem]:justify-end @min-[60rem]:col-start-5">
           <button
             type="button"
             aria-expanded={open}

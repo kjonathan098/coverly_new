@@ -2,23 +2,12 @@ import { useMemo, type ReactNode } from 'react'
 import magazineCover from '../../assets/magazine-cover.jpg'
 import { Link } from 'react-router'
 import { useDocumentTitle } from '../../lib/useDocumentTitle'
-import {
-  ArrowIcon,
-  Button,
-  Container,
-  PauseIcon,
-  PlayIcon,
-  Surface,
-  TagLink,
-  buttonClasses,
-  cx,
-} from '../../ui'
+import { ArrowIcon, Button, Container, Surface, TagLink, buttonClasses } from '../../ui'
 import { ArtistLinks } from '../discover/ArtistLinks'
 import { DISCOVER_PATH, discoverOne } from '../discover/useFilters'
-import { play, playVerb, usePlaybackOf } from '../player/playback'
 import { CoverArt } from '../songs/CoverArt'
 import { NO_FILTERS, countArtists, facetCounts } from '../songs/discover'
-import { artistList, displayTitle, plural, tagLabel } from '../songs/format'
+import { displayTitle, plural, tagLabel } from '../songs/format'
 import { useCoverSongs } from '../songs/hooks'
 import { SongCard } from '../songs/SongCard'
 import { tintFor } from '../songs/tint'
@@ -26,6 +15,7 @@ import type { CoverSong } from '../songs/types'
 import { CoverMachine } from './CoverMachine'
 import { dailySelection, sameSongPairs, type SameSong } from './selection'
 import { CoverlyPlaylists } from './CoverlyPlaylists'
+import { PlayableCoverArt } from '../songs/PlayableCoverArt'
 
 const PICKS = 8
 const MOODS = 8
@@ -97,35 +87,16 @@ function MoodTile({ name, count, song }: { name: string; count: number; song?: C
   )
 }
 
-/** One recording in a same-song pair: its artwork, its cover artist and a play button. */
+/** One recording in a same-song pair: its artwork (the play button), its cover artist and labels. */
 function Take({ song }: { song: CoverSong }) {
-  const status = usePlaybackOf(song.id)
-  const verb = playVerb(status)
-  const title = displayTitle(song.title)
-  const by = artistList(song.artists)
   const genre = song.genres[0]
   const style = song.styles[0]
   return (
     <div className="group grid min-w-0 content-start gap-2.5">
-      <CoverArt song={song} status={status} className="rounded-control" />
-      <div className="flex items-start justify-between gap-2">
-        <p className="m-0 min-w-0 text-label font-bold">
-          <ArtistLinks artists={song.artists} role="artist" />
-        </p>
-        <button
-          type="button"
-          aria-label={`${verb} ${title} by ${by}`}
-          onClick={() => play(song)}
-          className={cx(
-            'grid size-11 shrink-0 cursor-pointer place-items-center rounded-pill transition-colors *:size-5',
-            status
-              ? 'bg-pink text-ink'
-              : 'text-fg shadow-[inset_0_0_0_2px_var(--surface-line)] hover:bg-pink hover:text-ink hover:shadow-none',
-          )}
-        >
-          {verb === 'Pause' ? <PauseIcon /> : <PlayIcon />}
-        </button>
-      </div>
+      <PlayableCoverArt song={song} artClassName="rounded-control" />
+      <p className="m-0 min-w-0 text-label font-bold">
+        <ArtistLinks artists={song.artists} role="artist" />
+      </p>
       <ul aria-label="Labels" className="m-0 flex list-none flex-wrap gap-1.5 p-0">
         {genre && (
           <li className="flex">
