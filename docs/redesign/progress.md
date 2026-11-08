@@ -49,6 +49,21 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | MVP 3: Playlists + Your Library | Done (committed `29addd9`, backend `f72d3af`)                                          | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
 | MVP 4: Coverly playlists        | Implemented, **awaiting review, not committed**                                        | See "MVP Phase 4: Official Coverly playlists" below.                                                                                                                                       |
 
+## Magazine cover entrance (complete, 2026-11-08)
+
+- `src/features/magazine/BangerHero.tsx`, at the top of `/magazine`: the cover artwork `src/assets/coverly_magazine_front_cover.png` (2172×724, full width at its natural ratio, never cropped), then an "Open this issue" link in a dark gradient area that fills the rest of the first screen.
+- From the `desktop` breakpoint the hero is `min-h-[calc(100dvh-3.5rem)]` (3.5rem = the sticky header's `min-h-14`): a minimum, so a short window grows the hero instead of cropping the cover. Phones and tablets get no forced height.
+- Root cause of the earlier attempt: `theme.css` resets Tailwind's breakpoints, colors and text sizes, so `lg:`, `pink-400` and `text-sm` silently didn't exist. Use the project's own (`desktop:`, `pink`, `type-label`).
+- "Open this issue" is a native anchor to `#magazine-content`, a wrapper (with `scroll-mt-24 tablet:scroll-mt-14`, clearing the header, which wraps to two rows on phones) around everything after the cover, so it exists in every state and the first section in the issue is what it reaches. Smooth scrolling and its reduced-motion fallback come from `base.css`. Banger of the Week is the first section inside that wrapper.
+- Approved and manually verified by the user (design, playback, anchor) on 2026-11-08. The earlier lettering experiment's portrait (`banger-of-the-week.png`) was deleted.
+
+## Banger of the Week, first feature (complete, 2026-11-08)
+
+- `src/features/magazine/BangerOfTheWeek.tsx`: the first section inside `#magazine-content`, so "Open this issue" lands on it. A spread: the street-leap photograph (`src/assets/banger-street-leap.png`, the user's artwork copied unchanged, 1054×1492) as a full page on the left (45%), never cropped, overlapping the edge of a cream paper page (55%) with the edition sticker, the headline (Bricolage Grotesque 800, 75% width, sized in `cqw` of the paper page), a hand-drawn rule, the song title, "Cover by" and "Original by" (`ArtistLinks`), the comment and "Listen to this banger" (`play(song)` in the shell's player; the label follows `playVerb`). Stacked on phones and tablets.
+- Editorial config: `src/features/magazine/bangerFeature.ts` (`songId`, artwork, `edition`, `headline` lines, `comment`). Song data always comes from the catalog by **song** id. Issue 001 (user's content, 2026-11-08): "Like a Prayer", Miley Cyrus covering Madonna (`6ae645d5be654669da63d45c`), headline "This one hits different.", edition "The Weekly Drop / 001", comment "Miley takes on a Madonna classic. Turn it up and hear what happens." The dev preview and placeholder comment are gone: if the song isn't in the catalog, the section doesn't render (no stand-in song).
+- New token `--color-orange` (#ee5a1f, from the sneaker): accents and stickers only.
+- Not `bangerOfTheWeek.ts`: macOS resolves `./BangerOfTheWeek` case-insensitively to it.
+
 ## Experiment: artist header A/B (2026-11-07, awaiting the user's choice, not committed)
 
 - Dev-only switch on artist pages: `?hero=a` (text header, production) or `?hero=b`, or the "Header A / Header B" toggle at the header's top right. Production always shows A.

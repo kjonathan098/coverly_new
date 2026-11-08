@@ -1,6 +1,6 @@
 # Coverly 2.0 roadmap
 
-Last updated: 2026-11-07. Detailed status and handoff notes: `docs/redesign/progress.md`.
+Last updated: 2026-11-08. Detailed status and handoff notes: `docs/redesign/progress.md`.
 
 ## Done (MVP)
 
@@ -11,6 +11,7 @@ Last updated: 2026-11-07. Detailed status and handoff notes: `docs/redesign/prog
 - Favorites; private playlists and Your Library; official Coverly playlists (public, admin-managed).
 - Artist profiles at `/artists/:id`.
 - Now Playing information: full titles and labelled cover and original artists (desktop design approved).
+- Magazine cover entrance (full-screen cover, "Open this issue" anchor) and Banger of the Week, the issue's first feature (configured in `magazine/bangerFeature.ts`).
 
 ## Next: Responsive design milestone (deferred, not started)
 

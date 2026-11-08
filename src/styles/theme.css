@@ -20,6 +20,8 @@
   --color-turquoise: #1ed6c1;
   /* Sticker yellow, from the Cover Machine collage: stickers and labels only, never text on ink. */
   --color-yellow: #ffd23f;
+  /* Sneaker orange, from the Banger of the Week artwork: Magazine accents and stickers, never text. */
+  --color-orange: #ee5a1f;
   --color-indigo: #221a4d;
 
   /* Text-safe variants, each checked to WCAG AA on its surface */

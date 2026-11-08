@@ -9,6 +9,7 @@ import { createQueryClient } from '../../lib/queryClient'
 import { songFixtures } from '../../mocks/fixtures/songs'
 import { server } from '../../mocks/server'
 import { livePlayer } from '../../test/fakeYouTube'
+import { BANGER_OF_THE_WEEK } from './bangerFeature'
 
 function renderAt(url = '/magazine') {
   const router = createMemoryRouter(routes, { initialEntries: [url] })
@@ -49,6 +50,21 @@ beforeEach(() => {
 })
 
 describe('/magazine (the original homepage design)', () => {
+  it('opens on the cover, whose “Open this issue” link leads to the content right after it', async () => {
+    serveLargerCatalog()
+    renderAt('/magazine')
+    const cover = await screen.findByRole('region', {
+      name: 'Coverly Magazine — Banger of the Week',
+    })
+    const open = within(cover).getByRole('link', { name: 'Open this issue' })
+    expect(open).toHaveAttribute('href', '#magazine-content')
+    const content = document.getElementById('magazine-content')!
+    expect(cover.nextElementSibling).toBe(content)
+    expect(
+      await within(content).findByRole('region', { name: 'Featured collections' }),
+    ).toBeInTheDocument()
+  })
+
   it('falls back to browsing everything when no collection has enough covers', async () => {
     renderAt('/magazine')
     expect(await screen.findByRole('link', { name: 'Browse all 6 covers' })).toHaveAttribute(
@@ -183,5 +199,82 @@ describe('/magazine (the original homepage design)', () => {
     )
     renderAt('/magazine')
     expect(await screen.findByRole('alert')).toHaveTextContent('The catalog didn’t load.')
+  })
+})
+
+describe('Banger of the Week on /magazine', () => {
+  // The configured song, as the real catalog has it: Miley Cyrus's cover of Madonna's “Like a Prayer”.
+  const person = (_id: string, name: string, roles: number[]) => ({
+    _id,
+    name,
+    roles,
+    profileImage: '',
+    bio: '',
+  })
+  function serveFeaturedSong() {
+    const featured = {
+      ...songFixtures[0],
+      _id: BANGER_OF_THE_WEEK.songId,
+      title: 'like a prayer',
+      artist: {
+        original: [person('madonna0000000000000000', 'Madonna', [1])],
+        coverArtist: [person('miley00000000000000000', 'Miley Cyrus', [2])],
+      },
+      links: [
+        { url: 'https://www.youtube.com/watch?v=C0IQm-MXh2s', platform: 'youtube', timeStamp: 0 },
+      ],
+    }
+    server.use(
+      http.get(apiUrl('/api/songs/all-songs'), () =>
+        HttpResponse.json({ success: true, message: [...songFixtures, featured] }),
+      ),
+    )
+  }
+
+  it('is the first feature after the cover, and plays the featured cover in the shared player', async () => {
+    serveFeaturedSong()
+    const router = renderAt('/magazine')
+    const feature = await screen.findByRole('region', {
+      name: /^Banger of the Week: ?This one hits different\.$/,
+    })
+    expect(document.getElementById('magazine-content')!.firstElementChild).toBe(feature)
+    expect(within(feature).getByText('The Weekly Drop / 001')).toBeInTheDocument()
+    expect(within(feature).getByRole('heading', { level: 3 })).toHaveTextContent('Like a Prayer')
+    expect(
+      within(feature).getByText(
+        'Miley takes on a Madonna classic. Turn it up and hear what happens.',
+      ),
+    ).toBeInTheDocument()
+    expect(within(feature).queryByText(/Development preview|not written yet/)).toBeNull()
+    expect(
+      within(feature).getByRole('link', { name: 'Miley Cyrus, cover artist' }),
+    ).toHaveAttribute('href', '/artists/miley00000000000000000')
+    expect(within(feature).getByRole('link', { name: /^Madonna/ })).toHaveAttribute(
+      'href',
+      '/artists/madonna0000000000000000',
+    )
+
+    fireEvent.click(
+      within(feature).getByRole('button', {
+        name: 'Listen to this banger: Like a Prayer by Miley Cyrus',
+      }),
+    )
+    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
+    const player = screen.getByRole('complementary', { name: 'Now playing' })
+    expect(within(player).getByTitle('Like a Prayer, playing from YouTube')).toBe(
+      livePlayer().iframe,
+    )
+    expect(
+      within(feature).getByRole('button', {
+        name: 'Pause this banger: Like a Prayer by Miley Cyrus',
+      }),
+    ).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/magazine')
+  })
+
+  it('stays out of the issue when the featured song is not in the catalog', async () => {
+    renderAt('/magazine')
+    await screen.findByRole('region', { name: 'Start with a mood' })
+    expect(screen.queryByRole('region', { name: /^Banger of the Week/ })).toBeNull()
   })
 })
