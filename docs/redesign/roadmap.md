@@ -12,6 +12,7 @@ Last updated: 2026-11-08. Detailed status and handoff notes: `docs/redesign/prog
 - Artist profiles at `/artists/:id`.
 - Now Playing information: full titles and labelled cover and original artists (desktop design approved).
 - Magazine cover entrance (full-screen cover, "Open this issue" anchor) and Banger of the Week, the issue's first feature (configured in `magazine/bangerFeature.ts`).
+- Who Covered It Better? (Magazine voting showdown, approved design): one curated matchup in the backend config, persistent votes in their own collection, labelled sample results for the MVP (manual switch).
 
 ## Next: Responsive design milestone (deferred, not started)
 
@@ -23,6 +24,7 @@ Decided 2026-11-07: mobile player optimization waits for a dedicated responsive-
 
 ## Open decisions
 
+- When to switch off the showdown's sample results (`SHOW_DEMO_RESULTS` in the backend's `matchups.js`): the user decides once real participation is enough.
 - Desktop player layout A or B (dev-only switch, `?player=`). Production uses A; the user leaned toward B.
 
 ## Later (ideas, not commitments)

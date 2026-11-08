@@ -110,9 +110,10 @@ function isAuthMessage(data: unknown): data is AuthMessage {
 
 /**
  * Listens for the popup's result and re-reads the session, in place: no reload, and the player
- * is untouched. Calls `onFailed` when login was canceled or failed.
+ * is untouched. Calls `onFailed` when login was canceled or failed, and `onSucceeded` (optional)
+ * when the popup reports success. Pass stable callbacks (useCallback or module functions).
  */
-export function useLoginResult(onFailed: () => void) {
+export function useLoginResult(onFailed: () => void, onSucceeded?: () => void) {
   const queryClient = useQueryClient()
   useEffect(() => {
     if (typeof BroadcastChannel === 'undefined') return
@@ -120,11 +121,12 @@ export function useLoginResult(onFailed: () => void) {
     channel.onmessage = ({ data }: MessageEvent) => {
       if (!isAuthMessage(data)) return
       if (data.status === 'failed') onFailed()
+      else onSucceeded?.()
       // Either way, show what the backend says, never an assumed result.
       void queryClient.invalidateQueries({ queryKey: sessionKeys.current })
     }
     return () => channel.close()
-  }, [queryClient, onFailed])
+  }, [queryClient, onFailed, onSucceeded])
 }
 
 async function logout() {

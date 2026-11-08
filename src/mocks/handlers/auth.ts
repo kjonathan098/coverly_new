@@ -17,6 +17,11 @@ export const authHandlers: AnyHandler[] = [
   http.all(apiUrl('/api/playlists/*'), notLoggedIn),
   // Coverly's playlists are public to read; with none set up, there are none.
   ...officialPlaylistHandlers([], () => 'guest'),
+  // No current "Who Covered It Better?" matchup by default (see matchups.ts to set one up).
+  http.get(apiUrl('/api/matchups/:id'), () =>
+    HttpResponse.json({ success: false, message: 'Matchup not found' }, { status: 404 }),
+  ),
+  http.put(apiUrl('/api/matchups/:id/vote'), notLoggedIn),
 ]
 
 /** A playlist as the backend stores it (song ids in the order added). */

@@ -19,6 +19,7 @@ import { BangerOfTheWeek } from './BangerOfTheWeek'
 import { CollectionsCarousel } from './CollectionsCarousel'
 import { MoodIndex } from './MoodIndex'
 import { Shelf } from './Shelf'
+import { WhoCoveredItBetter } from './WhoCoveredItBetter'
 
 const SHELF_STYLE = 'piano-driven'
 
@@ -64,6 +65,7 @@ export function MagazinePage() {
           scroll-mt clears the sticky site header (two rows on phones). */}
       <div id="magazine-content" className="scroll-mt-24 tablet:scroll-mt-14">
         <BangerOfTheWeek songs={songs} />
+        <WhoCoveredItBetter songs={songs} />
         {query.isError ? (
           <HeroState>
             <div role="alert" className="grid justify-items-start gap-4">
