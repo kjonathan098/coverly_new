@@ -13,6 +13,7 @@ Last updated: 2026-11-08. Detailed status and handoff notes: `docs/redesign/prog
 - Now Playing information: full titles and labelled cover and original artists (desktop design approved).
 - Magazine cover entrance (full-screen cover, "Open this issue" anchor) and Banger of the Week, the issue's first feature (configured in `magazine/bangerFeature.ts`).
 - Who Covered It Better? (Magazine voting showdown, approved design): one curated matchup in the backend config, persistent votes in their own collection, labelled sample results for the MVP (manual switch).
+- One Word, Five Songs (Magazine lyric game): a curated backend answer bank, exact phrase matching, artist hints, scoring in the browser; compact two-page design that adapts to the player column.
 
 ## Next: Responsive design milestone (deferred, not started)
 
@@ -30,6 +31,7 @@ Decided 2026-11-07: mobile player optimization waits for a dedicated responsive-
 ## Later (ideas, not commitments)
 
 - Magazine features: Original vs. Cover, Cover vs. Cover, Behind the Song, Creator Spotlight, Suggest a Cover.
+- One Word, Five Songs: more challenges and rotating words, more accepted lyric phrases, more flexible answer recognition, admin challenge management, optional persistent scores or leaderboards.
 - Coverly playlists as Magazine collections.
 - A quicker way to save while browsing (hover controls or a menu), if users need it.
 - A backend artist endpoint once the catalog is paginated or artists get real profile data.

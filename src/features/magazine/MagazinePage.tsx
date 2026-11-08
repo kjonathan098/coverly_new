@@ -13,6 +13,7 @@ import {
 } from '../songs/discover'
 import { plural } from '../songs/format'
 import { useCoverSongs } from '../songs/hooks'
+import { OneWordFiveSongs } from '../wordgame/OneWordFiveSongs'
 import { Artists } from './Artists'
 import { BangerHero } from './BangerHero'
 import { BangerOfTheWeek } from './BangerOfTheWeek'
@@ -66,6 +67,7 @@ export function MagazinePage() {
       <div id="magazine-content" className="scroll-mt-24 tablet:scroll-mt-14">
         <BangerOfTheWeek songs={songs} />
         <WhoCoveredItBetter songs={songs} />
+        <OneWordFiveSongs />
         {query.isError ? (
           <HeroState>
             <div role="alert" className="grid justify-items-start gap-4">

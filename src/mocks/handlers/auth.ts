@@ -22,6 +22,10 @@ export const authHandlers: AnyHandler[] = [
     HttpResponse.json({ success: false, message: 'Matchup not found' }, { status: 404 }),
   ),
   http.put(apiUrl('/api/matchups/:id/vote'), notLoggedIn),
+  // No current "One Word, Five Songs" challenge by default (see wordChallenges.ts to set one up).
+  http.get(apiUrl('/api/word-challenges/:id'), () =>
+    HttpResponse.json({ success: false, message: 'Challenge not found' }, { status: 404 }),
+  ),
 ]
 
 /** A playlist as the backend stores it (song ids in the order added). */
