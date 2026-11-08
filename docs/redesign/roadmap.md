@@ -14,6 +14,7 @@ Last updated: 2026-11-08. Detailed status and handoff notes: `docs/redesign/prog
 - Magazine cover entrance (full-screen cover, "Open this issue" anchor) and Banger of the Week, the issue's first feature (configured in `magazine/bangerFeature.ts`).
 - Who Covered It Better? (Magazine voting showdown, approved design): one curated matchup in the backend config, persistent votes in their own collection, labelled sample results for the MVP (manual switch).
 - One Word, Five Songs (Magazine lyric game): a curated backend answer bank, exact phrase matching, artist hints, scoring in the browser; compact two-page design that adapts to the player column.
+- Nokia love song (Magazine): a Y2K pop-collage mini-poster around the red Nokia, featuring Chris Holsten's "Dilemma" from the catalog; the pink heart plays it in the shared player.
 
 ## Next: Responsive design milestone (deferred, not started)
 

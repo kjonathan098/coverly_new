@@ -49,6 +49,12 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | MVP 3: Playlists + Your Library | Done (committed `29addd9`, backend `f72d3af`)                                          | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
 | MVP 4: Coverly playlists        | Implemented, **awaiting review, not committed**                                        | See "MVP Phase 4: Official Coverly playlists" below.                                                                                                                                       |
 
+## Nokia love song (complete for the MVP, 2026-11-08; Y2K collage design approved by the user)
+
+- A Magazine surprise after One Word, Five Songs (`magazine/NokiaLoveSong.tsx`, config `magazine/nokiaFeature.ts`), styled after the user's Y2K pop-collage reference (aesthetic only; none of its imagery): a fan-zine mini-poster on a distressed near-black page. No heading.
+- The red Nokia (`src/assets/nokia-boo-i-miss-you.png`, the user's image, cropped past its source's top strip and speaker button) is the hero: a tilted cut-out print with a cream paper border on a torn hot-pink paper panel, a 💋 sticker on its corner, a blush arrow pointing out to the reply. The song title is the poster's type: DILEMMA, vertical, chunky pink 3D letters (horizontal across the top when stacked). The reply is a second Nokia screen taped on like a sticker: "1 new song", "Chris Holsten covering Nelly and Kelly Rowland" (artist links), and the rose heart as its soft key (Play / Pause / Resume in the shell's one player; not Favorites); the LCD's backlight comes on while the cover plays. The caption is two cut-out label strips. The distressed speckle is an inline SVG noise filter (no asset), heavy at the edges.
+- The song comes from the cached catalog by YouTube id `l9tS2xVjmqM`; hidden if no recording has it. Side by side from 48rem of the section's own width (player open or closed: 532 px tall), stacked below.
+
 ## One Word, Five Songs (complete for the MVP, 2026-11-08)
 
 - Design and gameplay approved by the user: the compact two-page spread below is final. Magazine order: cover → Banger of the Week → Who Covered It Better? → One Word, Five Songs → the rest.

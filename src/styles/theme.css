@@ -22,6 +22,8 @@
   --color-yellow: #ffd23f;
   /* Sneaker orange, from the Banger of the Week artwork: Magazine accents and stickers, never text. */
   --color-orange: #ee5a1f;
+  /* Love-song rose, the Nokia feature's play heart (user-chosen): accents only, never text. */
+  --color-rose: #f43f5e;
   --color-indigo: #221a4d;
 
   /* Text-safe variants, each checked to WCAG AA on its surface */

@@ -19,6 +19,7 @@ import { BangerHero } from './BangerHero'
 import { BangerOfTheWeek } from './BangerOfTheWeek'
 import { CollectionsCarousel } from './CollectionsCarousel'
 import { MoodIndex } from './MoodIndex'
+import { NokiaLoveSong } from './NokiaLoveSong'
 import { Shelf } from './Shelf'
 import { WhoCoveredItBetter } from './WhoCoveredItBetter'
 
@@ -68,6 +69,7 @@ export function MagazinePage() {
         <BangerOfTheWeek songs={songs} />
         <WhoCoveredItBetter songs={songs} />
         <OneWordFiveSongs />
+        <NokiaLoveSong songs={songs} />
         {query.isError ? (
           <HeroState>
             <div role="alert" className="grid justify-items-start gap-4">
