@@ -92,7 +92,7 @@ describe('Nokia love song in Magazine', () => {
 
   it('stays out of the issue when the catalog has no recording of that video', async () => {
     renderMagazine(songFixtures)
-    await screen.findByRole('region', { name: 'Start with a mood' })
+    await screen.findByRole('region', { name: 'Artists who keep coming back' })
     expect(screen.queryByRole('region', { name: /Dilemma/ })).toBeNull()
   })
 })

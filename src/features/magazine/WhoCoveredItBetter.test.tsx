@@ -237,14 +237,14 @@ describe('Who Covered It Better? (nothing to show)', () => {
       ),
     )
     renderMagazine()
-    await screen.findByRole('region', { name: 'Start with a mood' })
+    await screen.findByRole('region', { name: 'Artists who keep coming back' })
     expect(screen.queryByRole('region', { name: /^Who covered it better/ })).toBeNull()
   })
 
   it('stays out of the issue when a matchup song is not in the catalog', async () => {
     serve(newMatchup(), CATALOG.slice(0, -1))
     renderMagazine()
-    await screen.findByRole('region', { name: 'Start with a mood' })
+    await screen.findByRole('region', { name: 'Artists who keep coming back' })
     expect(screen.queryByRole('region', { name: /^Who covered it better/ })).toBeNull()
   })
 })

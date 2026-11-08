@@ -148,33 +148,23 @@ describe('/magazine (the original homepage design)', () => {
     ).toBeInTheDocument()
   })
 
-  it('links moods, the piano shelf and artists into Discover', async () => {
+  it('ends with the artists who keep coming back, linked into Discover', async () => {
     renderAt('/magazine')
-    const moods = await screen.findByRole('region', { name: 'Start with a mood' })
-    expect(within(moods).getByRole('link', { name: /^Soulful/ })).toHaveAttribute(
-      'href',
-      '/discover?mood=soulful',
-    )
-    const artists = screen.getByRole('region', { name: 'Artists who keep coming back' })
+    const artists = await screen.findByRole('region', { name: 'Artists who keep coming back' })
     expect(within(artists).getByRole('link', { name: 'The Tidewater Choir' })).toHaveAttribute(
       'href',
       '/discover?artist=the+tidewater+choir',
     )
-    // The fixtures have no piano-driven covers, so the shelf stays out rather than showing a stub.
+    // Home and Discover cover moods, playing styles and the whole catalog; the issue doesn't.
+    expect(screen.queryByRole('region', { name: 'Start with a mood' })).toBeNull()
     expect(screen.queryByRole('region', { name: 'Piano-driven' })).toBeNull()
-  })
-
-  it('links to the whole catalog with live totals', async () => {
-    renderAt('/magazine')
-    expect(
-      await screen.findByRole('heading', { name: '6 covers by 3 cover artists' }),
-    ).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Open Discover' })).toHaveAttribute('href', '/discover')
+    expect(screen.queryByText('The whole catalog')).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Open Discover' })).toBeNull()
   })
 
   it('navigates between pages from the header', async () => {
     const router = renderAt('/magazine')
-    await screen.findByRole('region', { name: 'Start with a mood' })
+    await screen.findByRole('region', { name: 'Artists who keep coming back' })
     const nav = screen.getByRole('navigation', { name: 'Main' })
     fireEvent.click(within(nav).getByRole('link', { name: 'Discover' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Discover' })).toBeInTheDocument()
@@ -274,7 +264,7 @@ describe('Banger of the Week on /magazine', () => {
 
   it('stays out of the issue when the featured song is not in the catalog', async () => {
     renderAt('/magazine')
-    await screen.findByRole('region', { name: 'Start with a mood' })
+    await screen.findByRole('region', { name: 'Artists who keep coming back' })
     expect(screen.queryByRole('region', { name: /^Banger of the Week/ })).toBeNull()
   })
 })

@@ -49,6 +49,11 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | MVP 3: Playlists + Your Library | Done (committed `29addd9`, backend `f72d3af`)                                          | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
 | MVP 4: Coverly playlists        | Implemented, **awaiting review, not committed**                                        | See "MVP Phase 4: Official Coverly playlists" below.                                                                                                                                       |
 
+## Magazine simplified (complete, 2026-11-08)
+
+- The user decided not to move the old homepage sections to Home (Home already covers discovery) and to simplify Magazine instead. Magazine is now: the cover ("Open this issue"), Banger of the Week, Who Covered It Better?, One Word, Five Songs, the Nokia love song, the featured collections carousel, and Artists who keep coming back (with its paper/ink transitions; none render when no artist qualifies).
+- Removed: Start with a mood, the Piano-driven shelf and the closing whole-catalog section (Home and Discover cover them). `magazine/MoodIndex.tsx` and `magazine/Shelf.tsx` were used only there and were deleted; the shared helpers (`facetCounts`, `songsWith`, `countArtists`) stay for Home, Discover and collections. Home is unchanged except its Magazine card's copy, now "Beyond the covers." / "Discover music stories, vote for your favorites, test your music memory, and find unexpected performances."
+
 ## Nokia love song (complete for the MVP, 2026-11-08; Y2K collage design approved by the user)
 
 - A Magazine surprise after One Word, Five Songs (`magazine/NokiaLoveSong.tsx`, config `magazine/nokiaFeature.ts`), styled after the user's Y2K pop-collage reference (aesthetic only; none of its imagery): a fan-zine mini-poster on a distressed near-black page. No heading.

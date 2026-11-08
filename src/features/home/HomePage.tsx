@@ -307,10 +307,11 @@ export function HomePage() {
           </span>
           <p className="type-label m-0 text-accent">Magazine</p>
           <h2 id="magazine-title" className="type-card m-0 mt-2 max-w-[24ch]">
-            Collections, moods and the artists who keep coming back
+            Beyond the covers.
           </h2>
           <p className="m-0 mt-2 max-w-[52ch] text-fg-soft">
-            Coverly’s editorial pages: themed collections of covers, set out to browse at leisure.
+            Discover music stories, vote for your favorites, test your music memory, and find
+            unexpected performances.
           </p>
           <Link
             to="/magazine"

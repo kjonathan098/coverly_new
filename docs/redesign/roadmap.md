@@ -6,7 +6,7 @@ Last updated: 2026-11-08. Detailed status and handoff notes: `docs/redesign/prog
 
 - Discover: search, six filter groups, list, URL state.
 - One persistent YouTube player in the app shell; artwork is the play button everywhere (`PlayableCoverArt`).
-- Home (Explore covers, moods, same-song pairs, Playlists by Coverly) and Magazine (the previous homepage, preserved).
+- Home (Explore covers, moods, same-song pairs, Playlists by Coverly) and Magazine (editorial features, then the featured collections carousel and Artists who keep coming back).
 - Google login in a popup (server-side sessions), and the backend security milestone (admin-only catalog writes, CSRF guard, query hardening).
 - Favorites; private playlists and Your Library; official Coverly playlists (public, admin-managed).
 - Artist profiles at `/artists/:id`.

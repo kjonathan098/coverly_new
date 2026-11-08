@@ -115,7 +115,7 @@ describe('Home', () => {
   it('invites to the Magazine', async () => {
     renderHome()
     expect(
-      within(section('Collections, moods and the artists who keep coming back')).getByRole('link', {
+      within(section('Beyond the covers.')).getByRole('link', {
         name: 'Open the Magazine',
       }),
     ).toHaveAttribute('href', '/magazine')
