@@ -5,10 +5,11 @@ import { useSyncExternalStore } from 'react'
  * changes classes only, so the YouTube iframe is never moved or recreated and playback continues.
  * Phones (< 720px) are the same in both: the full-width bar.
  *
- * A (current): floating card from 720px, its own column from 1536px.
- * B: floating card from 720px, an integrated right-hand column from 1280px.
+ * A: floating card from 720px, its own column from 1536px.
+ * B (official, decided 2026-11-08): floating card from 720px, an integrated right-hand column from 1280px.
  *
- * The switch exists in development only; production uses A until a decision is made.
+ * Production always uses B: it ignores `?player=` and any saved choice. The switch (and A) remain in
+ * development only, for experiments.
  */
 
 export type PlayerLayout = 'a' | 'b'
@@ -46,18 +47,19 @@ export const PLAYER_LAYOUTS: Record<PlayerLayout, LayoutClasses> = {
   },
 }
 
+const DEFAULT_LAYOUT: PlayerLayout = 'b'
 const STORAGE_KEY = 'coverly:player-layout'
 const isLayout = (value: unknown): value is PlayerLayout => value === 'a' || value === 'b'
 
 function initial(): PlayerLayout {
-  if (!import.meta.env.DEV || typeof window === 'undefined') return 'a'
+  if (!import.meta.env.DEV || typeof window === 'undefined') return DEFAULT_LAYOUT
   const fromUrl = new URLSearchParams(window.location.search).get('player')
   if (isLayout(fromUrl)) {
     localStorage.setItem(STORAGE_KEY, fromUrl)
     return fromUrl
   }
   const saved = localStorage.getItem(STORAGE_KEY)
-  return isLayout(saved) ? saved : 'a'
+  return isLayout(saved) ? saved : DEFAULT_LAYOUT
 }
 
 let layout: PlayerLayout = initial()

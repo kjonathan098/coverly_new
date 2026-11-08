@@ -49,6 +49,11 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | MVP 3: Playlists + Your Library | Done (committed `29addd9`, backend `f72d3af`)                                          | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
 | MVP 4: Coverly playlists        | Implemented, **awaiting review, not committed**                                        | See "MVP Phase 4: Official Coverly playlists" below.                                                                                                                                       |
 
+## Player B is the production default (2026-11-08, committed on `develop`, not merged to `main`)
+
+- User decision: B is the official desktop player. `DEFAULT_LAYOUT = 'b'` in `src/features/player/layouts.ts`. Production always uses it (its URL/localStorage code is compiled out), so old `?player=a` links and saved `coverly:player-layout=a` values have no effect. Development still honours `?player=` and the saved choice, defaulting to B; the toggle and layout A remain for experiments.
+- Breakpoints unchanged: bottom bar below 720px, floating card 720–1279px, docked right column (24.375rem) from 1280px.
+
 ## Vercel deployment prep (2026-11-08, committed on `develop`, not merged to `main` or deployed)
 
 - `main` is protected from ongoing work: development happens on `develop` (created from `main` at `0a7f306`).
