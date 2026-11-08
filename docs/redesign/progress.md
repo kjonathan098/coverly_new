@@ -1,6 +1,6 @@
 # Coverly redesign: progress handoff
 
-Last updated: 2026-11-07. Read this first in a new session, then `CLAUDE.md`, `docs/design-system.md` and `docs/redesign/roadmap.md`.
+Last updated: 2026-11-08. Read this first in a new session, then `CLAUDE.md`, `docs/design-system.md` and `docs/redesign/roadmap.md`.
 
 ## Product vision (current, approved)
 
@@ -48,6 +48,14 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 | MVP 2: Favorites                | Done (committed `3ff0c3e`, backend `ee65d40`)                                          | See "MVP Phase 2: Favorites" below. Next: Playlists and Your Library.                                                                                                                      |
 | MVP 3: Playlists + Your Library | Done (committed `29addd9`, backend `f72d3af`)                                          | See "MVP Phase 3: Playlists and Your Library" below.                                                                                                                                       |
 | MVP 4: Coverly playlists        | Implemented, **awaiting review, not committed**                                        | See "MVP Phase 4: Official Coverly playlists" below.                                                                                                                                       |
+
+## Vercel deployment prep (2026-11-08, committed on `develop`, not merged to `main` or deployed)
+
+- `main` is protected from ongoing work: development happens on `develop` (created from `main` at `0a7f306`).
+- `vercel.json` proxies `/api/*` to the Render backend (`https://coverly-api-xwja.onrender.com`) and falls back to `index.html` for SPA routes. Vercel serves real files (assets, `/auth-complete.html`) before rewrites.
+- `.env.production` sets `VITE_API_BASE_URL=` (empty), so production requests are same-origin `/api/...` and the session cookie stays first-party on the Vercel domain. `src/lib/api.ts` now accepts an empty base and throws only when the variable is missing. Dev still uses `.env.local` (`http://localhost:4000`).
+- Required Render settings (no backend code changes): `FRONTEND_ORIGIN=https://<vercel domain>` and `GOOGLE_CALLBACK_URL=https://<vercel domain>/api/auth/google/redirect`; register that redirect URI in Google Cloud. On 2026-11-08 Render was still sending `redirect_uri=https://coverly-api.onrender.com/...` (wrong host, and it must be the Vercel domain).
+- Vercel preview deployments can't log in (one `FRONTEND_ORIGIN`, one callback URL); browsing works.
 
 ## Magazine simplified (complete, 2026-11-08)
 

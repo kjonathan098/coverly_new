@@ -1,6 +1,11 @@
+/*
+ * The backend's origin. Development points at the local backend (.env.local). Production builds set
+ * it empty (.env.production), so requests stay same-origin (`/api/...`) and the host's rewrite
+ * (vercel.json) proxies them to the backend, keeping the session cookie first-party.
+ */
 const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL
 
-if (!configuredBaseUrl) {
+if (configuredBaseUrl === undefined) {
   throw new Error('VITE_API_BASE_URL is not set. Copy .env.example to .env.local.')
 }
 
