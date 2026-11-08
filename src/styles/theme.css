@@ -105,6 +105,9 @@
   --animate-equalize: equalize 0.8s var(--ease-snap) infinite alternate;
   /* The Cover Machine flipping to another record. Reduced motion skips it (base.css). */
   --animate-flip-in: flip-in 0.45s var(--ease-snap) both;
+  /* Magazine collections' Rolodex: the top card is lifted off the pile, over it and behind it, and
+     put at the back (CollectionsCarousel, in a 3D pile). Reduced motion skips it. */
+  --animate-rolodex-turn: rolodex-turn 640ms linear both;
 
   @keyframes flip-in {
     from {
@@ -114,6 +117,39 @@
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+
+  /* Ends exactly behind the back card of the fan (FAN[1], one DEPTH further back), so it lands unseen. */
+  @keyframes rolodex-turn {
+    0% {
+      transform: translate3d(0, 0, 1px);
+      box-shadow:
+        0 0 0 6px var(--color-paper),
+        0 4px 10px -4px rgb(0 0 0 / 0.5);
+      animation-timing-function: cubic-bezier(0.3, 0, 0.7, 1);
+    }
+    /* Lifted up and toward the reader, starting to tip back. */
+    30% {
+      transform: translate3d(0, -22%, 40px) rotateX(16deg) rotate(-2deg);
+      box-shadow:
+        0 0 0 6px var(--color-paper),
+        0 28px 40px -12px rgb(0 0 0 / 0.65);
+      animation-timing-function: linear;
+    }
+    /* Over the top edge and going back. */
+    58% {
+      transform: translate3d(3%, -28%, -70px) rotateX(34deg) rotate(1deg);
+      animation-timing-function: linear;
+    }
+    /* Behind the pile, coming down. */
+    80% {
+      transform: translate3d(6%, -14%, -60px) rotateX(12deg) rotate(4deg);
+      animation-timing-function: cubic-bezier(0.2, 0.6, 0.3, 1);
+    }
+    100% {
+      transform: translate3d(7%, -4%, -42px) rotate(5deg);
+      box-shadow: 0 0 0 4px var(--color-ink);
     }
   }
 

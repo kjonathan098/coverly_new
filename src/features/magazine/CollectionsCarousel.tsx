@@ -12,6 +12,7 @@ import {
 } from '../../ui'
 import { play, playVerb, usePlaybackOf } from '../player/playback'
 import type { Collection } from '../collections/collections'
+import type { CoverSong } from '../songs/types'
 import { discoverHref } from '../discover/useFilters'
 import { CoverArt } from '../songs/CoverArt'
 import { artistList, displayTitle, plural } from '../songs/format'
@@ -37,13 +38,24 @@ type CarouselProps = {
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? true
 const pad = (n: number) => String(n).padStart(2, '0')
+// The Rolodex turn (theme.css, --animate-rolodex-turn), plus a frame to finish.
+const TURN_MS = 660
+// The pile, front to back: the card on top, then the fan behind it. A real 3D stack (each card
+// DEPTH px further back), so a card moving behind the pile is hidden by it gradually, never popped.
+const SLOTS = [
+  'z-[3] shadow-[0_0_0_6px_var(--color-paper)]',
+  `z-[2] shadow-[0_0_0_4px_var(--color-ink)] ${FAN[0]}`,
+  `z-[1] shadow-[0_0_0_4px_var(--color-ink)] ${FAN[1]}`,
+]
+const DEPTH = 14
 
 /**
  * The homepage's featured collections, one at a time. Movement is always the reader's: buttons,
  * arrow keys, or a swipe (native scroll snapping, no gesture code). Nothing advances on its own.
  * Follows the WAI-ARIA carousel pattern; slides out of view are inert, so focus can't wander there.
- * Playing a collection's first cover uses the app shell's player, so changing slides (or pages)
- * never stops it.
+ * Each slide is a Rolodex of the collection's songs: "Next song" lifts the front card over the pile
+ * and puts it at the back, showing the next one beneath (no playback change). Play uses the app shell's player, so
+ * turning cards, changing slides (or pages) never stops it.
  */
 export function CollectionsCarousel({ collections }: CarouselProps) {
   const [index, setIndex] = useState(0)
@@ -210,13 +222,49 @@ function Slide({
   current: boolean
   tint: string
 }) {
-  // Artwork is the collection's own recordings: the first playable matches, in Discover's order.
-  const art = (collection.playable.length ? collection.playable : collection.songs).slice(0, 3)
-  const [front, ...back] = art
-  const lead = collection.playable[0]
-  // The first cover's state in the shared player ('' never matches, when there's nothing to play).
+  // A Rolodex of the collection's own recordings: its playable matches, in Discover's order.
+  const deck = collection.playable.length ? collection.playable : collection.songs
+  const [at, setAt] = useState(0)
+  // The card tipping back over the top while the next one shows beneath it (null when at rest).
+  const [turning, setTurning] = useState<CoverSong | null>(null)
+  const [notice, setNotice] = useState('')
+  const timer = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+
+  // Coming back to a collection opens it on its first song again.
+  const [shown, setShown] = useState(current)
+  if (current !== shown) {
+    setShown(current)
+    if (current) {
+      setAt(0)
+      setTurning(null)
+      setNotice('')
+    }
+  }
+
+  // The current song, then the next two, fanned out behind it.
+  const pile = SLOTS.slice(0, deck.length).map((_, k) => deck[(at + k) % deck.length]!)
+  const front = pile[0]
+  const lead = front?.video ? front : undefined
+  // The current song's state in the shared player ('' never matches, when there's nothing to play).
   const status = usePlaybackOf(lead?.id ?? '')
   const verb = playVerb(status)
+
+  // Only turns the card: playback changes only when the reader presses Play.
+  const nextSong = () => {
+    if (turning || !front || deck.length < 2) return
+    const to = (at + 1) % deck.length
+    const song = deck[to]!
+    if (!reducedMotion()) {
+      setTurning(front)
+      window.clearTimeout(timer.current)
+      timer.current = window.setTimeout(() => setTurning(null), TURN_MS)
+    }
+    setAt(to)
+    setNotice(
+      `Song ${to + 1} of ${deck.length}: ${displayTitle(song.title)}, covered by ${artistList(song.artists)}`,
+    )
+  }
 
   return (
     <div
@@ -227,25 +275,32 @@ function Slide({
       className="grid w-full shrink-0 snap-start [scroll-snap-stop:always] content-center gap-10 py-4 desktop:grid-cols-12 desktop:items-center desktop:gap-x-gutter"
     >
       <div className="group/art mx-auto w-[76%] max-w-[44rem] py-[10%] desktop:order-2 desktop:col-span-7 desktop:col-start-6 desktop:w-[80%]">
-        <div className="relative">
-          {back.map((song, i) => (
+        <div className="relative aspect-video perspective-[1400px] transform-3d">
+          {/* Keyed by song: when the top card goes, each card below slides up a place. */}
+          {pile.map((song, k) => (
             <CoverArt
               key={song.id}
               song={song}
               tint={tint}
+              size="hero"
+              status={k === 0 && lead ? status : null}
+              style={{ transform: `translateZ(${-k * DEPTH}px)` }}
               className={cx(
-                'absolute! inset-0 rounded-card shadow-[0_0_0_4px_var(--color-ink)] transition-[translate,rotate,opacity] duration-(--duration-slow) ease-snap',
-                FAN[i],
+                'absolute! inset-0 rounded-card transition-[translate,rotate,transform,box-shadow] duration-[640ms] ease-snap',
+                SLOTS[k],
+                // In a short deck the turning card is also in the pile: it shows once it lands.
+                song.id === turning?.id && 'invisible transition-none',
               )}
             />
           ))}
-          {front && (
+          {/* The card being moved: lifted off the top, over and behind the pile, to the back. */}
+          {turning && (
             <CoverArt
-              song={front}
+              key={`turning-${turning.id}`}
+              song={turning}
               tint={tint}
               size="hero"
-              status={front.id === lead?.id ? status : null}
-              className="z-[3] rounded-card shadow-[0_0_0_6px_var(--color-paper)]"
+              className="pointer-events-none absolute! inset-0 z-[4] animate-rolodex-turn rounded-card shadow-[0_0_0_6px_var(--color-paper)]"
             />
           )}
         </div>
@@ -259,34 +314,56 @@ function Slide({
           {plural(collection.songs.length, 'cover')} ·{' '}
           {plural(collection.artistCount, 'cover artist')}
         </p>
-        <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-4">
-          <Link
-            to={discoverHref(collection.filters)}
-            className={buttonClasses({ size: 'lg', className: 'max-tablet:w-full' })}
-          >
-            Explore the collection
-            <ArrowIcon className="size-5" />
-          </Link>
-          {lead && (
-            <Button
-              variant="secondary"
-              size="lg"
-              icon={verb === 'Pause' ? <PauseIcon /> : <PlayIcon />}
-              aria-label={`${verb} ${displayTitle(lead.title)} by ${artistList(lead.artists)}`}
-              onClick={() => play(lead)}
-              className="max-tablet:w-full"
-            >
-              <span className="min-w-0 truncate">
-                {verb} {displayTitle(lead.title)}
-              </span>
-            </Button>
-          )}
+        {/* Fixed labels in equal columns, so titles never move the buttons. They stack only when
+            this column is too narrow for both (a container query, not the title's length). */}
+        <div className="@container mt-7">
+          <div className="grid gap-4 @min-[23.25rem]:grid-cols-[repeat(2,11rem)] @min-[23.25rem]:gap-5">
+            {deck.length > 1 && (
+              <button
+                type="button"
+                onClick={nextSong}
+                className={buttonClasses({ size: 'lg', className: 'w-full' })}
+              >
+                Next song
+                <ArrowIcon className="size-5" />
+              </button>
+            )}
+            {lead && (
+              <Button
+                variant="secondary"
+                size="lg"
+                icon={verb === 'Pause' ? <PauseIcon /> : <PlayIcon />}
+                aria-label={`${verb} song: ${displayTitle(lead.title)} by ${artistList(lead.artists)}`}
+                onClick={() => play(lead)}
+                className="w-full"
+              >
+                {verb} song
+              </Button>
+            )}
+          </div>
         </div>
-        {lead && (
-          <p className="type-meta mt-3 text-fg-soft">
-            {displayTitle(lead.title)}, covered by {artistList(lead.artists)}
+        {front && (
+          // Always the same height (the column is centered beside the art, so a line more or less
+          // would move everything): three lines on phones, two from tablets.
+          <p className="type-meta mt-3 line-clamp-3 min-h-[3lh] text-fg-soft tablet:line-clamp-2 tablet:min-h-[2lh]">
+            {deck.length > 1 && (
+              <span className="type-label mr-2 leading-none text-fg tabular-nums">
+                {pad(at + 1)} / {pad(deck.length)}
+              </span>
+            )}
+            {displayTitle(front.title)}, covered by {artistList(front.artists)}
           </p>
         )}
+        <Link
+          to={discoverHref(collection.filters)}
+          className="type-label mt-4 inline-flex min-h-11 items-center gap-2 text-fg underline decoration-1 underline-offset-4 hover:text-pink"
+        >
+          View all covers
+          <ArrowIcon className="size-4" />
+        </Link>
+        <p aria-live="polite" aria-atomic="true" className="sr-only">
+          {notice}
+        </p>
       </div>
     </div>
   )

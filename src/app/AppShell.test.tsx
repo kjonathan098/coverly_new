@@ -100,13 +100,15 @@ describe('the app shell’s player', () => {
     const carousel = await screen.findByRole('region', { name: 'Featured collections' })
     const [slide] = within(carousel).getAllByRole('group', { hidden: true })
     fireEvent.click(
-      within(slide!).getByRole('button', { name: 'Play Repeat Song 1 by Mara Quill' }),
+      within(slide!).getByRole('button', { name: 'Play song: Repeat Song 1 by Mara Quill' }),
     )
     await waitFor(() => expect(instance.calls).toEqual(['load REPEAT00000']))
     expect(FakePlayer.instances).toEqual([instance])
     expect(within(player()).getByText('Repeat Song 1')).toBeInTheDocument()
     expect(
-      await within(slide!).findByRole('button', { name: 'Pause Repeat Song 1 by Mara Quill' }),
+      await within(slide!).findByRole('button', {
+        name: 'Pause song: Repeat Song 1 by Mara Quill',
+      }),
     ).toBeInTheDocument()
 
     // Back in Discover, the list knows what's playing without being told.

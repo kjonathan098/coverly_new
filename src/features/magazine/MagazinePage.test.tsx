@@ -85,7 +85,7 @@ describe('/magazine (the original homepage design)', () => {
     expect(within(first!).getByRole('heading', { level: 2, name: 'Nostalgic' })).toBeInTheDocument()
     // 7 repeats + paper lanterns + Señales; Mara Quill and Ofelia Ruiz.
     expect(within(first!).getByText('9 covers · 2 cover artists')).toBeInTheDocument()
-    expect(within(first!).getByRole('link', { name: 'Explore the collection' })).toHaveAttribute(
+    expect(within(first!).getByRole('link', { name: 'View all covers' })).toHaveAttribute(
       'href',
       '/discover?mood=nostalgic',
     )
@@ -94,7 +94,7 @@ describe('/magazine (the original homepage design)', () => {
   it('opens Discover on exactly the collection’s covers', async () => {
     serveLargerCatalog()
     const router = renderAt('/magazine')
-    const explore = await screen.findAllByRole('link', { name: 'Explore the collection' })
+    const explore = await screen.findAllByRole('link', { name: 'View all covers' })
     fireEvent.click(explore[0]!)
     expect(await screen.findByText('9 covers match')).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/discover')
@@ -128,7 +128,7 @@ describe('/magazine (the original homepage design)', () => {
     await screen.findByRole('region', { name: 'Featured collections' })
     // Both slides open on the same repeated song; play the one on the visible slide.
     fireEvent.click(
-      within(slides()[0]!).getByRole('button', { name: 'Play Repeat Song 1 by Mara Quill' }),
+      within(slides()[0]!).getByRole('button', { name: 'Play song: Repeat Song 1 by Mara Quill' }),
     )
     await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
     const instance = livePlayer()
@@ -144,8 +144,74 @@ describe('/magazine (the original homepage design)', () => {
     expect(livePlayer()).toBe(instance)
     // The same recording opens the next slide too, and is shown as the one playing there.
     expect(
-      within(slides()[1]!).getByRole('button', { name: 'Pause Repeat Song 1 by Mara Quill' }),
+      within(slides()[1]!).getByRole('button', { name: 'Pause song: Repeat Song 1 by Mara Quill' }),
     ).toBeInTheDocument()
+  })
+
+  it('turns to the next song of the collection, wrapping around, without touching playback', async () => {
+    serveLargerCatalog()
+    renderAt('/magazine')
+    await screen.findByRole('region', { name: 'Featured collections' })
+    const first = slides()[0]!
+    const counter = () => within(first).getByText(/^\d\d \/ \d\d$/).textContent
+    const playButton = () => within(first).getByRole('button', { name: /^Play / })
+    const total = Number(counter()!.split(' / ')[1])
+    expect(counter()).toBe(`01 / ${String(total).padStart(2, '0')}`)
+    const firstSong = playButton().getAttribute('aria-label')
+
+    fireEvent.click(within(first).getByRole('button', { name: 'Next song' }))
+    expect(counter()).toMatch(/^02 \//)
+    expect(playButton().getAttribute('aria-label')).not.toBe(firstSong)
+    // The visible label stays short and the same; the accessible name says which song.
+    expect(playButton()).toHaveTextContent(/^Play song$/)
+    expect(playButton().getAttribute('aria-label')).toMatch(/^Play song: .+ by .+/)
+    expect(within(carousel()).getByText(/^Song 2 of \d+: /)).toBeInTheDocument()
+    // Turning a card plays nothing: there is still no player.
+    expect(screen.queryByRole('complementary', { name: 'Now playing' })).toBeNull()
+
+    for (let i = 1; i < total; i++) {
+      fireEvent.click(within(first).getByRole('button', { name: 'Next song' }))
+    }
+    expect(counter()).toMatch(/^01 \//)
+    expect(playButton()).toHaveAttribute('aria-label', firstSong!)
+  })
+
+  it('plays the song on the card, and opens a collection again on its first song', async () => {
+    serveLargerCatalog()
+    renderAt('/magazine')
+    await screen.findByRole('region', { name: 'Featured collections' })
+    const first = slides()[0]!
+    fireEvent.click(within(first).getByRole('button', { name: 'Next song' }))
+    const song = within(first).getByRole('button', { name: /^Play / })
+    const name = song.getAttribute('aria-label')!.replace(/^Play /, '')
+    fireEvent.click(song)
+    await waitFor(() => expect(livePlayer().iframe.isConnected).toBe(true))
+    expect(within(first).getByRole('button', { name: `Pause ${name}` })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next collection' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Previous collection' }))
+    expect(within(first).getByText(/^01 \//)).toBeInTheDocument()
+  })
+
+  it('ignores Next song while a card is still turning, so the order never skips', async () => {
+    vi.stubGlobal('matchMedia', () => ({ matches: false }))
+    try {
+      serveLargerCatalog()
+      renderAt('/magazine')
+      await screen.findByRole('region', { name: 'Featured collections' })
+      const first = slides()[0]!
+      const next = within(first).getByRole('button', { name: 'Next song' })
+      fireEvent.click(next)
+      fireEvent.click(next)
+      fireEvent.click(next)
+      expect(within(first).getByText(/^02 \//)).toBeInTheDocument()
+      // The turning card is a copy of the outgoing artwork; it goes once the turn ends.
+      await waitFor(() => expect(first.querySelector('.animate-rolodex-turn')).toBeNull())
+      fireEvent.click(next)
+      expect(within(first).getByText(/^03 \//)).toBeInTheDocument()
+    } finally {
+      vi.unstubAllGlobals()
+    }
   })
 
   it('ends with the artists who keep coming back, linked into Discover', async () => {
