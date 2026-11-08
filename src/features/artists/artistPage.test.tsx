@@ -121,19 +121,26 @@ describe('an artist profile', () => {
   })
 })
 
-describe('the header experiment (dev only)', () => {
+describe('the artist header', () => {
   const heroImage = () => document.querySelector<HTMLImageElement>('header img')
   const FAROLES = credit('Señales', 'original') // an original artist only
 
-  it('A, the text header, is the default', async () => {
+  it('B, the header with a performance frame, is the default', async () => {
     renderAt(`/artists/${MARA}`)
+    await screen.findByRole('heading', { level: 1, name: 'Mara Quill' })
+    expect(heroImage()).not.toBeNull()
+    expect(screen.getByRole('button', { name: 'Header b' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('in development, ?hero=a still shows A, the text header', async () => {
+    renderAt(`/artists/${MARA}?hero=a`)
     await screen.findByRole('heading', { level: 1, name: 'Mara Quill' })
     expect(heroImage()).toBeNull()
     expect(screen.getByRole('button', { name: 'Header a' })).toHaveAttribute('aria-pressed', 'true')
   })
 
   it('B shows a frame from one of their own solo performances, falling back to text if none loads', async () => {
-    renderAt(`/artists/${MARA}?hero=b`)
+    renderAt(`/artists/${MARA}`)
     await screen.findByRole('heading', { level: 1, name: 'Mara Quill' })
     // Low Tide is a duet and No Link Yet has no video: Paper Lanterns, performed alone.
     expect(heroImage()).toHaveAttribute(
@@ -151,7 +158,7 @@ describe('the header experiment (dev only)', () => {
   })
 
   it('B keeps the text header for an artist with no performances', async () => {
-    renderAt(`/artists/${FAROLES}?hero=b`)
+    renderAt(`/artists/${FAROLES}`)
     await screen.findByRole('heading', { level: 1, name: 'Los Faroles' })
     expect(heroImage()).toBeNull()
   })

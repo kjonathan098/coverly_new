@@ -118,12 +118,12 @@ Original-artist metadata can stay in the database, but it must not drive the UX.
 - New token `--color-orange` (#ee5a1f, from the sneaker): accents and stickers only.
 - Not `bangerOfTheWeek.ts`: macOS resolves `./BangerOfTheWeek` case-insensitively to it.
 
-## Experiment: artist header A/B (2026-11-07, awaiting the user's choice, not committed)
+## Artist header: B is the default (decided 2026-11-08, committed on `develop`, not merged to `main`)
 
-- Dev-only switch on artist pages: `?hero=a` (text header, production) or `?hero=b`, or the "Header A / Header B" toggle at the header's top right. Production always shows A.
-- B (`artists/ArtistHero.tsx`, `heroVariant.ts`): a frame from one of the artist's own cover performances (a solo one first; `heroSong()`), as a duotone in its genre's ink with a halftone, on the right 68% from tablets (full width on phones, under a stronger fade), fading into ink toward the name. Captioned "From their cover of {title}" (it's a video frame, not a portrait). Tries `maxresdefault`, then `hqdefault`, then falls back to the text header. Original-only artists keep A. From tablets the header is at least 22rem tall.
+- User decision: B is the official artist header. `useHeroVariant()` returns B in production always (`?hero=` is ignored there; nothing is saved in localStorage). In development, `?hero=a` or the "Header A / Header B" toggle still shows A for comparison.
+- B (`artists/ArtistHero.tsx`, `heroVariant.ts`): a frame from one of the artist's own cover performances (a solo one first; `heroSong()`), as a duotone in its genre's ink with a halftone, on the right 68% from tablets (full width on phones, under a stronger fade), fading into ink toward the name. Captioned "From their cover of {title}" (it's a video frame, not a portrait). Tries `maxresdefault`, then `hqdefault`, then falls back to the text header. Original-only artists get the text header. From tablets the header is at least 22rem tall.
 - `youtubeThumbnail()` moved to `songs/thumbnail.ts` (used by `CoverArt` and the hero).
-- Remove the losing variant and the switch once decided.
+- Variant A and the dev switch can be removed later; kept for now at no cost to production.
 
 ## Now Playing information (2026-11-07, desktop design approved)
 
